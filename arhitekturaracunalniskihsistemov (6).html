@@ -1,0 +1,3011 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Arhitektura računalniških sistemov — gradivo za pouk (RSO, sklop 1)</title>
+<style>
+:root{
+  --bg:#f7f7f5; --panel:#ffffff; --ink:#1c1c1a; --muted:#6b6b66;
+  --line:#e2e2dd; --accent:#7a4b2a; --accent-soft:#f2e9e2;
+  --ok:#2e6b45; --ok-soft:#e6f0e9; --warn:#8a5a12; --warn-soft:#faf1e0;
+  --code-bg:#f2f2ef; --max:78ch;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;}
+h1,h2,h3,h4,nav,button,table,.meta,.badge,figcaption{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+
+/* ---------- postavitev ---------- */
+.wrap{display:flex;min-height:100vh}
+#nav{width:290px;flex:0 0 290px;background:var(--panel);border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 60px}
+#nav h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+#nav .brand{font-size:15px;font-weight:700;line-height:1.35;margin:0 0 4px}
+#nav .brandsub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+#nav a{display:block;padding:6px 9px;margin:1px 0;border-radius:6px;text-decoration:none;
+  color:var(--ink);font-size:13.5px;border-left:3px solid transparent}
+#nav a:hover{background:var(--accent-soft)}
+#nav a.active{background:var(--accent-soft);border-left-color:var(--accent);font-weight:600}
+#nav a .num{display:inline-block;width:2.1em;color:var(--muted);font-variant-numeric:tabular-nums}
+
+main{flex:1;min-width:0;padding:40px 44px 120px;max-width:1000px;margin:0 auto}
+
+/* ---------- glava ---------- */
+header.doc{border-bottom:2px solid var(--ink);padding-bottom:22px;margin-bottom:12px}
+header.doc h1{font-size:34px;line-height:1.15;margin:0 0 8px;letter-spacing:-.01em}
+header.doc .sub{color:var(--muted);font-size:15px;margin:0}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.badge{font-size:12px;background:var(--accent-soft);color:var(--accent);
+  padding:4px 10px;border-radius:999px;font-weight:600}
+
+/* ---------- teme ---------- */
+section.tema{margin:0;padding:46px 0 10px;border-top:1px solid var(--line)}
+section.tema:first-of-type{border-top:none}
+section.tema > h2{font-size:25px;margin:0 0 4px;letter-spacing:-.01em}
+section.tema > h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.5em}
+.ure{font-size:12.5px;color:var(--muted);margin:0 0 18px;font-family:-apple-system,sans-serif}
+h3{font-size:18px;margin:30px 0 8px}
+h4{font-size:15px;margin:20px 0 6px;color:var(--accent)}
+p,li{max-width:var(--max)}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 14px;padding-left:22px}
+li{margin:4px 0}
+strong{font-weight:700}
+em.tuj{font-style:italic;color:var(--muted)}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  overflow-x:auto;font-size:13.5px;line-height:1.55;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre .c{color:var(--muted)}
+
+/* ---------- bloki ---------- */
+.cilji{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--accent);
+  border-radius:8px;padding:14px 18px;margin:0 0 22px}
+.cilji h4{margin:0 0 6px;color:var(--accent);font-size:12.5px;letter-spacing:.07em;text-transform:uppercase}
+.cilji ul{margin:0;padding-left:20px}
+.cilji li{font-size:14.5px}
+
+.opomba{background:var(--warn-soft);border-left:4px solid var(--warn);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0}
+.opomba strong{color:var(--warn)}
+.prispodoba{background:var(--ok-soft);border-left:4px solid var(--ok);border-radius:0 8px 8px 0;
+  padding:12px 16px;margin:16px 0}
+.prispodoba strong{color:var(--ok)}
+
+figure{margin:22px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+figure svg{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+
+.tabela{overflow-x:auto;margin:20px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:600;font-size:13px}
+tbody tr:nth-child(even){background:#fafaf8}
+
+/* ---------- vzporedni prikaz C / zbirnik ---------- */
+.vzp{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:18px 0;
+  border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--panel)}
+.vzp > div{padding:0}
+.vzp > div + div{border-left:1px solid var(--line)}
+.vzp h5{margin:0;padding:8px 14px;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+  font-family:-apple-system,sans-serif;border-bottom:1px solid var(--line)}
+.vzp .hc{background:var(--accent-soft);color:var(--accent)}
+.vzp .ha{background:var(--ok-soft);color:var(--ok)}
+.vzp pre{margin:0;border:none;border-radius:0;background:transparent;font-size:12.5px}
+.vzpn{font-size:13px;color:var(--muted);margin:-8px 0 18px;font-family:-apple-system,sans-serif}
+.zgled{margin:26px 0 0}
+.zgled > h4{margin:0 0 6px}
+@media (max-width:820px){ .vzp{grid-template-columns:1fr} .vzp > div + div{border-left:none;border-top:1px solid var(--line)} }
+@media print{ .vzp{page-break-inside:avoid} .vzp pre{font-size:8.4pt} }
+
+/* ---------- vaje ---------- */
+.vaje{margin:26px 0}
+.vaja{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+  padding:14px 18px;margin:0 0 12px}
+.vaja .oz{font-size:12px;font-weight:700;color:var(--accent);letter-spacing:.06em;
+  text-transform:uppercase;font-family:-apple-system,sans-serif}
+.vaja p:last-child{margin-bottom:0}
+details.resitev{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+details.resitev summary{cursor:pointer;font-size:13.5px;font-weight:600;color:var(--accent);
+  font-family:-apple-system,sans-serif;list-style:none}
+details.resitev summary::-webkit-details-marker{display:none}
+details.resitev summary::before{content:"▸ ";display:inline-block;transition:transform .15s}
+details.resitev[open] summary::before{content:"▾ "}
+details.resitev .telo{padding-top:10px;font-size:15px}
+
+/* ---------- kviz ---------- */
+.kviz{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:16px 18px;margin:26px 0}
+.kviz > h4{margin:0 0 12px;color:var(--accent)}
+.q{margin:0 0 18px}
+.q:last-child{margin-bottom:0}
+.q .vpr{font-weight:600;margin:0 0 8px}
+.q button.opt{display:block;width:100%;max-width:640px;text-align:left;margin:5px 0;padding:8px 12px;
+  border:1px solid var(--line);background:#fff;border-radius:7px;cursor:pointer;font-size:14px;
+  color:var(--ink);transition:background .12s,border-color .12s}
+.q button.opt:hover{border-color:var(--accent)}
+.q button.opt.pravilno{background:var(--ok-soft);border-color:var(--ok);font-weight:600}
+.q button.opt.napacno{background:#fbeaea;border-color:#b04a4a}
+.q .fb{display:none;margin-top:8px;font-size:14px;padding:9px 12px;border-radius:7px;
+  background:var(--accent-soft);max-width:640px}
+.q .fb.viden{display:block}
+
+/* ---------- orodna vrstica ---------- */
+#orodja{position:sticky;top:0;z-index:20;background:rgba(247,247,245,.93);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--line);
+  padding:9px 0;margin:-40px -44px 26px;padding-left:44px;padding-right:44px;
+  display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#orodja button{font-size:13px;padding:6px 13px;border:1px solid var(--line);background:#fff;
+  border-radius:7px;cursor:pointer;color:var(--ink)}
+#orodja button:hover{border-color:var(--accent);color:var(--accent)}
+#orodja .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+
+/* ---------- način za tiskanje na zaslonu ---------- */
+body.tisk details.resitev{display:block}
+body.tisk .q .fb{display:block}
+
+/* ---------- tisk ---------- */
+@media print{
+  :root{--bg:#fff;--panel:#fff}
+  body{font-size:10.8pt;line-height:1.45}
+  #nav,#orodja{display:none!important}
+  .wrap{display:block}
+  main{max-width:none;padding:0;margin:0}
+  header.doc{border-bottom:1.5pt solid #000}
+  section.tema{page-break-before:always;border-top:none;padding-top:0}
+  section.tema:first-of-type{page-break-before:avoid}
+  h2,h3,h4{page-break-after:avoid}
+  figure,table,.vaja,.kviz,.cilji{page-break-inside:avoid}
+  details.resitev{display:block}
+  details.resitev > summary{display:none}
+  details.resitev .telo{padding-top:0}
+  details.resitev::before{content:"Rešitev:";font-weight:700;font-size:9.5pt;color:#000}
+  .q .fb{display:block!important;background:#f0f0ee}
+  .q button.opt{border:1px solid #bbb}
+  a{color:#000;text-decoration:none}
+  @page{margin:18mm 16mm}
+}
+
+@media (max-width:900px){
+  .wrap{display:block}
+  #nav{position:static;width:auto;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  main{padding:24px 18px 80px}
+  #orodja{margin:-24px -18px 20px;padding-left:18px;padding-right:18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav id="nav">
+  <p class="brand">Arhitektura računalniških sistemov</p>
+  <p class="brandsub">RSO · obvezni sklop 1 · 35 ur</p>
+  <h2>Teme</h2>
+  <a href="#t0"><span class="num">0</span>Kaj je kaj</a>
+  <a href="#t1"><span class="num">1</span>Zgradba CPE</a>
+  <a href="#t2"><span class="num">2</span>Von Neumann in harvard</a>
+  <a href="#t3"><span class="num">3</span>Pomnilnik</a>
+  <a href="#t4"><span class="num">4</span>Ukaz in strojni cikel</a>
+  <a href="#t5"><span class="num">5</span>CISC in RISC</a>
+  <a href="#t6"><span class="num">6</span>Programski model</a>
+  <a href="#t7"><span class="num">7</span>Načini naslavljanja</a>
+  <a href="#t8"><span class="num">8</span>Zbirnik v praksi</a>
+  <a href="#t9"><span class="num">9</span>V/I sistem</a>
+  <a href="#t10"><span class="num">10</span>Prenos podatkov</a>
+  <a href="#t11"><span class="num">11</span>Odtipavanje in prekinitve</a>
+  <a href="#t12"><span class="num">12</span>Časovniki in števci</a>
+  <h2>Za učitelja</h2>
+  <a href="#standardi">Standardi znanja</a>
+  <a href="#projekt">Projektna naloga</a>
+  <a href="#slovar">Slovarček izrazov</a>
+</nav>
+
+<main>
+
+<div id="orodja">
+  <button onclick="preklopiTisk()" id="btnTisk">Način za tiskanje</button>
+  <button onclick="vseResitve(true)">Odpri vse rešitve</button>
+  <button onclick="vseResitve(false)">Zapri vse rešitve</button>
+  <button onclick="window.print()">Natisni / shrani PDF</button>
+  <span class="sp">Datoteka deluje brez interneta.</span>
+</div>
+
+<header class="doc">
+  <h1>Arhitektura računalniških sistemov</h1>
+  <p class="sub">Učno gradivo za obvezni sklop predmeta Računalniški sistemi in omrežja (tehniška gimnazija, 35 ur)</p>
+  <div class="meta">
+    <span class="badge">13 tem</span>
+    <span class="badge">vaje z rešitvami</span>
+    <span class="badge">kvizi s povratno informacijo</span>
+    <span class="badge">za zaslon in za tisk</span>
+  </div>
+</header>
+
+<p style="margin-top:22px">Gradivo pokriva operativne cilje in standarde znanja iz učnega načrta RSO
+(poglavji 3.1.1 in 4.1.1). Zgrajeno je tako, da vsaka tema stoji sama zase: najprej cilji, nato razlaga
+s shemami, nato vaje s skritimi rešitvami in kratek kviz. Predpostavljeno predznanje je dvojiški zapis
+števil in osnove programiranja; vse ostalo je razloženo od začetka.</p>
+
+<div class="opomba">
+  <strong>Kako uporabljati.</strong> Na zaslonu so rešitve in odgovori skriti — dijak jih odpre sam.
+  Gumb <em>Način za tiskanje</em> razgrne vse naenkrat (uporabno za projekcijo in za pripravo).
+  Gumb <em>Natisni</em> ustvari različico brez menija, z vsako temo na svoji strani in z izpisanimi rešitvami.
+</div>
+
+<!-- ================= TEMA 0 ================= -->
+<section class="tema" id="t0">
+<h2><span class="n">00</span>Kaj je kaj: računalnik, procesor, mikrokrmilnik</h2>
+<p class="ure">Uvodna tema · predlog 2 uri · brez predznanja</p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak loči pojme računalnik, procesor (CPE), mikroprocesor in mikrokrmilnik.</li>
+<li>Ve, zakaj ista snov velja za prenosnik in za majhno vgradno napravo.</li>
+<li>Zna povedati, katera naprava iz vsakdana vsebuje mikrokrmilnik in zakaj.</li>
+</ul>
+</div>
+
+<h3>Tri besede, ki jih dijaki pogosto zamenjujejo</h3>
+<p><strong>Računalnik</strong> je cel sistem: procesor, pomnilnik, vhodne in izhodne naprave, napajanje, ohišje.
+<strong>Procesor</strong> ali <strong>centralna procesna enota (CPE)</strong> je le tisti del, ki izvaja ukaze — možgani sistema.
+Ko je cela CPE stlačena na en sam čip, ji rečemo <strong>mikroprocesor</strong>.</p>
+
+<p><strong>Mikrokrmilnik</strong> gre korak dlje: na enem samem čipu ima <em>poleg</em> procesorja še pomnilnik
+(RAM in ROM/flash), časovnike, vhodno-izhodne priključke in pogosto še pretvornik A/D. Je torej cel
+majhen računalnik na enem čipu.</p>
+
+<div class="opomba">
+<strong>Terminologija.</strong> V slovenski literaturi najdete besedi <em>mikrokrmilnik</em> in <em>mikrokontroler</em> —
+to je isto. Angleško <em class="tuj">microcontroller</em>, kratica <strong>MCU</strong> (<em class="tuj">Micro Controller Unit</em>).
+V gradivu uporabljam <em>mikrokrmilnik</em>, ker je to uveljavljen slovenski izraz, kratico MCU pa zato,
+ker jo dijaki srečajo v vsakem podatkovnem listu.
+</div>
+
+<div class="prispodoba">
+<strong>Prispodoba.</strong> Namizni računalnik je <em>opremljena kuhinja</em>: velika, zmogljiva, naredi
+karkoli — a potrebuje prostor, elektriko in nekoga, ki ve, kaj hoče. Mikrokrmilnik je
+<em>avtomat za kavo</em>: znotraj ima vse potrebno, dela eno stvar, dela jo takoj ob pritisku na gumb,
+porabi malo energije in nikoli se ne "zažene" po dve minuti.
+</div>
+
+<figure>
+<svg viewBox="0 0 720 300" role="img" aria-label="Primerjava zgradbe prenosnika in mikrokrmilnika">
+  <style>
+    .g0-bx{fill:#fff;stroke:#7a4b2a;stroke-width:1.6;rx:6}
+    .g0-bx2{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.6}
+    .g0-lbl{font:12px -apple-system,sans-serif;fill:#1c1c1a}
+    .g0-ttl{font:bold 13px -apple-system,sans-serif;fill:#7a4b2a}
+    .g0-ln{stroke:#6b6b66;stroke-width:1.4;fill:none}
+    .g0-dash{stroke:#7a4b2a;stroke-width:1.6;stroke-dasharray:5 4;fill:none}
+  </style>
+  <text class="g0-ttl" x="20" y="22">Prenosnik — deli so ločeni čipi na plošči</text>
+  <rect class="g0-bx2" x="20" y="36" width="120" height="46"/><text class="g0-lbl" x="46" y="64">CPE</text>
+  <rect class="g0-bx" x="190" y="36" width="120" height="46"/><text class="g0-lbl" x="223" y="64">RAM</text>
+  <rect class="g0-bx" x="190" y="100" width="120" height="46"/><text class="g0-lbl" x="222" y="128">Disk</text>
+  <rect class="g0-bx" x="20" y="100" width="120" height="46"/><text class="g0-lbl" x="42" y="128">Grafika</text>
+  <line class="g0-ln" x1="140" y1="59" x2="190" y2="59"/>
+  <line class="g0-ln" x1="80" y1="82" x2="80" y2="100"/>
+  <line class="g0-ln" x1="250" y1="82" x2="250" y2="100"/>
+  <text class="g0-lbl" x="20" y="176">vsak del svoj čip, povezani z vodili na matični plošči</text>
+
+  <line x1="360" y1="20" x2="360" y2="280" stroke="#e2e2dd" stroke-width="2"/>
+
+  <text class="g0-ttl" x="392" y="22">Mikrokrmilnik — vse na enem čipu</text>
+  <rect class="g0-dash" x="392" y="36" width="300" height="150" rx="8"/>
+  <text class="g0-lbl" x="400" y="52" style="font-size:11px;fill:#7a4b2a">en sam čip (npr. ATmega328P)</text>
+  <rect class="g0-bx2" x="404" y="60" width="86" height="38"/><text class="g0-lbl" x="428" y="84">CPE</text>
+  <rect class="g0-bx" x="500" y="60" width="86" height="38"/><text class="g0-lbl" x="522" y="84">Flash</text>
+  <rect class="g0-bx" x="596" y="60" width="84" height="38"/><text class="g0-lbl" x="619" y="84">RAM</text>
+  <rect class="g0-bx" x="404" y="112" width="86" height="38"/><text class="g0-lbl" x="411" y="136">Časovnik</text>
+  <rect class="g0-bx" x="500" y="112" width="86" height="38"/><text class="g0-lbl" x="529" y="136">V/I</text>
+  <rect class="g0-bx" x="596" y="112" width="84" height="38"/><text class="g0-lbl" x="617" y="136">A/D</text>
+  <text class="g0-lbl" x="392" y="210">porabi ~50 mW, zažene se v mikrosekundah,</text>
+  <text class="g0-lbl" x="392" y="228">izvaja en sam program, ki ga nihče ne zamenja</text>
+</svg>
+<figcaption>Ista teorija, dve izvedbi. Prenosnik razporedi funkcije po ločenih čipih, mikrokrmilnik jih integrira.</figcaption>
+</figure>
+
+<h3>Zakaj se pri predmetu učimo na mikrokrmilniku</h3>
+<p>Sodobni procesor v prenosniku ima več milijard tranzistorjev, več jeder, tri nivoje predpomnilnika,
+predvidevanje vejitev in izvajanje ukazov izven vrstnega reda. Vsega tega ni mogoče razumeti,
+dokler ne razumemo enostavnega primera. Mikrokrmilnik ima isto osnovno zgradbo — CPE, pomnilnik,
+vodila, ukaze, registre, prekinitve — samo brez plasti optimizacij. Kar se naučimo tu, velja tudi zgoraj.</p>
+
+<div class="tabela">
+<table>
+<caption style="text-align:left;font-size:13px;color:#6b6b66;padding-bottom:6px">Primerjava tipičnih vrednosti</caption>
+<thead><tr><th>Lastnost</th><th>Prenosnik (npr. Intel/AMD)</th><th>Mikrokrmilnik (npr. ATmega328P)</th></tr></thead>
+<tbody>
+<tr><td>Arhitektura</td><td>von Neumannova (modificirana)</td><td>harvardska</td></tr>
+<tr><td>Takt</td><td>2–5 GHz</td><td>1–20 MHz</td></tr>
+<tr><td>Delovni pomnilnik</td><td>8–32 GB</td><td>2 kB</td></tr>
+<tr><td>Programski pomnilnik</td><td>disk, stotine GB</td><td>32 kB flash</td></tr>
+<tr><td>Operacijski sistem</td><td>da (Windows, Linux, macOS)</td><td>običajno ne — program teče neposredno</td></tr>
+<tr><td>Poraba</td><td>15–100 W</td><td>0,01–0,1 W</td></tr>
+<tr><td>Cena čipa</td><td>100–600 €</td><td>1–3 €</td></tr>
+<tr><td>Kaj počne</td><td>karkoli, kar naložimo</td><td>eno nalogo, vedno isto</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Kje so mikrokrmilniki v vsakdanu</h3>
+<ul>
+<li><strong>Pralni stroj</strong> — en mikrokrmilnik bere gumbe in tipalo temperature, krmili grelec, ventil in motor po izbranem programu.</li>
+<li><strong>Avto</strong> — od 50 do več kot 100 MCU: krmiljenje motorja, ABS, zračne blazine, električna okna, senzor dežja.</li>
+<li><strong>Telefon</strong> — glavni čip je pravi procesor z operacijskim sistemom, poleg njega pa je vrsta MCU za polnjenje baterije, tipalo prstnega odtisa, radijske dele.</li>
+<li><strong>Mikrovalovka, daljinec, tipkovnica, električna zobna ščetka, LED žarnica s senzorjem</strong> — povsod isto.</li>
+</ul>
+<p>Na svetu se letno proda nekaj deset milijard mikrokrmilnikov, medtem ko je osebnih računalnikov
+nekaj sto milijonov. Večina računalnikov, ki jih uporabljamo, torej sploh ni videti kot računalnik.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 0.1</p>
+<p>Naštej pet naprav v svojem domu, ki po tvoji oceni vsebujejo mikrokrmilnik, in za vsako napiši,
+kateri vhod bere in kateri izhod krmili.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Primeri: <em>termostat</em> — vhod: tipalo temperature in nastavitev uporabnika, izhod: rele za peč.
+<em>Daljinec</em> — vhod: tipke, izhod: infrardeča LED. <em>Pomivalni stroj</em> — vhod: tipke, tipalo temperature,
+tipalo nivoja vode; izhod: črpalka, grelec, ventil. <em>Tiskalnik</em> — vhod: podatki po USB, tipala papirja;
+izhod: koračni motorji, grelec. <em>Ura na kolesu</em> — vhod: magnetni senzor; izhod: LCD.
+Ključno pri vrednotenju: dijak mora znati ločiti vhod (merjenje/branje) od izhoda (krmiljenje/prikaz).</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 0.2</p>
+<p>Zakaj v pralni stroj ne vgradijo procesorja iz prenosnika, čeprav bi bil neprimerno hitrejši?
+Navedi vsaj tri razloge.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>(1) <strong>Cena</strong> — procesor bi stal več kot cel stroj. (2) <strong>Poraba in hlajenje</strong> — potreboval bi ventilator
+in napajalnik, mikrokrmilnik pa se ne segreje. (3) <strong>Zanesljivost in odzivnost</strong> — operacijski sistem
+se zažene več sekund in lahko zablokira; program v MCU teče takoj in vedno enako dolgo.
+(4) <strong>Nepotrebna zmogljivost</strong> — naloga zahteva branje nekaj tipal in vklop nekaj izhodov,
+za kar zadošča 16 MHz. (5) <strong>Življenjska doba</strong> — stroj mora delovati 15 let; MCU tipa se izdeluje desetletja.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 0.3</p>
+<p>Dopolni: "Mikroprocesor je ______, mikrokrmilnik pa ______." Nato razloži, kaj mora poleg mikroprocesorja
+biti na plošči, da dobimo delujoč sistem, in česa pri mikrokrmilniku ni treba dodajati.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>"Mikroprocesor je <strong>CPE na enem čipu</strong>, mikrokrmilnik pa <strong>cel računalnik na enem čipu</strong>."
+K mikroprocesorju je treba dodati vsaj: pomnilnik RAM, pomnilnik za program (ROM/flash),
+vezje za uro (oscilator), vezja za vhod/izhod in napajanje. Mikrokrmilnik ima RAM, flash,
+oscilator, časovnike in V/I vrata že vgrajene — od zunaj potrebuje samo napajanje in po potrebi kristal.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="2">
+<p class="vpr">1. Kaj od naštetega <em>ni</em> del mikrokrmilnika ATmega328P?</p>
+<button class="opt">Pomnilnik flash za program</button>
+<button class="opt">Časovnik</button>
+<button class="opt">Trdi disk</button>
+<button class="opt">Pomnilnik RAM</button>
+<div class="fb">Pravilno je <strong>trdi disk</strong>. Mikrokrmilnik program hrani v vgrajenem flashu, podatke pa v vgrajenem RAM-u; zunanjega diska nima in ga ne potrebuje.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Katera trditev o mikrokrmilniku drži?</p>
+<button class="opt">Vedno potrebuje operacijski sistem.</button>
+<button class="opt">Program se izvaja neposredno, brez operacijskega sistema.</button>
+<button class="opt">Nima registrov.</button>
+<button class="opt">Uporablja izključno von Neumannovo arhitekturo.</button>
+<div class="fb">Program v MCU se običajno izvaja <strong>neposredno na strojni opremi</strong>. Registre ima (brez njih ne bi mogel računati), večina MCU pa uporablja <strong>harvardsko</strong> arhitekturo.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Zakaj se osnov arhitekture učimo na mikrokrmilniku in ne na procesorju iz prenosnika?</p>
+<button class="opt">Ker sodobni procesorji nimajo registrov ne vodil.</button>
+<button class="opt">Ker ima MCU isto osnovno zgradbo, a brez plasti optimizacij, ki zameglijo sliko.</button>
+<button class="opt">Ker mikrokrmilniki delujejo po drugačnih fizikalnih zakonih.</button>
+<div class="fb">Točno tako: <strong>ista zgradba, manj zapletenosti</strong>. Predpomnilniki, večjedrnost in izvajanje izven vrstnega reda so nadgradnja istih osnov, ne nadomestilo zanje.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 1 ================= -->
+<section class="tema" id="t1">
+<h2><span class="n">01</span>Zgradba centralne procesne enote</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>opiše elemente zgradbe CPE, opredeli vlogo elementov</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak opiše krmilno enoto, aritmetično-logično enoto in registre ter njihovo vlogo.</li>
+<li>Loči naslovno, podatkovno in krmilno vodilo ter zna povedati, kaj po vsakem potuje in v katero smer.</li>
+<li>Poveže širino naslovnega vodila z največjim naslovljivim pomnilnikom.</li>
+</ul>
+</div>
+
+<h3>Trije deli CPE</h3>
+<p>Ne glede na proizvajalca in starost ima vsaka CPE tri skupine elementov:</p>
+<ul>
+<li><strong>Krmilna enota (KE)</strong>, angl. <em class="tuj">control unit</em> — prebere ukaz, ga razčleni (dekodira) in v pravem
+vrstnem redu prižge signale, ki povedo ostalim delom, kaj naj naredijo. Sama ne računa; ona dirigira.</li>
+<li><strong>Aritmetično-logična enota (ALE)</strong>, angl. <em class="tuj">ALU</em> — edini del, ki dejansko računa:
+sešteva, odšteva, primerja, izvaja IN, ALI, NE, XOR in pomike. Ob vsakem rezultatu postavi še zastavice
+(o teh v temi 6).</li>
+<li><strong>Registri</strong> — zelo majhen in zelo hiter pomnilnik znotraj CPE. Tu ležijo podatki, s katerimi
+CPE prav zdaj dela.</li>
+</ul>
+<p>Poleg tega je v CPE še <strong>urni signal</strong>, ki vse skupaj taktira, in <strong>vmesnik do vodil</strong>.</p>
+
+<figure>
+<svg viewBox="0 0 760 340" role="img" aria-label="Shema CPE z vodili do pomnilnika in vhodno-izhodnih naprav">
+<style>
+ .g1-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.6}
+ .g1-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.6}
+ .g1-t{font:12.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g1-tb{font:bold 12.5px -apple-system,sans-serif;fill:#7a4b2a}
+ .g1-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g1-a{stroke:#1c1c1a;stroke-width:1.6;fill:none;marker-end:url(#ar)}
+ .g1-a2{stroke:#1c1c1a;stroke-width:1.6;fill:none;marker-end:url(#ar);marker-start:url(#ar2)}
+</style>
+<defs>
+ <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+   <path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker>
+ <marker id="ar2" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto">
+   <path d="M9,0 L0,4.5 L9,9 z" fill="#1c1c1a"/></marker>
+</defs>
+
+<rect class="g1-b" x="16" y="16" width="250" height="200" rx="8" stroke-dasharray="5 4"/>
+<text class="g1-tb" x="28" y="36">CPE</text>
+<rect class="g1-bf" x="34" y="48" width="100" height="44" rx="5"/><text class="g1-t" x="46" y="68">krmilna</text><text class="g1-t" x="52" y="83">enota</text>
+<rect class="g1-bf" x="150" y="48" width="100" height="44" rx="5"/><text class="g1-t" x="188" y="75">ALE</text>
+<rect class="g1-b" x="34" y="110" width="216" height="86" rx="5"/>
+<text class="g1-tb" x="44" y="128">registri</text>
+<text class="g1-ts" x="44" y="146">PC · IR · SREG · SP</text>
+<text class="g1-ts" x="44" y="163">R0 … R31 (splošnonamenski)</text>
+<text class="g1-ts" x="44" y="182">akumulator, kazalci X/Y/Z</text>
+
+<text class="g1-tb" x="300" y="112">vodila</text>
+<line class="g1-a" x1="266" y1="140" x2="452" y2="140"/><text class="g1-ts" x="290" y="134">naslovno (enosmerno)</text>
+<line class="g1-a2" x1="270" y1="172" x2="452" y2="172"/><text class="g1-ts" x="290" y="166">podatkovno (dvosmerno)</text>
+<line class="g1-a2" x1="270" y1="204" x2="452" y2="204"/><text class="g1-ts" x="290" y="198">krmilno (branje/pisanje, takt)</text>
+
+<line x1="456" y1="60" x2="456" y2="204" stroke="#1c1c1a" stroke-width="2.4"/>
+<line class="g1-a" x1="456" y1="60" x2="516" y2="60"/>
+<line class="g1-a" x1="456" y1="176" x2="516" y2="176"/>
+<rect class="g1-b" x="520" y="34" width="150" height="52" rx="6"/><text class="g1-t" x="556" y="65">Pomnilnik</text>
+<rect class="g1-b" x="520" y="150" width="150" height="52" rx="6"/><text class="g1-t" x="546" y="175">V/I naprave</text><text class="g1-ts" x="543" y="192">tipke, LED, UART</text>
+
+<text class="g1-ts" x="16" y="248">Naslovno vodilo pove KAM, podatkovno KAJ, krmilno pa KDAJ in ALI BEREMO ALI PIŠEMO.</text>
+<text class="g1-ts" x="16" y="270">Širina naslovnega vodila določa velikost naslovnega prostora: n bitov → 2ⁿ naslovov.</text>
+<text class="g1-ts" x="16" y="292">Širina podatkovnega vodila določa, koliko bitov prenesemo naenkrat (8, 16, 32, 64).</text>
+</svg>
+<figcaption>CPE, pomnilnik in V/I naprave so povezani s tremi vodili. Vsa vodila so skupna — po njih hkrati govori le en udeleženec.</figcaption>
+</figure>
+
+<h3>Vodila</h3>
+<p><strong>Vodilo</strong> (angl. <em class="tuj">bus</em>) je snop vzporednih vodnikov, po katerem hkrati potuje več bitov.</p>
+<div class="tabela">
+<table>
+<thead><tr><th>Vodilo</th><th>Kaj prenaša</th><th>Smer</th><th>Kaj določa širina</th></tr></thead>
+<tbody>
+<tr><td>Naslovno</td><td>naslov pomnilniške celice ali naprave</td><td>enosmerno: CPE → pomnilnik</td><td>koliko naslovov lahko dosežemo (2<sup>n</sup>)</td></tr>
+<tr><td>Podatkovno</td><td>vsebino — podatek ali ukaz</td><td>dvosmerno</td><td>koliko bitov prenesemo naenkrat</td></tr>
+<tr><td>Krmilno</td><td>signale: beri, piši, ura, zahteva za prekinitev, reset</td><td>mešano</td><td>katere operacije so sploh mogoče</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Ključni izračun.</strong> Pri naslovnem vodilu širine <em>n</em> bitov lahko naslovimo 2<sup>n</sup> celic.
+16 bitov → 2<sup>16</sup> = 65 536 = 64 kB. 32 bitov → 4 GB. To je tudi zgodovinski razlog, zakaj so
+32-bitni sistemi obtičali pri 4 GB pomnilnika.
+</div>
+
+<h3>Kaj se zgodi pri enem branju iz pomnilnika</h3>
+<ol>
+<li>KE postavi naslov na <strong>naslovno vodilo</strong>.</li>
+<li>KE aktivira signal <em>beri</em> na <strong>krmilnem vodilu</strong>.</li>
+<li>Pomnilnik po nekaj nanosekundah postavi vsebino na <strong>podatkovno vodilo</strong>.</li>
+<li>CPE prebrano vrednost prepiše v register.</li>
+</ol>
+<p>Pri pisanju je razlika le v koraku 2 (signal <em>piši</em>) in v tem, da vsebino na podatkovno vodilo
+postavi CPE, ne pomnilnik.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 1.1</p>
+<p>Sistem ima 20-bitno naslovno in 8-bitno podatkovno vodilo. Koliko pomnilniških celic lahko naslovi
+in kolikšen je največji pomnilnik v bajtih?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>2<sup>20</sup> = 1 048 576 celic. Ker je podatkovno vodilo 8-bitno, je vsaka celica 1 bajt,
+torej največ <strong>1 MB</strong> (to je bil ravno naslovni prostor procesorja Intel 8086).</p>
+<figure>
+<svg viewBox="0 0 900 640" role="img"
+     aria-label="Razlaga vaje: 20-bitno naslovno in 8-bitno podatkovno vodilo dasta 1 MB pomnilnika">
+<style>
+  .g13-bg    { fill:#f7f7f5 }
+  .g13-panel { fill:#ffffff; stroke:#e2e2dd; stroke-width:1.5; rx:10 }
+  .g13-panelf{ fill:#f2e9e2; stroke:#7a4b2a; stroke-width:1.5; rx:10 }
+  .g13-box   { fill:#ffffff; stroke:#7a4b2a; stroke-width:1.8; rx:6 }
+  .g13-boxf  { fill:#f2e9e2; stroke:#7a4b2a; stroke-width:1.8; rx:6 }
+  .g13-bit   { fill:#e6f0e9; stroke:#2e6b45; stroke-width:1.5 }
+  .g13-cell  { fill:#ffffff; stroke:#7a4b2a; stroke-width:1.3 }
+  .g13-cellf { fill:#f2e9e2; stroke:#7a4b2a; stroke-width:1.3 }
+
+  .g13-h1  { font:bold 21px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; fill:#1c1c1a }
+  .g13-h2  { font:bold 14px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#7a4b2a }
+  .g13-t   { font:13px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#1c1c1a }
+  .g13-ts  { font:11.5px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#6b6b66 }
+  .g13-tm  { font:12.5px ui-monospace,Menlo,Consolas,monospace; fill:#1c1c1a }
+  .g13-tms { font:11px ui-monospace,Menlo,Consolas,monospace; fill:#6b6b66 }
+  .g13-big { font:bold 19px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#7a4b2a }
+  .g13-grn { font:bold 14px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#2e6b45 }
+  .g13-num { font:bold 15px -apple-system,"Segoe UI",Roboto,Arial,sans-serif; fill:#ffffff }
+
+  .g13-wire  { stroke:#7a4b2a; stroke-width:1.2; fill:none }
+  .g13-wireg { stroke:#2e6b45; stroke-width:1.2; fill:none }
+  .g13-arr   { stroke:#1c1c1a; stroke-width:1.8; fill:none; marker-end:url(#tip13) }
+</style>
+<defs>
+  <marker id="tip13" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+    <path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/>
+  </marker>
+</defs>
+
+<rect class="g13-bg" x="0" y="0" width="900" height="640"/>
+
+<text class="g13-h1" x="30" y="36">20-bitno naslovno + 8-bitno podatkovno vodilo</text>
+<text class="g13-ts" x="30" y="56">Naslovno vodilo določa, koliko celic je. Podatkovno vodilo določa, kako široka je ena celica. Šele oboje skupaj da velikost pomnilnika.</text>
+
+<!-- ============ PANEL 1 ============ -->
+<rect class="g13-panel" x="24" y="72" width="852" height="212"/>
+<circle cx="48" cy="98" r="13" fill="#7a4b2a"/><text class="g13-num" x="43" y="104">1</text>
+<text class="g13-h2" x="70" y="103">Naslovno vodilo — KOLIKO celic lahko dosežemo</text>
+
+<rect class="g13-boxf" x="46" y="130" width="94" height="66"/>
+<text class="g13-t" x="80" y="169">CPE</text>
+
+<!-- snop 20 naslovnih vodnikov -->
+<path class="g13-wire" d="M140,140 L232,140"/>
+<path class="g13-wire" d="M140,147 L232,147"/>
+<path class="g13-wire" d="M140,154 L232,154"/>
+<path class="g13-wire" d="M140,161 L232,161"/>
+<path class="g13-wire" d="M140,168 L232,168"/>
+<path class="g13-wire" d="M140,175 L232,175"/>
+<path class="g13-wire" d="M140,182 L232,182"/>
+<line class="g13-arr" x1="140" y1="189" x2="238" y2="189"/>
+<text class="g13-ts" x="142" y="132">20 vodnikov (A0–A19)</text>
+<text class="g13-ts" x="46" y="228">vsak vodnik nosi en bit naslova</text>
+
+<!-- preslikava naslov -> celica -->
+<text class="g13-ts" x="292" y="130">naslov (20 bitov)</text>
+<text class="g13-ts" x="544" y="130">izbrana celica</text>
+
+<text class="g13-tm" x="292" y="152">0000 0000 0000 0000 0000</text>
+<line class="g13-arr" x1="488" y1="148" x2="520" y2="148"/>
+<text class="g13-tm" x="544" y="152">celica 0</text>
+
+<text class="g13-tm" x="292" y="176">0000 0000 0000 0000 0001</text>
+<line class="g13-arr" x1="488" y1="172" x2="520" y2="172"/>
+<text class="g13-tm" x="544" y="176">celica 1</text>
+
+<text class="g13-tm" x="292" y="200">0000 0000 0000 0000 0010</text>
+<line class="g13-arr" x1="488" y1="196" x2="520" y2="196"/>
+<text class="g13-tm" x="544" y="200">celica 2</text>
+
+<text class="g13-tms" x="292" y="224">⋮</text>
+<text class="g13-tms" x="544" y="224">⋮</text>
+
+<text class="g13-tm" x="292" y="252">1111 1111 1111 1111 1111</text>
+<line class="g13-arr" x1="488" y1="248" x2="520" y2="248"/>
+<text class="g13-tm" x="544" y="252">celica 1 048 575</text>
+
+<line x1="676" y1="126" x2="676" y2="266" stroke="#e2e2dd" stroke-width="1.5"/>
+<text class="g13-ts" x="700" y="160">20 bitov → 2²⁰ kombinacij</text>
+<text class="g13-big" x="700" y="192">2²⁰ = 1 048 576</text>
+<text class="g13-ts" x="700" y="212">naslovljivih celic</text>
+<text class="g13-ts" x="700" y="240">Štejemo od 0, zato je zadnji</text>
+<text class="g13-ts" x="700" y="256">naslov 1 048 575, ne 1 048 576.</text>
+
+<!-- ============ PANEL 2 ============ -->
+<rect class="g13-panel" x="24" y="300" width="852" height="182"/>
+<circle cx="48" cy="326" r="13" fill="#7a4b2a"/><text class="g13-num" x="43" y="332">2</text>
+<text class="g13-h2" x="70" y="331">Podatkovno vodilo — KAKO ŠIROKA je ena celica</text>
+
+<rect class="g13-boxf" x="46" y="356" width="94" height="66"/>
+<text class="g13-t" x="80" y="395">CPE</text>
+
+<!-- 8 podatkovnih vodnikov -->
+<path class="g13-wireg" d="M140,364 L296,364"/>
+<path class="g13-wireg" d="M140,372 L296,372"/>
+<path class="g13-wireg" d="M140,380 L296,380"/>
+<path class="g13-wireg" d="M140,388 L296,388"/>
+<path class="g13-wireg" d="M140,396 L296,396"/>
+<path class="g13-wireg" d="M140,404 L296,404"/>
+<path class="g13-wireg" d="M140,412 L296,412"/>
+<path class="g13-wireg" d="M140,420 L296,420"/>
+<line class="g13-arr" x1="240" y1="392" x2="306" y2="392"/>
+<text class="g13-ts" x="150" y="356">D0 … D7 — 8 vodnikov</text>
+
+<!-- ena celica = 8 bitov -->
+<text class="g13-ts" x="316" y="356">ena pomnilniška celica</text>
+<rect class="g13-bit" x="316" y="366" width="30" height="34"/><text class="g13-tm" x="327" y="389">1</text>
+<rect class="g13-bit" x="346" y="366" width="30" height="34"/><text class="g13-tm" x="357" y="389">0</text>
+<rect class="g13-bit" x="376" y="366" width="30" height="34"/><text class="g13-tm" x="387" y="389">1</text>
+<rect class="g13-bit" x="406" y="366" width="30" height="34"/><text class="g13-tm" x="417" y="389">1</text>
+<rect class="g13-bit" x="436" y="366" width="30" height="34"/><text class="g13-tm" x="447" y="389">0</text>
+<rect class="g13-bit" x="466" y="366" width="30" height="34"/><text class="g13-tm" x="477" y="389">0</text>
+<rect class="g13-bit" x="496" y="366" width="30" height="34"/><text class="g13-tm" x="507" y="389">1</text>
+<rect class="g13-bit" x="526" y="366" width="30" height="34"/><text class="g13-tm" x="537" y="389">0</text>
+<path class="g13-wireg" d="M316,410 L316,418 L556,418 L556,410" stroke-width="1.6"/>
+<text class="g13-grn" x="366" y="438">8 bitov = 1 bajt</text>
+
+<line x1="676" y1="346" x2="676" y2="462" stroke="#e2e2dd" stroke-width="1.5"/>
+<text class="g13-ts" x="700" y="376">Podatkovno vodilo je široko 8 bitov,</text>
+<text class="g13-ts" x="700" y="394">zato CPE naenkrat prenese 8 bitov.</text>
+<text class="g13-big" x="700" y="426">1 celica = 1 B</text>
+<text class="g13-ts" x="700" y="448">Pri 16-bitnem vodilu bi bila 2 B.</text>
+
+<!-- ============ PANEL 3 ============ -->
+<rect class="g13-panelf" x="24" y="498" width="852" height="118"/>
+<circle cx="48" cy="524" r="13" fill="#7a4b2a"/><text class="g13-num" x="43" y="530">3</text>
+<text class="g13-h2" x="70" y="529">Skupaj</text>
+
+<text class="g13-t" x="70" y="562">1 048 576 celic</text>
+<text class="g13-t" x="196" y="562">×</text>
+<text class="g13-t" x="222" y="562">1 bajt na celico</text>
+<text class="g13-t" x="348" y="562">=</text>
+<text class="g13-t" x="374" y="562">1 048 576 B</text>
+<text class="g13-t" x="482" y="562">=</text>
+<text class="g13-t" x="508" y="562">1024 kB</text>
+<text class="g13-t" x="586" y="562">=</text>
+<text class="g13-big" x="612" y="564">1 MB</text>
+
+<text class="g13-ts" x="70" y="590">To je natanko naslovni prostor procesorja Intel 8086 (1978) — od tod znamenita meja 640 kB uporabnega pomnilnika v zgodnjih PC-jih,</text>
+<text class="g13-ts" x="70" y="606">saj je bil zgornji del tega enega megabajta rezerviran za grafiko in BIOS.</text>
+</svg>
+<figcaption>Dve neodvisni vprašanji: naslovno vodilo določa število celic, podatkovno njihovo širino. Šele zmnožek da velikost pomnilnika.</figcaption>
+</figure>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 1.2</p>
+<p>Koliko bitov mora imeti naslovno vodilo, da lahko naslovimo 4 GB bajtno organiziranega pomnilnika?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>4 GB = 2<sup>32</sup> bajtov, torej <strong>32 bitov</strong>. Za 8 GB bi potrebovali 33 bitov —
+zato 32-bitni sistemi brez posebnih trikov ne morejo uporabiti več kot 4 GB.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 1.3</p>
+<p>Zakaj je naslovno vodilo enosmerno, podatkovno pa dvosmerno? Kaj bi se zgodilo, če bi bilo
+naslovno vodilo dvosmerno?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Naslov vedno določa CPE (ona pove, kam gre), zato ni potrebe, da bi ga pomnilnik pošiljal nazaj.
+Podatki pa gredo v obe smeri: pri branju iz pomnilnika v CPE, pri pisanju obratno — zato dvosmerno.
+Dvosmerno naslovno vodilo bi pomenilo, da bi tudi pomnilnik lahko določal naslove, kar bi vodilo v
+spore na vodilu in bi zahtevalo dodatno arbitražo brez vsakršne koristi. (Izjema, ki jo velja omeniti:
+pri DMA naslove res postavlja druga naprava — a tudi tam vodilo v danem trenutku krmili le en gospodar.)</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 1.4</p>
+<p>Za vsako opravilo napiši, kateri del CPE ga izvede: (a) seštevanje dveh števil, (b) branje naslednjega
+ukaza iz pomnilnika, (c) hranjenje vmesnega rezultata, (d) odločitev, ali se skok izvede.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>(a) ALE. (b) KE (postavi naslov iz PC in sproži branje). (c) register. (d) KE — na podlagi zastavic,
+ki jih je postavila ALE. Točka (d) je pogosta past: <em>ALE postavi zastavico, KE se odloči.</em></p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Kateri del CPE dekodira ukaz?</p>
+<button class="opt">ALE</button><button class="opt">Krmilna enota</button>
+<button class="opt">Register SREG</button><button class="opt">Podatkovno vodilo</button>
+<div class="fb"><strong>Krmilna enota.</strong> Ona prebere opkodo, ugotovi, za kateri ukaz gre, in v pravem zaporedju prižge krmilne signale.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Naslovno vodilo je široko 24 bitov. Največji naslovni prostor je:</p>
+<button class="opt">24 MB</button><button class="opt">16 MB</button><button class="opt">64 kB</button><button class="opt">4 GB</button>
+<div class="fb">2<sup>24</sup> = 16 777 216 → <strong>16 MB</strong>. Bodite pozorni: potenca dvojke, ne število bitov krat nekaj.</div>
+</div>
+<div class="q" data-pravilen="2">
+<p class="vpr">3. Po katerem vodilu potuje signal "beri iz pomnilnika"?</p>
+<button class="opt">Po naslovnem</button><button class="opt">Po podatkovnem</button><button class="opt">Po krmilnem</button>
+<div class="fb">Po <strong>krmilnem</strong>. Naslovno nosi naslov, podatkovno vsebino, krmilno pa ukaze o tem, kaj naj se z njima zgodi.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 2 ================= -->
+<section class="tema" id="t2">
+<h2><span class="n">02</span>Von Neumannova in harvardska arhitektura</h2>
+<p class="ure">Predlog 2 uri · standard znanja: <em>opiše harvardsko arhitekturo in njene sestavne dele</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak opiše obe arhitekturi in ju zna narisati.</li>
+<li>Pojasni von Neumannovo ozko grlo in kako ga harvardska arhitektura odpravi.</li>
+<li>Ve, kaj je modificirana harvardska arhitektura in zakaj je danes najpogostejša.</li>
+</ul>
+</div>
+
+<h3>Ena osrednja ideja: shranjeni program</h3>
+<p>Pred letom 1945 so računalnike "programirali" s prevezovanjem kablov. Von Neumannova zamisel je bila,
+da <strong>program shranimo v pomnilnik enako kot podatke</strong>. Od takrat je zamenjava programa le
+zapis drugih števil v pomnilnik — in prav zato so računalniki univerzalni stroji.</p>
+
+<figure>
+<svg viewBox="0 0 760 250" role="img" aria-label="Primerjava von Neumannove in harvardske arhitekture">
+<style>
+ .g2-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.6}
+ .g2-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.6}
+ .g2-t{font:12.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g2-tb{font:bold 13px -apple-system,sans-serif;fill:#7a4b2a}
+ .g2-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g2-ln{stroke:#1c1c1a;stroke-width:2;fill:none}
+ .g2-lnr{stroke:#b04a4a;stroke-width:3;fill:none}
+</style>
+<text class="g2-tb" x="20" y="20">Von Neumannova</text>
+<rect class="g2-bf" x="20" y="34" width="90" height="48" rx="5"/><text class="g2-t" x="52" y="63">CPE</text>
+<rect class="g2-b" x="200" y="34" width="130" height="48" rx="5"/>
+<text class="g2-t" x="212" y="56">en pomnilnik:</text><text class="g2-ts" x="212" y="72">ukazi + podatki</text>
+<line class="g2-lnr" x1="110" y1="58" x2="200" y2="58"/>
+<text class="g2-ts" x="112" y="50" fill="#b04a4a">eno vodilo</text>
+<text class="g2-ts" x="20" y="108">Ukaz in podatek si delita isto pot — v enem</text>
+<text class="g2-ts" x="20" y="124">taktu gre lahko skozi le eden. To je</text>
+<text class="g2-ts" x="20" y="140" fill="#b04a4a">von Neumannovo ozko grlo.</text>
+<text class="g2-ts" x="20" y="166">+ enostavneje, ceneje, program lahko</text>
+<text class="g2-ts" x="20" y="182">   spreminja sam sebe, prosta delitev pomnilnika</text>
+<text class="g2-ts" x="20" y="198">− počasneje pri velikih pretokih podatkov</text>
+
+<line x1="392" y1="8" x2="392" y2="240" stroke="#e2e2dd" stroke-width="2"/>
+
+<text class="g2-tb" x="420" y="20">Harvardska</text>
+<rect class="g2-bf" x="420" y="52" width="90" height="48" rx="5"/><text class="g2-t" x="452" y="81">CPE</text>
+<rect class="g2-b" x="600" y="20" width="140" height="44" rx="5"/><text class="g2-t" x="614" y="47">pomnilnik ukazov</text>
+<rect class="g2-b" x="600" y="88" width="140" height="44" rx="5"/><text class="g2-t" x="608" y="115">pomnilnik podatkov</text>
+<line class="g2-ln" x1="510" y1="66" x2="600" y2="42"/>
+<line class="g2-ln" x1="510" y1="86" x2="600" y2="110"/>
+<text class="g2-ts" x="420" y="152">Ločena pomnilnika in ločeni vodili — v istem</text>
+<text class="g2-ts" x="420" y="168">taktu lahko CPE bere ukaz IN podatek.</text>
+<text class="g2-ts" x="420" y="192">+ hitreje, ukazi in podatki so lahko različno široki</text>
+<text class="g2-ts" x="420" y="208">+ programa ni mogoče po nesreči prepisati</text>
+<text class="g2-ts" x="420" y="224">− več vodnikov, pomnilnika ni mogoče prerazporediti</text>
+</svg>
+<figcaption>Razlika je v tem, ali sta ukazni in podatkovni pomnilnik ločena ter ali imata svoji vodili.</figcaption>
+</figure>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Lastnost</th><th>Von Neumannova</th><th>Harvardska</th></tr></thead>
+<tbody>
+<tr><td>Pomnilnik</td><td>en skupen</td><td>dva ločena</td></tr>
+<tr><td>Vodila</td><td>eno</td><td>dve neodvisni</td></tr>
+<tr><td>Hkratno branje ukaza in podatka</td><td>ne</td><td>da</td></tr>
+<tr><td>Širina ukaza in podatka</td><td>mora biti enaka</td><td>je lahko različna (npr. 16-bitni ukaz, 8-bitni podatek)</td></tr>
+<tr><td>Program lahko spreminja sam sebe</td><td>da</td><td>ne (oz. samo s posebnimi ukazi)</td></tr>
+<tr><td>Zapletenost in cena</td><td>manjša</td><td>večja</td></tr>
+<tr><td>Tipična raba</td><td>osebni računalniki, strežniki, telefoni</td><td>mikrokrmilniki, digitalni signalni procesorji</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prispodoba">
+<strong>Prispodoba za ozko grlo.</strong> Von Neumann je enopasovna cesta: recept in sestavine potujejo po isti
+cesti in se izmenjujejo. Harvard sta dve vzporedni cesti: kuhar hkrati dobi naslednji korak recepta
+in naslednjo sestavino.
+</div>
+
+<h3>Modificirana harvardska arhitektura</h3>
+<p>Čisti obliki sta v praksi redki. Sodoben procesor v prenosniku ima <strong>en glavni pomnilnik</strong>
+(von Neumann), a <strong>ločena predpomnilnika</strong> L1 za ukaze in za podatke (harvard). Navzven se
+torej obnaša kot von Neumannov, znotraj pa žanje prednost harvardskega. Temu rečemo
+<strong>modificirana harvardska arhitektura</strong>.</p>
+<p>Tudi mikrokrmilniki AVR so modificirani harvardski: ukazi so v flashu, podatki v RAM-u, a posebni ukazi
+(npr. <code>LPM</code>) omogočajo branje konstant iz programskega pomnilnika — sicer nizov besedila
+ne bi mogli hraniti drugje kot v dragocenem RAM-u.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 2.1</p>
+<p>Nariši shemo obeh arhitektur in ob vsako pripiši, koliko dostopov do pomnilnika je potrebnih
+za ukaz "preberi vrednost z naslova 100 in jo prištej registru".</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>V obeh primerih sta potrebna dva dostopa: eden za ukaz, eden za podatek. Razlika je v <strong>času</strong>:
+von Neumann ju mora izvesti zaporedno po istem vodilu, harvard pa lahko hkrati po dveh vodilih.
+Pri von Neumannu torej dva takta, pri harvardu potencialno eden.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 2.2</p>
+<p>Zakaj virus, ki bi hotel prepisati program med izvajanjem, na čisti harvardski arhitekturi
+ne more delovati?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ker programski pomnilnik ni v istem naslovnem prostoru kot podatkovni: ukaz za pisanje v pomnilnik
+zapiše v podatkovni RAM in do flasha s programom sploh ne more. Napad tipa "prepiši kodo z novo kodo"
+nima poti. To je tudi razlog, da se na osebnih računalnikih uporablja zaščita <em class="tuj">NX bit</em> —
+z njo umetno dosežemo podoben učinek na von Neumannovi arhitekturi.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 2.3</p>
+<p>Pri AVR je ukaz širok 16 bitov, podatkovna beseda pa 8 bitov. Zakaj je to na von Neumannovi
+arhitekturi neroden, na harvardski pa ne?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Pri von Neumannu si ukazi in podatki delijo isto vodilo, ki mora imeti eno širino. 16-bitni ukaz
+bi zahteval dva dostopa po 8-bitnem vodilu ali pa bi 8-bitni podatki tratili polovico 16-bitnega vodila.
+Pri harvardu je vsako vodilo lahko svoje širine, ker sta pomnilnika ločena — 16 bitov za ukaze, 8 za podatke.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Von Neumannovo ozko grlo nastane, ker:</p>
+<button class="opt">je pomnilnik premajhen</button>
+<button class="opt">si ukazi in podatki delijo isto vodilo</button>
+<button class="opt">CPE nima dovolj registrov</button>
+<button class="opt">je ura prepočasna</button>
+<div class="fb">Zaradi <strong>skupnega vodila</strong>: v enem taktu po njem potuje ali ukaz ali podatek, nikoli oboje.</div>
+</div>
+<div class="q" data-pravilen="2">
+<p class="vpr">2. Sodoben procesor z ločenima predpomnilnikoma L1-I in L1-D, a skupnim glavnim pomnilnikom, je:</p>
+<button class="opt">čisto von Neumannov</button>
+<button class="opt">čisto harvardski</button>
+<button class="opt">modificirano harvardski</button>
+<div class="fb"><strong>Modificirano harvardski</strong> — navzven skupen pomnilnik, znotraj ločeni poti za ukaze in podatke.</div>
+</div>
+<div class="q" data-pravilen="2">
+<p class="vpr">3. Katera prednost je značilna za harvardsko arhitekturo?</p>
+<button class="opt">Program lahko med izvajanjem spreminja sam sebe.</button>
+<button class="opt">Cenejša izvedba z manj vodniki.</button>
+<button class="opt">Hkratno branje ukaza in podatka.</button>
+<div class="fb"><strong>Hkratno branje.</strong> Prvi dve trditvi sta prednosti von Neumannove arhitekture.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 3 ================= -->
+<section class="tema" id="t3">
+<h2><span class="n">03</span>Pomnilnik</h2>
+<p class="ure">Predlog 3 ure</p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak loči bralno-pisalni (RAM) in bralni (ROM) pomnilnik ter njune podvrste.</li>
+<li>Razloži razliko med SRAM in DRAM ter zakaj DRAM potrebuje osveževanje.</li>
+<li>Opiše pomnilniško hierarhijo in pojasni, zakaj deluje (načelo lokalnosti).</li>
+</ul>
+</div>
+
+<h3>Dve veliki družini</h3>
+<p><strong>RAM</strong> (<em class="tuj">Random Access Memory</em>) — beremo in pišemo, vsebina se ob izklopu izgubi
+(<em>hlapen</em>, angl. <em class="tuj">volatile</em>). <strong>ROM</strong> (<em class="tuj">Read Only Memory</em>) — vsebina ostane
+tudi brez napajanja (<em>trajen</em>).</p>
+<p>Izraz "random access" pomeni, da je dostop do <em>katerekoli</em> celice enako hiter — v nasprotju s traktom
+(magnetni trak), kjer moramo do podatka premotati. Ne pomeni "naključno".</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Vrsta</th><th>Zgradba celice</th><th>Hitrost</th><th>Gostota / cena</th><th>Kje jo najdemo</th></tr></thead>
+<tbody>
+<tr><td><strong>SRAM</strong></td><td>6 tranzistorjev, sklopka (flip-flop)</td><td>zelo hitra (~1 ns)</td><td>majhna gostota, draga</td><td>predpomnilnik L1/L2/L3, RAM v MCU</td></tr>
+<tr><td><strong>DRAM</strong></td><td>1 tranzistor + 1 kondenzator</td><td>počasnejša (~50 ns)</td><td>velika gostota, poceni</td><td>glavni pomnilnik računalnika</td></tr>
+<tr><td><strong>DDR SDRAM</strong></td><td>DRAM, sinhron, prenos ob obeh robovih ure</td><td>visoka pasovna širina</td><td>—</td><td>moduli DDR4/DDR5</td></tr>
+<tr><td><strong>VRAM / GDDR</strong></td><td>DRAM, prilagojen grafiki</td><td>zelo velika pasovna širina</td><td>—</td><td>grafične kartice</td></tr>
+<tr><td><strong>ROM (maskirni)</strong></td><td>zapisan ob izdelavi</td><td>—</td><td>najcenejši v velikih serijah</td><td>nespremenljiva strojna programska oprema</td></tr>
+<tr><td><strong>EEPROM</strong></td><td>električno brisljiv, po bajtih</td><td>počasno pisanje</td><td>draga</td><td>nastavitve naprave, ki morajo preživeti izklop</td></tr>
+<tr><td><strong>Flash</strong></td><td>električno brisljiv, po blokih</td><td>hitro branje</td><td>poceni</td><td>program v MCU, SSD, USB-ključ</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Zakaj DRAM potrebuje osveževanje.</strong> Bit je shranjen kot naboj na majhnem kondenzatorju,
+ki se v nekaj milisekundah izprazni. Krmilnik zato vsako vrstico pomnilnika periodično prebere in
+takoj zapiše nazaj — temu rečemo <em>osveževanje</em> (<em class="tuj">refresh</em>). SRAM tega ne potrebuje,
+ker sklopka stanje drži, dokler je napajanje.
+</div>
+
+<h3>Pomnilniška hierarhija</h3>
+<p>Hiter pomnilnik je drag, poceni pomnilnik je počasen. Rešitev ni izbrati enega, ampak jih zložiti
+v piramido: majhen in hiter blizu CPE, velik in počasen daleč.</p>
+
+<figure>
+<svg viewBox="0 0 700 330" role="img" aria-label="Piramida pomnilniške hierarhije">
+<style>
+ .g3-lv{stroke:#7a4b2a;stroke-width:1.5}
+ .g3-t{font:12.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g3-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g3-tb{font:bold 12.5px -apple-system,sans-serif;fill:#7a4b2a}
+</style>
+<polygon class="g3-lv" points="300,20 360,20 375,58 285,58" fill="#7a4b2a" fill-opacity=".85"/>
+<text class="g3-t" x="395" y="45" fill="#1c1c1a">registri — 32×8 b · &lt;1 ns</text>
+<polygon class="g3-lv" points="285,62 375,62 392,104 268,104" fill="#7a4b2a" fill-opacity=".6"/>
+<text class="g3-t" x="405" y="88">predpomnilnik L1 — 32–64 kB · 1 ns</text>
+<polygon class="g3-lv" points="268,108 392,108 412,152 248,152" fill="#7a4b2a" fill-opacity=".42"/>
+<text class="g3-t" x="425" y="135">L2 / L3 — 0,5–32 MB · 4–20 ns</text>
+<polygon class="g3-lv" points="248,156 412,156 434,204 226,204" fill="#7a4b2a" fill-opacity=".26"/>
+<text class="g3-t" x="447" y="185">glavni pomnilnik DRAM — GB · 60 ns</text>
+<polygon class="g3-lv" points="226,208 434,208 458,262 202,262" fill="#7a4b2a" fill-opacity=".14"/>
+<text class="g3-t" x="470" y="240">SSD / disk — TB · 0,1–10 ms</text>
+<text class="g3-tb" x="30" y="45">hitro</text><text class="g3-ts" x="30" y="62">drago</text><text class="g3-ts" x="30" y="78">malo</text>
+<text class="g3-tb" x="30" y="240">počasno</text><text class="g3-ts" x="30" y="257">poceni</text><text class="g3-ts" x="30" y="273">veliko</text>
+<line x1="80" y1="30" x2="80" y2="260" stroke="#6b6b66" stroke-width="1.4" marker-end="url(#ar3)"/>
+<defs><marker id="ar3" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+ <path d="M0,0 L9,4.5 L0,9 z" fill="#6b6b66"/></marker></defs>
+<text class="g3-ts" x="200" y="300">Razlika med registrom in diskom je približno milijonkratna — kot razlika med sekundo in dvema tednoma.</text>
+</svg>
+<figcaption>Vsak nivo je približno desetkrat večji in desetkrat počasnejši od prejšnjega.</figcaption>
+</figure>
+
+<h3>Zakaj hierarhija sploh deluje: načelo lokalnosti</h3>
+<ul>
+<li><strong>Časovna lokalnost</strong> — kar smo pravkar uporabili, bomo verjetno kmalu spet potrebovali
+(spremenljivka v zanki, števec).</li>
+<li><strong>Krajevna lokalnost</strong> — kar je blizu uporabljenega, bomo verjetno tudi potrebovali
+(naslednji element polja, naslednji ukaz).</li>
+</ul>
+<p>Zato se izplača ob prvem dostopu v predpomnilnik prenesti cel blok (npr. 64 bajtov) in ne samo enega bajta.
+Če je podatek že v predpomnilniku, rečemo <strong>zadetek</strong> (<em class="tuj">hit</em>), sicer
+<strong>zgrešitev</strong> (<em class="tuj">miss</em>). Pri dobro napisanih programih je delež zadetkov nad 95 %.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 3.1</p>
+<p>Razvrsti po hitrosti dostopa od najhitrejšega do najpočasnejšega: SSD, register, DRAM, predpomnilnik L1,
+predpomnilnik L3.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>register → L1 → L3 → DRAM → SSD.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 3.2</p>
+<p>Zakaj v mikrokrmilniku za delovni pomnilnik uporabimo SRAM in ne DRAM, čeprav je SRAM dražji?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ker gre za majhne količine (nekaj kB), kjer cena na bit ni odločilna, SRAM pa ne potrebuje krmilnika
+za osveževanje — to bi na čipu zasedlo prostor in porabilo energijo. SRAM je poleg tega hitrejši in
+lahko deluje pri zelo nizki porabi, kar je pri baterijskih napravah bistveno.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 3.3</p>
+<p>Program v zanki 1000-krat prebere isti element polja. Kateri vrsti lokalnosti to ustreza?
+Kaj pa program, ki po vrsti sešteje vseh 1000 elementov polja?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Prvi primer je <strong>časovna</strong> lokalnost (isti naslov večkrat v kratkem času).
+Drugi je <strong>krajevna</strong> (zaporedni naslovi). Drugi primer je za predpomnilnik zelo ugoden:
+ob prvi zgrešitvi se prenese cel blok in naslednjih nekaj elementov je že tam.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 3.4</p>
+<p>Dijak trdi: "Flash in EEPROM sta isto." Kje se motijo in kje ima prav?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Prav ima v tem, da sta oba <strong>električno brisljiva trajna pomnilnika</strong> in da je flash pravzaprav
+razvit iz EEPROM-a. Moti pa se v zrnatosti brisanja: EEPROM lahko briše in piše <strong>po posameznih bajtih</strong>,
+flash pa le <strong>po celih blokih</strong> (npr. 4 kB). Zato je flash cenejši na bit in primeren za velike
+količine (SSD, program), EEPROM pa za posamezne nastavitve, ki jih pogosto spreminjamo.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Zakaj DRAM potrebuje osveževanje, SRAM pa ne?</p>
+<button class="opt">Ker je DRAM hitrejši.</button>
+<button class="opt">Ker DRAM hrani bit kot naboj na kondenzatorju, ki uhaja.</button>
+<button class="opt">Ker je DRAM trajen pomnilnik.</button>
+<div class="fb">Bit v DRAM-u je <strong>naboj na kondenzatorju</strong> in se izprazni v milisekundah, zato ga je treba periodično prebrati in zapisati nazaj.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Kaj pomeni kratica RAM po pomenu, ne po črkah?</p>
+<button class="opt">Pomnilnik z naključno vsebino.</button>
+<button class="opt">Pomnilnik, kjer je dostop do vseh celic enako hiter.</button>
+<button class="opt">Pomnilnik, ki ga lahko samo beremo.</button>
+<div class="fb">Enako hiter dostop do <strong>katerekoli</strong> celice — v nasprotju z zaporednim medijem, kot je trak.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Sekvenčno seštevanje elementov polja izkorišča predvsem:</p>
+<button class="opt">časovno lokalnost</button><button class="opt">krajevno lokalnost</button><button class="opt">osveževanje</button>
+<div class="fb"><strong>Krajevno</strong> — dostopamo do zaporednih naslovov, ki so že v istem prenesenem bloku.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 4 ================= -->
+<section class="tema" id="t4">
+<h2><span class="n">04</span>Zgradba ukaza in strojni cikel</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>našteje dele zgradbe ukazov in opredeli njihovo vlogo</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak opiše dele strojnega ukaza: operacijsko kodo in operande.</li>
+<li>Loči eno-, dvo- in trioperandne ukaze.</li>
+<li>Opiše korake strojnega cikla prevzemi–dekodiraj–izvedi in ve, kaj se dogaja s PC.</li>
+</ul>
+</div>
+
+<h3>Ukaz je samo število</h3>
+<p>V pomnilniku ni "ukazov" — so samo binarna števila. Šele krmilna enota jih razume kot ukaz.
+Vsak strojni ukaz ima dva dela:</p>
+<ul>
+<li><strong>Operacijska koda (opkoda)</strong>, angl. <em class="tuj">opcode</em> — pove, <em>kaj</em> naj se zgodi (seštej, naloži, skoči).</li>
+<li><strong>Operandi</strong> — povedo, <em>s čim</em> naj se to zgodi (register, naslov, konstanta).</li>
+</ul>
+
+<figure>
+<svg viewBox="0 0 720 230" role="img" aria-label="Format strojnega ukaza in primeri operandnosti">
+<style>
+ .g4-f{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.5}
+ .g4-f2{fill:#fff;stroke:#7a4b2a;stroke-width:1.5}
+ .g4-t{font:12.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g4-tm{font:12px ui-monospace,Menlo,monospace;fill:#1c1c1a}
+ .g4-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g4-tb{font:bold 12.5px -apple-system,sans-serif;fill:#7a4b2a}
+</style>
+<text class="g4-tb" x="20" y="20">Splošni format</text>
+<rect class="g4-f" x="20" y="30" width="130" height="38"/><text class="g4-t" x="48" y="54">opkoda</text>
+<rect class="g4-f2" x="150" y="30" width="130" height="38"/><text class="g4-t" x="180" y="54">operand 1</text>
+<rect class="g4-f2" x="280" y="30" width="130" height="38"/><text class="g4-t" x="310" y="54">operand 2</text>
+<text class="g4-ts" x="20" y="86">KAJ narediti</text><text class="g4-ts" x="150" y="86">S ČIM</text><text class="g4-ts" x="280" y="86">S ČIM</text>
+
+<text class="g4-tb" x="20" y="122">Primeri po številu operandov</text>
+<rect class="g4-f" x="20" y="132" width="80" height="30"/><text class="g4-tm" x="42" y="152">NOP</text>
+<text class="g4-ts" x="112" y="152">0 operandov — vsebovano naslavljanje, npr. NOP, RETI, CLC</text>
+<rect class="g4-f" x="20" y="168" width="80" height="30"/><text class="g4-tm" x="42" y="188">INC</text>
+<rect class="g4-f2" x="100" y="168" width="60" height="30"/><text class="g4-tm" x="118" y="188">R16</text>
+<text class="g4-ts" x="172" y="188">1 operand — INC R16 (povečaj register za 1)</text>
+<rect class="g4-f" x="400" y="132" width="70" height="30"/><text class="g4-tm" x="418" y="152">ADD</text>
+<rect class="g4-f2" x="470" y="132" width="55" height="30"/><text class="g4-tm" x="482" y="152">R16</text>
+<rect class="g4-f2" x="525" y="132" width="55" height="30"/><text class="g4-tm" x="537" y="152">R17</text>
+<text class="g4-ts" x="400" y="176">2 operanda — R16 ← R16 + R17</text>
+<text class="g4-ts" x="400" y="194">(cilj je hkrati eden od virov)</text>
+</svg>
+<figcaption>Isto operacijo lahko različne arhitekture zapišejo z različnim številom operandov.</figcaption>
+</figure>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Operandnost</th><th>Zapis</th><th>Pomen</th><th>Značilno za</th></tr></thead>
+<tbody>
+<tr><td>brez operandov</td><td><code>NOP</code></td><td>operand je določen že z opkodo</td><td>vsebovano naslavljanje</td></tr>
+<tr><td>enooperandni</td><td><code>INC R16</code></td><td>drugi operand je implicitno akumulator</td><td>starejši 8-bitni procesorji</td></tr>
+<tr><td>dvooperandni</td><td><code>ADD R16, R17</code></td><td>R16 ← R16 + R17, cilj se prepiše</td><td>AVR, x86</td></tr>
+<tr><td>trioperandni</td><td><code>ADD R1, R2, R3</code></td><td>R1 ← R2 + R3, vira ostaneta cela</td><td>MIPS, ARM, RISC-V</td></tr>
+</tbody>
+</table>
+</div>
+<p>Več operandov pomeni daljši ukaz, a manj ukazov za isto delo. To je eden od kompromisov,
+ki ločuje CISC od RISC (tema 5).</p>
+
+<h3>Strojni cikel</h3>
+<p>CPE v neskončni zanki ponavlja tri korake — angleško <em class="tuj">fetch – decode – execute</em>:</p>
+
+<figure>
+<svg viewBox="0 0 700 260" role="img" aria-label="Krog strojnega cikla prevzemi, dekodiraj, izvedi">
+<style>
+ .g5-c{fill:#fff;stroke:#7a4b2a;stroke-width:1.8}
+ .g5-cf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.8}
+ .g5-t{font:bold 13px -apple-system,sans-serif;fill:#7a4b2a;text-anchor:middle}
+ .g5-ts{font:11.5px -apple-system,sans-serif;fill:#6b6b66;text-anchor:middle}
+ .g5-ar{stroke:#1c1c1a;stroke-width:2;fill:none;marker-end:url(#a4)}
+</style>
+<defs><marker id="a4" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+ <path d="M0,0 L10,5 L0,10 z" fill="#1c1c1a"/></marker></defs>
+<circle class="g5-cf" cx="130" cy="90" r="60"/>
+<text class="g5-t" x="130" y="82">1. PREVZEMI</text><text class="g5-ts" x="130" y="100">ukaz z naslova v PC</text><text class="g5-ts" x="130" y="116">→ v register IR</text>
+<circle class="g5-c" cx="350" cy="90" r="60"/>
+<text class="g5-t" x="350" y="82">2. DEKODIRAJ</text><text class="g5-ts" x="350" y="100">KE razčleni opkodo</text><text class="g5-ts" x="350" y="116">in poišče operande</text>
+<circle class="g5-c" cx="570" cy="90" r="60"/>
+<text class="g5-t" x="570" y="82">3. IZVEDI</text><text class="g5-ts" x="570" y="100">ALE opravi operacijo,</text><text class="g5-ts" x="570" y="116">rezultat v register</text>
+<line class="g5-ar" x1="192" y1="90" x2="286" y2="90"/>
+<line class="g5-ar" x1="412" y1="90" x2="506" y2="90"/>
+<path class="g5-ar" d="M570,152 C570,215 130,215 130,152"/>
+<text class="g5-ts" x="350" y="212">naslednji ukaz</text>
+<text class="g5-ts" x="350" y="245">Med korakom 1 se PC samodejno poveča, da že kaže na naslednji ukaz — razen pri skoku, ki PC prepiše.</text>
+</svg>
+<figcaption>Trije koraki, ki se ponavljajo od vklopa do izklopa. Milijardokrat na sekundo.</figcaption>
+</figure>
+
+<h4>Kaj se natanko zgodi v koraku "prevzemi"</h4>
+<ol>
+<li>Vsebina <strong>PC</strong> (programski števec) gre na naslovno vodilo.</li>
+<li>Krmilna enota sproži branje.</li>
+<li>Prebrani ukaz se shrani v <strong>IR</strong> (ukazni register).</li>
+<li><strong>PC se poveča</strong> za dolžino ukaza.</li>
+</ol>
+<div class="opomba">
+<strong>Pomembna podrobnost.</strong> PC se poveča <em>pred</em> izvedbo ukaza, ne po njej. Zato pri relativnem skoku
+odmik štejemo od <em>naslednjega</em> ukaza, ne od trenutnega. To je najpogostejši vir napak pri ročnem
+računanju skokov.
+</div>
+
+<h4>Cevovod</h4>
+<p>Če bi CPE počakala, da se en ukaz do konca izvede, bi bila enota za prevzem večino časa brez dela.
+Zato sodobne CPE uporabljajo <strong>cevovod</strong> (<em class="tuj">pipeline</em>): medtem ko se ukaz A izvaja,
+se ukaz B že dekodira in ukaz C prevzema. Idealno se tako v vsakem taktu zaključi en ukaz.
+Težavo povzročijo skoki — ob skoku so ukazi v cevovodu napačni in jih je treba zavreči.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 4.1</p>
+<p>Ukaz je zapisan kot 16 bitov: <code>0000 1111 0001 0010</code>. Prvi 4 biti so opkoda,
+naslednji 6 bitov naslavljajo prvi register, zadnjih 6 pa drugega. Razčleni ukaz.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Opkoda = <code>0000</code>. Prvi operand = <code>111100</code><sub>2</sub> = 60. Drugi operand = <code>010010</code><sub>2</sub> = 18.
+Ukaz torej pomeni "operacija 0 nad registroma 60 in 18". Poudarek vaje: <strong>isti biti pomenijo različne stvari
+glede na položaj</strong> — kje se opkoda konča, določa format, ne vsebina.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 4.2</p>
+<p>Zapiši operacijo <code>C = A + B</code> (kjer A, B, C ležijo v registrih R1, R2, R3) najprej za
+dvooperandno in nato za trioperandno arhitekturo. Kaj opaziš?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<pre>Trioperandna (npr. MIPS):
+  ADD R3, R1, R2        <span class="c">; en ukaz, R1 in R2 ostaneta nedotaknjena</span>
+
+Dvooperandna (npr. AVR):
+  MOV R3, R1            <span class="c">; R3 = R1</span>
+  ADD R3, R2            <span class="c">; R3 = R3 + R2</span></pre>
+<p>Dvooperandna arhitektura potrebuje <strong>dva ukaza</strong>, ker bi seštevanje uničilo enega od virov.
+Njeni ukazi so za ceno tega krajši.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 4.3</p>
+<p>CPE dela pri 16 MHz, en strojni cikel traja en takt. Koliko ukazov izvede v eni sekundi in koliko traja en ukaz?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>16 000 000 ukazov na sekundo (16 MIPS). En ukaz traja 1/16 000 000 s = 62,5 ns.
+Če bi ukaz potreboval 2 cikla, bi bilo 125 ns in 8 milijonov ukazov na sekundo.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 4.4</p>
+<p>Zakaj skok "poškoduje" cevovod?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ker CPE ukaze v cevovod nalaga <em>vnaprej</em>, po vrsti iz pomnilnika, še preden ve, ali se bo skok izvedel.
+Ko se skok izvede, so že naloženi ukazi napačni — cevovod je treba izprazniti in začeti znova z naslova skoka.
+Vsak skok tako stane nekaj izgubljenih taktov. Zato imajo sodobne CPE <em>napovedovanje vejitev</em>, zato pa je
+tudi zanka z manj vejitvami pogosto hitrejša od "pametnejšega" algoritma z več pogoji.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Kateri register hrani naslov naslednjega ukaza?</p>
+<button class="opt">IR</button><button class="opt">PC</button><button class="opt">SREG</button><button class="opt">SP</button>
+<div class="fb"><strong>PC</strong> (programski števec). IR hrani ukaz sam, SREG zastavice, SP vrh sklada.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Kdaj se PC poveča?</p>
+<button class="opt">Šele po izvedbi ukaza.</button>
+<button class="opt">Že med prevzemom ukaza.</button>
+<button class="opt">Samo pri skokih.</button>
+<div class="fb"><strong>Med prevzemom.</strong> Zato pri relativnem skoku odmik računamo glede na naslednji ukaz.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Opkoda pove:</p>
+<button class="opt">s katerimi podatki delamo</button>
+<button class="opt">katera operacija naj se izvede</button>
+<button class="opt">na katerem naslovu je rezultat</button>
+<div class="fb"><strong>Katera operacija.</strong> S čim, povedo operandi.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 5 ================= -->
+<section class="tema" id="t5">
+<h2><span class="n">05</span>CISC in RISC</h2>
+<p class="ure">Predlog 2 uri · standard znanja: <em>razlikuje arhitekturi CISC in RISC</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak razloži izhodiščni zamisli obeh pristopov in ju primerja.</li>
+<li>Pojasni načelo <em>load/store</em>.</li>
+<li>Zna povedati, kaj pomenita oznaki x86 in x64.</li>
+</ul>
+</div>
+
+<h3>Dve nasprotni ideji</h3>
+<p><strong>CISC</strong> (<em class="tuj">Complex Instruction Set Computer</em>): naj bo ukazov veliko in naj bodo
+zmogljivi. En ukaz lahko prebere podatek iz pomnilnika, ga pomnoži in rezultat zapiše nazaj.
+Nastal je v času, ko je bil pomnilnik izredno drag in je štel vsak bajt programa, prevajalnikov pa
+skoraj ni bilo — v zbirniku je bilo lažje pisati z močnimi ukazi.</p>
+<p><strong>RISC</strong> (<em class="tuj">Reduced Instruction Set Computer</em>): naj bo ukazov malo, naj bodo enostavni,
+enako dolgi in naj se vsak izvede v enem taktu. Zapleteno sestavimo iz enostavnega. Nastal je,
+ko so meritve pokazale, da prevajalniki večino zapletenih ukazov CISC sploh ne uporabljajo.</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Lastnost</th><th>CISC</th><th>RISC</th></tr></thead>
+<tbody>
+<tr><td>Število ukazov</td><td>veliko (stotine do tisoč)</td><td>malo (nekaj deset do ~150)</td></tr>
+<tr><td>Dolžina ukaza</td><td>spremenljiva (1–15 bajtov)</td><td>stalna (npr. vedno 32 bitov)</td></tr>
+<tr><td>Trajanje ukaza</td><td>različno, več taktov</td><td>načeloma en takt</td></tr>
+<tr><td>Dostop do pomnilnika</td><td>skoraj vsak ukaz lahko dostopa</td><td>samo LOAD in STORE</td></tr>
+<tr><td>Število registrov</td><td>malo (8–16)</td><td>veliko (32 in več)</td></tr>
+<tr><td>Zapletenost krmilne enote</td><td>velika, mikroprogramirana</td><td>majhna, ožičena logika</td></tr>
+<tr><td>Dolžina programa</td><td>krajši</td><td>daljši</td></tr>
+<tr><td>Poraba energije</td><td>običajno večja</td><td>običajno manjša</td></tr>
+<tr><td>Primeri</td><td>x86, x64, Motorola 68000</td><td>ARM, AVR, MIPS, RISC-V, Apple M-serija</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Načelo load/store</h3>
+<p>Pri RISC lahko s pomnilnikom komunicirata <strong>samo dva ukaza</strong>: <code>LOAD</code> (naloži iz pomnilnika v register)
+in <code>STORE</code> (shrani iz registra v pomnilnik). Vse računanje se dogaja izključno med registri.</p>
+<pre>Naloga: v pomnilniku na naslovih 100 in 104 sta števili; njuno vsoto zapiši na 108.
+
+<span class="c">RISC (load/store):</span>
+  LW   R1, 100(R0)     <span class="c">; naloži</span>
+  LW   R2, 104(R0)     <span class="c">; naloži</span>
+  ADD  R3, R1, R2      <span class="c">; računaj samo med registri</span>
+  SW   R3, 108(R0)     <span class="c">; shrani</span>
+
+<span class="c">CISC (pomnilnik-pomnilnik, poenostavljeno):</span>
+  MOV  AX, [100]
+  ADD  AX, [104]       <span class="c">; en ukaz bere pomnilnik IN računa</span>
+  MOV  [108], AX</pre>
+<p>RISC potrebuje več ukazov, a je vsak enostaven, enako dolg in predvidljivo hiter — kar je ključno za cevovod.</p>
+
+<div class="opomba">
+<strong>Kaj je danes res.</strong> Meja se je zabrisala. Sodobni procesorji x86 so navzven CISC (zaradi združljivosti
+s starimi programi), znotraj pa vsak ukaz razgradijo v več enostavnih <em class="tuj">mikroukazov</em>, ki jih
+izvaja jedro RISC. Obratno so RISC arhitekture dobile nekaj zapletenih ukazov (npr. za kriptografijo in vektorje).
+Delitev je torej danes bolj <em>zgodovinska in konceptualna</em> kot ostra tehnična ločnica.
+</div>
+
+<div class="opomba">
+<strong>x86 in x64 — pogosta zmeda.</strong> <strong>x86</strong> je ime družine procesorjev, ki se je začela z Intelom 8086
+(1978); ime izvira iz končnic 8086, 80286, 80386, 80486. <strong>x64</strong> (tudi <em>x86-64</em> ali <em>AMD64</em>) je njena
+64-bitna razširitev iz leta 2000, ki jo uporabljajo današnji namizni in prenosni računalniki.
+Ko Windows ponuja "32-bitno (x86)" in "64-bitno (x64)" različico, gre za isto družino ukazov,
+le da druga uporablja 64-bitne registre in naslove.
+</div>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 5.1</p>
+<p>Naprava deluje na baterijo in mora biti čim cenejša. Bi izbral CISC ali RISC? Utemelji s tremi argumenti.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><strong>RISC.</strong> (1) Enostavnejša krmilna enota → manjši čip → nižja cena. (2) Manj tranzistorjev in ožičena
+logika → nižja poraba → daljša življenjska doba baterije. (3) Predvidljivo trajanje ukaza → lažje jamčiti
+odzivne čase, kar je pri krmilnih nalogah pomembno. Prav zato so ARM in AVR povsod v vgradnih napravah.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 5.2</p>
+<p>Zakaj stalna dolžina ukaza pri RISC pomaga cevovodu?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ker CPE takoj ve, kje se ukaz konča in kje se začne naslednji — naslednji naslov je preprosto PC + 4.
+Pri spremenljivi dolžini je treba ukaz najprej vsaj delno dekodirati, da izvemo njegovo dolžino,
+kar upočasni prevzemanje in oteži hkratno prevzemanje več ukazov.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 5.3</p>
+<p>Trditev: "RISC je hitrejši od CISC, ker ima manj ukazov." Oceni trditev.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Trditev je preveč poenostavljena. Hitrost ni odvisna od <em>števila različnih ukazov</em>, ampak od produkta
+<em>število izvedenih ukazov × takti na ukaz × trajanje takta</em>. RISC zmanjša drugi člen (in omogoči krajši takt),
+poveča pa prvi — programi so daljši. Ali je hitrejši, je odvisno od naloge, prevajalnika in izvedbe.
+Zanesljivo drži le, da je RISC <strong>enostavnejši za izdelavo in energijsko učinkovitejši</strong>.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="2">
+<p class="vpr">1. Katera značilnost je tipična za RISC?</p>
+<button class="opt">Spremenljiva dolžina ukaza.</button>
+<button class="opt">Vsak ukaz lahko dostopa do pomnilnika.</button>
+<button class="opt">Do pomnilnika dostopata le LOAD in STORE.</button>
+<div class="fb">To je <strong>načelo load/store</strong>, temeljna značilnost arhitektur RISC.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Oznaka x64 pomeni:</p>
+<button class="opt">popolnoma novo družino, nezdružljivo z x86</button>
+<button class="opt">64-bitno razširitev družine x86</button>
+<button class="opt">64 jeder v procesorju</button>
+<div class="fb"><strong>64-bitna razširitev x86</strong>, znana tudi kot x86-64 ali AMD64.</div>
+</div>
+<div class="q" data-pravilen="0">
+<p class="vpr">3. Zakaj imajo arhitekture RISC več registrov?</p>
+<button class="opt">Ker ne morejo računati neposredno nad pomnilnikom in podatke potrebujejo v registrih.</button>
+<button class="opt">Ker so registri cenejši od pomnilnika.</button>
+<button class="opt">Ker to zahteva stalna dolžina ukaza.</button>
+<div class="fb">Zaradi <strong>load/store</strong>: vsi vmesni rezultati morajo biti v registrih, zato jih mora biti dovolj, da se izognemo stalnemu nalaganju in shranjevanju.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 6 ================= -->
+<section class="tema" id="t6">
+<h2><span class="n">06</span>Programski model in registri</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>našteje vrste registrov in opiše njihov namen</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak našteje vrste registrov, opredeli njihovo velikost in namen.</li>
+<li>Razloži pomen zastavic Z, C, N, V v statusnem registru.</li>
+<li>Opiše delovanje sklada in vlogo kazalca sklada.</li>
+</ul>
+</div>
+
+<h3>Kaj je programski model</h3>
+<p><strong>Programski model</strong> je tisti del procesorja, ki ga <em>vidi programer</em>: registri, ukazi,
+načini naslavljanja, organizacija pomnilnika. Vse ostalo — koliko stopenj ima cevovod, kako je narejena
+ALE — je za pisanje programa nepomembno. Dva procesorja z istim programskim modelom poganjata iste
+programe, čeprav sta znotraj lahko povsem drugačna.</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Register</th><th>Polno ime</th><th>Tipična velikost</th><th>Namen</th></tr></thead>
+<tbody>
+<tr><td><strong>R0–R31</strong></td><td>splošnonamenski (GPR)</td><td>8 bitov (AVR)</td><td>delovni podatki, vmesni rezultati</td></tr>
+<tr><td><strong>PC</strong></td><td>programski števec</td><td>16–64 bitov</td><td>naslov naslednjega ukaza</td></tr>
+<tr><td><strong>IR</strong></td><td>ukazni register</td><td>širina ukaza</td><td>trenutno prevzeti ukaz</td></tr>
+<tr><td><strong>SREG</strong></td><td>statusni register</td><td>8 bitov</td><td>zastavice o zadnjem rezultatu ALE</td></tr>
+<tr><td><strong>SP</strong></td><td>kazalec sklada</td><td>16 bitov</td><td>naslov vrha sklada</td></tr>
+<tr><td><strong>X, Y, Z</strong></td><td>kazalni registri</td><td>16 bitov (2×8)</td><td>posredno naslavljanje pomnilnika</td></tr>
+<tr><td><strong>MAR / MDR</strong></td><td>pomnilniška registra</td><td>širina vodila</td><td>vmesnik do vodil (skrita pred programerjem)</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Statusni register in zastavice</h3>
+<p>Po vsaki operaciji ALE nastavi bite v <strong>SREG</strong>. Ti biti so podlaga za vse pogojne skoke —
+brez njih ne bi bilo <code>if</code> ne zank.</p>
+
+<figure>
+<svg viewBox="0 0 700 170" role="img" aria-label="Biti statusnega registra SREG">
+<style>
+ .g6-cell{fill:#fff;stroke:#7a4b2a;stroke-width:1.5}
+ .g6-cellf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.5}
+ .g6-tm{font:bold 13px ui-monospace,Menlo,monospace;fill:#1c1c1a;text-anchor:middle}
+ .g6-ts{font:11px -apple-system,sans-serif;fill:#6b6b66;text-anchor:middle}
+ .g6-td{font:12px -apple-system,sans-serif;fill:#1c1c1a}
+</style>
+<text class="g6-td" x="20" y="22" style="font-weight:bold;fill:#7a4b2a">SREG — bit 7 levo, bit 0 desno</text>
+<rect class="g6-cell" x="20" y="34" width="72" height="38"/><text class="g6-tm" x="56" y="58">I</text><text class="g6-ts" x="56" y="86">prekinitve</text>
+<rect class="g6-cell" x="92" y="34" width="72" height="38"/><text class="g6-tm" x="128" y="58">T</text><text class="g6-ts" x="128" y="86">kopija bita</text>
+<rect class="g6-cell" x="164" y="34" width="72" height="38"/><text class="g6-tm" x="200" y="58">H</text><text class="g6-ts" x="200" y="86">polprenos</text>
+<rect class="g6-cell" x="236" y="34" width="72" height="38"/><text class="g6-tm" x="272" y="58">S</text><text class="g6-ts" x="272" y="86">predznak</text>
+<rect class="g6-cellf" x="308" y="34" width="72" height="38"/><text class="g6-tm" x="344" y="58">V</text><text class="g6-ts" x="344" y="86">preliv</text>
+<rect class="g6-cellf" x="380" y="34" width="72" height="38"/><text class="g6-tm" x="416" y="58">N</text><text class="g6-ts" x="416" y="86">negativno</text>
+<rect class="g6-cellf" x="452" y="34" width="72" height="38"/><text class="g6-tm" x="488" y="58">Z</text><text class="g6-ts" x="488" y="86">nič</text>
+<rect class="g6-cellf" x="524" y="34" width="72" height="38"/><text class="g6-tm" x="560" y="58">C</text><text class="g6-ts" x="560" y="86">prenos</text>
+<text class="g6-td" x="20" y="124">Obarvane so štiri, ki jih dijak mora poznati: V, N, Z, C.</text>
+<text class="g6-td" x="20" y="146">Primer: ukaz CP R16, R17 odšteje, rezultata ne shrani — postavi le zastavice. Nato BREQ skoči, če je Z = 1.</text>
+</svg>
+<figcaption>Statusni register mikrokrmilnika AVR. Načelo je pri vseh procesorjih enako, imena bitov se razlikujejo.</figcaption>
+</figure>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Zastavica</th><th>Postavljena, ko</th><th>Primer</th><th>Uporabi jo skok</th></tr></thead>
+<tbody>
+<tr><td><strong>Z</strong> (zero)</td><td>je rezultat enak 0</td><td>5 − 5 = 0 → Z = 1</td><td><code>BREQ</code>, <code>BRNE</code></td></tr>
+<tr><td><strong>C</strong> (carry)</td><td>pride do prenosa iz najvišjega bita (nepredznačeno)</td><td>200 + 100 = 300 &gt; 255 → C = 1</td><td><code>BRCS</code>, <code>BRCC</code></td></tr>
+<tr><td><strong>N</strong> (negative)</td><td>je najvišji bit rezultata 1</td><td>rezultat 0b1000 0001 → N = 1</td><td><code>BRMI</code>, <code>BRPL</code></td></tr>
+<tr><td><strong>V</strong> (overflow)</td><td>rezultat pade iz obsega <em>predznačenih</em> števil</td><td>100 + 100 = 200 → v dvojiškem komplementu −56, V = 1</td><td><code>BRVS</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>C proti V — najpogostejša zmeda.</strong> <strong>C</strong> je pomembna, če števila razumemo kot
+<em>nepredznačena</em> (0–255). <strong>V</strong> je pomembna, če jih razumemo kot <em>predznačena</em> (−128 do 127).
+Procesor ne ve, kako mislimo — postavi obe, programer pa izbere, katero bo pogledal.
+</div>
+
+<h3>Sklad</h3>
+<p><strong>Sklad</strong> (<em class="tuj">stack</em>) je del pomnilnika, ki deluje po načelu <strong>LIFO</strong> —
+zadnji noter, prvi ven. <strong>SP</strong> (kazalec sklada) vedno kaže na vrh. Sklad na večini arhitektur
+raste <em>navzdol</em>, proti nižjim naslovom.</p>
+<ul>
+<li><code>PUSH R16</code> — zapiše R16 na naslov v SP, nato SP zmanjša.</li>
+<li><code>POP R16</code> — SP poveča, nato prebere vrednost v R16.</li>
+<li><code>CALL naslov</code> — na sklad shrani <strong>povratni naslov</strong> (trenutni PC), nato skoči.</li>
+<li><code>RET</code> — s sklada vzame povratni naslov in ga vpiše v PC.</li>
+</ul>
+<p>Sklad je torej tisto, kar sploh omogoča klice podprogramov in gnezdenje: podprogram lahko kliče
+podprogram, ta spet naslednjega, in vsak se vrne na pravo mesto.</p>
+
+<figure>
+<svg viewBox="0 0 700 220" role="img" aria-label="Delovanje sklada pri klicu podprograma">
+<style>
+ .g7-s{fill:#fff;stroke:#7a4b2a;stroke-width:1.4}
+ .g7-sf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.4}
+ .g7-t{font:12px -apple-system,sans-serif;fill:#1c1c1a}
+ .g7-tm{font:11.5px ui-monospace,Menlo,monospace;fill:#1c1c1a}
+ .g7-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g7-tb{font:bold 12px -apple-system,sans-serif;fill:#7a4b2a}
+</style>
+<text class="g7-tb" x="20" y="18">1) pred CALL</text>
+<rect class="g7-s" x="20" y="26" width="130" height="26"/>
+<rect class="g7-s" x="20" y="52" width="130" height="26"/>
+<rect class="g7-s" x="20" y="78" width="130" height="26"/>
+<text class="g7-ts" x="158" y="46">← SP</text>
+<line x1="150" y1="39" x2="156" y2="39" stroke="#6b6b66"/>
+
+<text class="g7-tb" x="250" y="18">2) po CALL</text>
+<rect class="g7-sf" x="250" y="26" width="130" height="26"/><text class="g7-tm" x="258" y="44">povratni naslov</text>
+<rect class="g7-s" x="250" y="52" width="130" height="26"/>
+<rect class="g7-s" x="250" y="78" width="130" height="26"/>
+<text class="g7-ts" x="388" y="72">← SP (za eno mesto nižje)</text>
+
+<text class="g7-tb" x="20" y="132">3) podprogram shrani še R16</text>
+<rect class="g7-sf" x="20" y="140" width="130" height="26"/><text class="g7-tm" x="28" y="158">povratni naslov</text>
+<rect class="g7-sf" x="20" y="166" width="130" height="26"/><text class="g7-tm" x="66" y="184">R16</text>
+<text class="g7-ts" x="158" y="200">← SP</text>
+<text class="g7-ts" x="250" y="150">Ob RET se v obratnem vrstnem redu vse pobere nazaj.</text>
+<text class="g7-ts" x="250" y="168">Če podprogram naredi PUSH brez POP, se RET vrne</text>
+<text class="g7-ts" x="250" y="186">na napačen naslov — to je klasična napaka.</text>
+</svg>
+<figcaption>Sklad raste navzdol. Vrstni red je strogo obraten: kar je nazadnje prišlo gor, mora prvo dol.</figcaption>
+</figure>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 6.1</p>
+<p>V 8-bitnem registru izračunaj 200 + 100. Kateri zastavici se postavita in kaj to pomeni,
+če števili razumemo (a) kot nepredznačeni, (b) kot predznačeni?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>200 + 100 = 300. V 8 bitih ostane 300 − 256 = 44 (<code>0010 1100</code>), prenos gre ven → <strong>C = 1</strong>.
+Z = 0, N = 0.<br>
+(a) <em>Nepredznačeno</em>: rezultat je napačen, C = 1 nas opozori na prekoračitev obsega 0–255.<br>
+(b) <em>Predznačeno</em>: 200 pomeni −56 in 100 pomeni 100; −56 + 100 = 44, kar je pravilno in v obsegu,
+torej <strong>V = 0</strong>. Ista operacija je nepredznačeno napačna in predznačeno pravilna — zato obstajata obe zastavici.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 6.2</p>
+<p>Izračunaj 100 + 100 v 8-bitnem predznačenem zapisu. Kaj se zgodi z zastavicama V in N?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>100 + 100 = 200 = <code>1100 1000</code>. Kot predznačeno število je to −56. Sešteli smo dve pozitivni
+števili in dobili negativno → <strong>V = 1</strong> (preliv). Najvišji bit je 1 → <strong>N = 1</strong>. C = 0,
+ker prenosa iz osmega bita ni bilo. Nepredznačeno je torej rezultat pravilen (200), predznačeno pa napačen.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 6.3</p>
+<p>SP kaže na naslov 0x08FF. Kaj se z njim zgodi po zaporedju <code>PUSH R16</code>, <code>PUSH R17</code>, <code>POP R18</code>?
+Kaj je zdaj v R18?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Po prvem PUSH: SP = 0x08FE. Po drugem: SP = 0x08FD. Po POP: SP = 0x08FE in v R18 je
+<strong>vsebina R17</strong> — torej tisto, kar je bilo shranjeno nazadnje (LIFO).
+Pogosta napaka dijakov je pričakovanje, da bo v R18 vsebina R16.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 6.4</p>
+<p>Podprogram vsebuje <code>PUSH R16</code> na začetku, na koncu pa <code>RET</code> brez <code>POP</code>.
+Kaj se zgodi in zakaj?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Na vrhu sklada je še vedno vsebina R16, RET pa slepo vzame vrh sklada in ga vpiše v PC.
+Program torej skoči na naslov, ki je pravzaprav podatek — izvajanje se nadaljuje na naključnem mestu,
+kar se konča z zrušitvijo ali ponovnim zagonom. Pravilo: <strong>vsakemu PUSH pripada POP v obratnem vrstnem redu</strong>.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Zastavica Z se postavi, ko:</p>
+<button class="opt">je rezultat negativen</button><button class="opt">je rezultat enak nič</button>
+<button class="opt">pride do prenosa</button><button class="opt">je sklad prazen</button>
+<div class="fb"><strong>Rezultat enak nič.</strong> Zato ukaz <code>CP</code> + <code>BREQ</code> primerja in skoči ob enakosti.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Kaj shrani ukaz CALL na sklad?</p>
+<button class="opt">Vsebino vseh registrov.</button>
+<button class="opt">Povratni naslov (vsebino PC).</button>
+<button class="opt">Statusni register.</button>
+<div class="fb"><strong>Povratni naslov.</strong> Registre mora shraniti programer sam, če jih podprogram spreminja.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Sklad deluje po načelu:</p>
+<button class="opt">FIFO — prvi noter, prvi ven</button>
+<button class="opt">LIFO — zadnji noter, prvi ven</button>
+<button class="opt">naključnega dostopa</button>
+<div class="fb"><strong>LIFO.</strong> FIFO je vrsta (<em>queue</em>), ki jo uporabljamo npr. pri medpomnilniku serijskih vrat.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 7 ================= -->
+<section class="tema" id="t7">
+<h2><span class="n">07</span>Načini naslavljanja</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>razlikuje vrste naslavljanj glede na njihov namen</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak našteje in razloži načine naslavljanja: vsebovano, takojšnje, registrsko, neposredno, posredno registrsko, z odmikom.</li>
+<li>Za dano nalogo izbere ustrezen način in izbiro utemelji.</li>
+<li>Razume, zakaj brez posrednega naslavljanja ne bi bilo mogoče delati s polji.</li>
+</ul>
+</div>
+
+<h3>Zakaj več načinov</h3>
+<p>Operand je lahko na več mestih: v ukazu samem, v registru, v pomnilniku, ali pa naslov v pomnilniku
+šele izračunamo. Vsak način je kompromis med <strong>dolžino ukaza</strong>, <strong>hitrostjo</strong> in
+<strong>prožnostjo</strong>.</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Način</th><th>Angleško</th><th>Kje je operand</th><th>Primer</th><th>Kdaj ga uporabimo</th></tr></thead>
+<tbody>
+<tr><td><strong>Vsebovano</strong></td><td><em class="tuj">inherent</em></td><td>določen je že z opkodo</td><td><code>CLC</code>, <code>NOP</code>, <code>RETI</code></td><td>ukaz ima le eno možno tarčo</td></tr>
+<tr><td><strong>Takojšnje</strong></td><td><em class="tuj">immediate</em></td><td>v ukazu samem</td><td><code>LDI R16, 25</code></td><td>konstante, začetne vrednosti</td></tr>
+<tr><td><strong>Registrsko</strong></td><td><em class="tuj">register</em></td><td>v registru</td><td><code>ADD R16, R17</code></td><td>računanje — najhitrejše</td></tr>
+<tr><td><strong>Neposredno</strong></td><td><em class="tuj">direct</em></td><td>na naslovu, ki je v ukazu</td><td><code>LDS R16, 0x0100</code></td><td>točno določena spremenljivka</td></tr>
+<tr><td><strong>Posredno registrsko</strong></td><td><em class="tuj">register indirect</em></td><td>na naslovu, ki je v registru</td><td><code>LD R16, X</code></td><td>polja, nizi, kazalci</td></tr>
+<tr><td><strong>Z odmikom</strong></td><td><em class="tuj">indexed / displacement</em></td><td>na naslovu register + konstanta</td><td><code>LDD R16, Y+5</code></td><td>polja s stalnim korakom, zapisi</td></tr>
+</tbody>
+</table>
+</div>
+
+<figure>
+<svg viewBox="0 0 720 300" role="img" aria-label="Primerjava načinov naslavljanja">
+<style>
+ .g8-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.4}
+ .g8-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.4}
+ .g8-bg{fill:#e6f0e9;stroke:#2e6b45;stroke-width:1.4}
+ .g8-tm{font:11.5px ui-monospace,Menlo,monospace;fill:#1c1c1a}
+ .g8-t{font:11.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g8-tb{font:bold 12px -apple-system,sans-serif;fill:#7a4b2a}
+ .g8-ar{stroke:#1c1c1a;stroke-width:1.5;fill:none;marker-end:url(#a7)}
+</style>
+<defs><marker id="a7" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+ <path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker></defs>
+
+<text class="g8-tb" x="16" y="18">TAKOJŠNJE — LDI R16, 25</text>
+<rect class="g8-bf" x="16" y="26" width="70" height="28"/><text class="g8-tm" x="30" y="45">LDI</text>
+<rect class="g8-bg" x="86" y="26" width="60" height="28"/><text class="g8-tm" x="106" y="45">25</text>
+<text class="g8-t" x="156" y="45">podatek je kar v ukazu — 1 dostop</text>
+
+<text class="g8-tb" x="16" y="90">NEPOSREDNO — LDS R16, 0x0100</text>
+<rect class="g8-bf" x="16" y="98" width="70" height="28"/><text class="g8-tm" x="30" y="117">LDS</text>
+<rect class="g8-b" x="86" y="98" width="70" height="28"/><text class="g8-tm" x="96" y="117">0x100</text>
+<line class="g8-ar" x1="156" y1="112" x2="250" y2="112"/>
+<rect class="g8-b" x="250" y="86" width="120" height="52"/>
+<text class="g8-t" x="258" y="104">pomnilnik</text>
+<rect class="g8-bg" x="258" y="110" width="104" height="22"/><text class="g8-tm" x="266" y="126">0x100: 42</text>
+<text class="g8-t" x="386" y="117">naslov je v ukazu — 2 dostopa</text>
+
+<text class="g8-tb" x="16" y="176">POSREDNO REGISTRSKO — LD R16, X</text>
+<rect class="g8-bf" x="16" y="184" width="70" height="28"/><text class="g8-tm" x="34" y="203">LD</text>
+<rect class="g8-b" x="86" y="184" width="50" height="28"/><text class="g8-tm" x="104" y="203">X</text>
+<line class="g8-ar" x1="136" y1="198" x2="190" y2="198"/>
+<rect class="g8-b" x="190" y="184" width="110" height="28"/><text class="g8-tm" x="198" y="203">X = 0x100</text>
+<line class="g8-ar" x1="300" y1="198" x2="356" y2="198"/>
+<rect class="g8-bg" x="356" y="184" width="110" height="28"/><text class="g8-tm" x="364" y="203">0x100: 42</text>
+<text class="g8-t" x="480" y="203">naslov je v registru</text>
+<text class="g8-t" x="16" y="232">Ker naslov leži v registru, ga je mogoče med izvajanjem povečevati — s tem se sprehodimo po polju.</text>
+
+<text class="g8-tb" x="16" y="264">Z ODMIKOM — LDD R16, Y+5</text>
+<text class="g8-t" x="16" y="284">naslov = vsebina Y + 5. Y kaže na začetek zapisa, 5 je položaj polja znotraj njega.</text>
+</svg>
+<figcaption>Več "skokov" do podatka pomeni več prožnosti in več časa.</figcaption>
+</figure>
+
+<h3>Zakaj je posredno naslavljanje nepogrešljivo</h3>
+<pre><span class="c">; Sešteti 10 bajtov, ki ležijo od naslova 0x0100 naprej.</span>
+<span class="c">; Brez posrednega naslavljanja bi morali napisati 10 ukazov LDS z 10 različnimi naslovi.</span>
+<span class="c">; S posrednim naslavljanjem napišemo zanko:</span>
+
+      LDI  XL, 0x00        <span class="c">; X = 0x0100 (kazalec na začetek)</span>
+      LDI  XH, 0x01
+      LDI  R18, 10         <span class="c">; števec</span>
+      CLR  R19             <span class="c">; vsota = 0</span>
+zanka:
+      LD   R16, X+         <span class="c">; naloži z naslova X in X povečaj</span>
+      ADD  R19, R16
+      DEC  R18
+      BRNE zanka           <span class="c">; ponavljaj, dokler števec ni 0</span></pre>
+<p>Če bi hoteli sešteti 1000 bajtov, spremenimo eno samo konstanto. To je razlog, da brez posrednega
+naslavljanja polj, nizov, seznamov in kazalcev v višjih jezikih sploh ne bi bilo mogoče prevesti.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 7.1</p>
+<p>Za vsak primer določi način naslavljanja: (a) <code>LDI R20, 0xFF</code>, (b) <code>MOV R1, R2</code>,
+(c) <code>LDS R5, 0x0200</code>, (d) <code>ST Z, R5</code>, (e) <code>SEI</code>, (f) <code>LDD R6, Y+3</code>.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>(a) takojšnje — (b) registrsko — (c) neposredno — (d) posredno registrsko — (e) vsebovano —
+(f) z odmikom.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 7.2</p>
+<p>Register X vsebuje 0x0105. Na naslovu 0x0105 je vrednost 0x20, na naslovu 0x0120 pa 0x77.
+Kaj naloži ukaz <code>LD R16, X</code>?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><strong>0x20.</strong> Posredno registrsko naslavljanje naredi <em>en</em> korak: naslov vzame iz X in prebere
+tisto celico. Vrednost 0x77 bi dobili le, če bi obstajalo dvojno posredno naslavljanje (naslov naslova),
+ki ga AVR nima.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 7.3</p>
+<p>Napiši zanko v zbirniku, ki v 20 zaporednih pomnilniških celic od naslova 0x0200 naprej zapiše
+vrednost 0. Kateri način naslavljanja moraš uporabiti in zakaj?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<pre>      LDI  XL, 0x00
+      LDI  XH, 0x02        <span class="c">; X = 0x0200</span>
+      LDI  R18, 20         <span class="c">; števec</span>
+      CLR  R16             <span class="c">; vrednost, ki jo pišemo</span>
+brisi:
+      ST   X+, R16         <span class="c">; zapiši in povečaj kazalec</span>
+      DEC  R18
+      BRNE brisi</pre>
+<p>Nujno je <strong>posredno registrsko</strong> naslavljanje: naslov se mora med izvajanjem spreminjati,
+kar je pri neposrednem naslavljanju nemogoče, ker je naslov vgrajen v ukaz.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 7.4</p>
+<p>Zakaj je takojšnje naslavljanje hitrejše od neposrednega?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Pri takojšnjem je podatek že v ukazu — ko je ukaz prevzet, je podatek že v CPE, dodatnega dostopa
+do pomnilnika ni. Pri neposrednem je v ukazu le naslov, zato mora CPE opraviti <strong>še eno branje</strong>
+pomnilnika. Cena takojšnjega naslavljanja je, da vrednosti med izvajanjem ni mogoče spremeniti — je konstanta.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Ukaz <code>LDI R16, 100</code> uporablja naslavljanje:</p>
+<button class="opt">neposredno</button><button class="opt">takojšnje</button>
+<button class="opt">posredno registrsko</button><button class="opt">vsebovano</button>
+<div class="fb"><strong>Takojšnje</strong> — konstanta 100 je zapisana kar v ukazu.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Za sprehod po polju je nujno:</p>
+<button class="opt">takojšnje naslavljanje</button><button class="opt">posredno registrsko naslavljanje</button>
+<button class="opt">vsebovano naslavljanje</button>
+<div class="fb"><strong>Posredno registrsko</strong> — samo tako lahko naslov med izvajanjem povečujemo.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Pri katerem načinu ukaz sploh ne vsebuje operanda?</p>
+<button class="opt">registrskem</button><button class="opt">vsebovanem</button><button class="opt">z odmikom</button>
+<div class="fb"><strong>Vsebovanem</strong> — operand je določen že z opkodo (npr. <code>SEI</code> vedno postavi bit I).</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 8 ================= -->
+<section class="tema" id="t8">
+<h2><span class="n">08</span>Zbirnik v praksi — vzporedno s C</h2>
+<p class="ure">Predlog 4 ure · standard znanja: <em>uporabi osnovne ukaze na ravni zbirnika</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak loči, kaj je jezik C in kaj je zbirnik, ter ve, kaj se v kaj prevede.</li>
+<li>Prebere kratek program v zbirniku in ga zna zapisati v C — in obratno.</li>
+<li>Napiše zanko s števcem in pogojnim skokom v obeh zapisih.</li>
+</ul>
+</div>
+
+<h3>Najprej: kaj sploh je zbirnik</h3>
+<p><strong>Zbirnik</strong> (<em class="tuj">assembly</em>) je človeku berljiv zapis strojnih ukazov.
+Namesto <code>0000 1111 0001 0010</code> pišemo <code>ADD R17, R18</code>. Preslikava je skoraj
+ena proti ena: <strong>ena vrstica zbirnika je en strojni ukaz</strong>.</p>
+
+<div class="prispodoba">
+<strong>Če dijaki ne razumejo zapisa <code>(1 &lt;&lt; PB5)</code>.</strong> To je normalno in pričakovano —
+v eni vrstici so trije novi pojmi hkrati: teža bita, pomik in maska. Za to je pripravljen ločen
+dokument <em>Od bita do lučke</em>, ki razloži samo to vrstico, od začetka, s slikami in shemo plošče.
+Priporočam, da ga dijaki predelajo pred to temo; brez tega je vse nadaljnje delo z registri
+zgolj prepisovanje.
+</div>
+
+<div class="opomba">
+<strong>Pogosta zmeda, ki jo je vredno razčistiti takoj.</strong> Kadar v okolju Arduino napišemo
+<code>PORTB |= (1 &lt;&lt; PB5);</code>, to <em>ni</em> zbirnik — je stavek v jeziku <strong>C</strong>.
+<code>PORTB</code> in <code>PB5</code> sta imeni, definirani v datoteki <code>avr/io.h</code>
+(<code>PB5</code> je pravzaprav navadno število 5), <code>|=</code> in <code>&lt;&lt;</code> pa sta
+operatorja jezika C. Ta stavek se <em>prevede</em> v ukaz zbirnika <code>SBI</code>.
+Ravni so torej tri: funkcije Arduino → C z registri → zbirnik.
+</div>
+
+<figure>
+<svg viewBox="0 0 880 250" role="img" aria-label="Tri ravni zapisa: Arduino, C z registri, zbirnik">
+<style>
+ .g14-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.6;rx:8}
+ .g14-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.8;rx:8}
+ .g14-bg{fill:#e6f0e9;stroke:#2e6b45;stroke-width:1.8;rx:8}
+ .g14-t{font:12.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .g14-tm{font:12px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a}
+ .g14-ts{font:11px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+ .g14-tb{font:bold 12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#7a4b2a}
+ .g14-a{stroke:#1c1c1a;stroke-width:1.8;fill:none;marker-end:url(#g14tip)}
+</style>
+<defs><marker id="g14tip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker></defs>
+
+<text class="g14-tb" x="20" y="22">1 · funkcije Arduino (C++)</text>
+<rect class="g14-b" x="20" y="32" width="250" height="42"/>
+<text class="g14-tm" x="32" y="58">digitalWrite(13, HIGH);</text>
+<text class="g14-ts" x="20" y="92">klic funkcije iz knjižnice · ~50 ukazov</text>
+
+<text class="g14-tb" x="315" y="22">2 · C z registri</text>
+<rect class="g14-bf" x="315" y="32" width="250" height="42"/>
+<text class="g14-tm" x="327" y="58">PORTB |= (1 &lt;&lt; PB5);</text>
+<text class="g14-ts" x="315" y="92">stavek v jeziku C · makri iz avr/io.h</text>
+
+<text class="g14-tb" x="610" y="22" fill="#2e6b45">3 · zbirnik AVR</text>
+<rect class="g14-bg" x="610" y="32" width="250" height="42"/>
+<text class="g14-tm" x="622" y="58">sbi  0x05, 5</text>
+<text class="g14-ts" x="610" y="92">pravi strojni ukaz · 2 takta</text>
+
+<line class="g14-a" x1="276" y1="53" x2="309" y2="53"/>
+<line class="g14-a" x1="571" y1="53" x2="604" y2="53"/>
+<text class="g14-ts" x="272" y="118">prevajalnik</text>
+<text class="g14-ts" x="567" y="118">prevajalnik</text>
+
+<rect x="20" y="140" width="840" height="46" rx="8" fill="#f2e9e2" stroke="#7a4b2a" stroke-width="1.2"/>
+<text class="g14-t" x="34" y="160">Vse tri vrstice naredijo popolnoma isto: postavijo peti bit v registru vrat B in s tem prižgejo LED na pinu 13.</text>
+<text class="g14-t" x="34" y="178">Razlikujejo se le po tem, koliko plasti je vmes — in koliko taktov porabijo.</text>
+
+<text class="g14-ts" x="20" y="212">V tej temi delamo na ravneh 2 in 3 vzporedno, da je vidno, kaj se v kaj prevede.</text>
+<text class="g14-ts" x="20" y="232">Naslova 0x05 in 0x04 sta V/I naslova registrov PORTB in DDRB; celoten seznam je v podatkovnem listu.</text>
+</svg>
+<figcaption>Tri ravni zapisa iste operacije. Nižje ko gremo, več vidimo in več moramo napisati.</figcaption>
+</figure>
+
+<h3>Nabor ukazov, ki zadošča za vse zglede v tem sklopu</h3>
+<div class="tabela">
+<table>
+<thead><tr><th>Skupina</th><th>Ukaz</th><th>Pomen</th><th>Takti</th></tr></thead>
+<tbody>
+<tr><td rowspan="5">Prenos</td><td><code>LDI Rd, K</code></td><td>Rd &larr; konstanta K <em>(le R16–R31)</em></td><td>1</td></tr>
+<tr><td><code>MOV Rd, Rr</code></td><td>Rd &larr; Rr</td><td>1</td></tr>
+<tr><td><code>LDS Rd, naslov</code></td><td>naloži iz pomnilnika (neposredno)</td><td>2</td></tr>
+<tr><td><code>LD Rd, X+</code></td><td>naloži prek kazalca in ga povečaj (posredno)</td><td>2</td></tr>
+<tr><td><code>IN Rd, A</code> / <code>OUT A, Rr</code></td><td>branje/pisanje V/I registra</td><td>1</td></tr>
+<tr><td rowspan="4">Aritmetika</td><td><code>ADD Rd, Rr</code> / <code>SUB Rd, Rr</code></td><td>seštej / odštej</td><td>1</td></tr>
+<tr><td><code>INC Rd</code> / <code>DEC Rd</code></td><td>povečaj / zmanjšaj za 1</td><td>1</td></tr>
+<tr><td><code>CLR Rd</code></td><td>Rd &larr; 0</td><td>1</td></tr>
+<tr><td><code>MUL Rd, Rr</code></td><td>zmnoži, rezultat v R1:R0</td><td>2</td></tr>
+<tr><td rowspan="4">Biti in logika</td><td><code>SBI A, b</code> / <code>CBI A, b</code></td><td>postavi / počisti bit v V/I registru</td><td>2</td></tr>
+<tr><td><code>SBIC A, b</code> / <code>SBIS A, b</code></td><td>preskoči naslednji ukaz glede na bit</td><td>1–3</td></tr>
+<tr><td><code>AND / OR / EOR</code></td><td>logične operacije po bitih</td><td>1</td></tr>
+<tr><td><code>LSL Rd</code> / <code>LSR Rd</code></td><td>pomik levo / desno</td><td>1</td></tr>
+<tr><td rowspan="4">Primerjava in skoki</td><td><code>CP Rd, Rr</code> / <code>CPI Rd, K</code></td><td>primerjaj (odšteje, rezultata ne shrani)</td><td>1</td></tr>
+<tr><td><code>BREQ</code> / <code>BRNE</code></td><td>skoči, če enako / različno (Z)</td><td>1 ali 2</td></tr>
+<tr><td><code>BRLO</code> / <code>BRSH</code></td><td>skoči, če manjše / večje-ali-enako (nepredznačeno)</td><td>1 ali 2</td></tr>
+<tr><td><code>RJMP oznaka</code></td><td>brezpogojni skok</td><td>2</td></tr>
+<tr><td rowspan="3">Podprogrami</td><td><code>RCALL oznaka</code></td><td>kliči podprogram</td><td>3</td></tr>
+<tr><td><code>RET</code> / <code>RETI</code></td><td>vrni se / vrni se iz prekinitve</td><td>4</td></tr>
+<tr><td><code>PUSH Rr</code> / <code>POP Rd</code></td><td>shrani na sklad / vzemi s sklada</td><td>2</td></tr>
+</tbody>
+</table>
+</div>
+<p class="vzpn">Popoln nabor vseh 127 ukazov ATmega328P je v ločeni referenci
+<em>AVR: ukazi, registri in tri ravni zapisa</em>.</p>
+
+<h3>Šest zgledov vzporedno</h3>
+<p>Levo je zapis v jeziku C, kot ga dijaki pišejo v okolju Arduino. Desno je isto v zbirniku.
+V zgledih so V/I naslovi zapisani številčno, ker jih tako vidimo v izpisu prevajalnika:
+<code>0x03</code> = PINB, <code>0x04</code> = DDRB, <code>0x05</code> = PORTB, <code>0x09</code> = PIND.</p>
+
+<div class="zgled">
+<h4>Zgled 1 — prižgi LED</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>DDRB  |= (1 &lt;&lt; PB5);   <span class="c">// PB5 je izhod</span>
+PORTB |= (1 &lt;&lt; PB5);   <span class="c">// prizgi</span></code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>sbi   0x04, 5          <span class="c">; DDRB,  bit 5</span>
+sbi   0x05, 5          <span class="c">; PORTB, bit 5</span></code></pre></div>
+</div>
+<p class="vzpn">Ena vrstica C = en ukaz. Prevajalnik zna uporabiti <code>SBI</code>, ker sta register in
+številka bita znana že ob prevajanju.</p>
+</div>
+
+<div class="zgled">
+<h4>Zgled 2 — LED sledi tipki</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>if (!(PIND &amp; (1 &lt;&lt; PD2))) {
+    PORTB |=  (1 &lt;&lt; PB5);
+} else {
+    PORTB &amp;= ~(1 &lt;&lt; PB5);
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      sbic  0x09, 2    <span class="c">; PIND bit2 = 0? preskoci</span>
+      rjmp  ugasni     <span class="c">; ni pritisnjena</span>
+      sbi   0x05, 5    <span class="c">; pritisnjena -> prizgi</span>
+      rjmp  naprej
+ugasni:
+      cbi   0x05, 5
+naprej:</code></pre></div>
+</div>
+<p class="vzpn"><code>SBIC</code> je ukaz, ki ga v C ni: <em>preskoči naslednji ukaz, če je bit nič</em>.
+Prav zato je zaporedje v zbirniku videti obrnjeno.</p>
+</div>
+
+<div class="zgled">
+<h4>Zgled 3 — zanka: seštej števila od 1 do 10</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>uint8_t vsota = 0;
+
+for (uint8_t i = 1; i &lt;= 10; i++) {
+    vsota += i;
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      ldi   r16, 1     <span class="c">; i = 1</span>
+      ldi   r17, 11    <span class="c">; meja</span>
+      clr   r19        <span class="c">; vsota = 0</span>
+zanka:
+      add   r19, r16   <span class="c">; vsota += i</span>
+      inc   r16        <span class="c">; i++</span>
+      cp    r16, r17   <span class="c">; i &lt; 11 ?</span>
+      brlo  zanka</code></pre></div>
+</div>
+<p class="vzpn">Zanka <code>for</code> ne obstaja — sestavljena je iz začetne vrednosti, telesa,
+povečanja, primerjave in pogojnega skoka nazaj. Rezultat je 55.</p>
+</div>
+
+<div class="zgled">
+<h4>Zgled 4 — pogojni stavek</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>if (a == b) {
+    c = 1;
+} else {
+    c = 0;
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      cp    r16, r17   <span class="c">; a - b, samo zastavice</span>
+      breq  enaka      <span class="c">; Z = 1 -> skoci</span>
+      clr   r20        <span class="c">; sicer veja</span>
+      rjmp  naprej
+enaka:
+      ldi   r20, 1     <span class="c">; then veja</span>
+naprej:</code></pre></div>
+</div>
+<p class="vzpn">Vsak <code>if</code> se prevede v <em>primerjavo, pogojni skok in brezpogojni skok
+čez drugo vejo</em>. Pozabljen <code>RJMP naprej</code> pomeni, da se izvedeta obe veji —
+to je najpogostejša napaka dijakov.</p>
+</div>
+
+<div class="zgled">
+<h4>Zgled 5 — podprogram</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>void prizgi(void) {
+    PORTB |= (1 &lt;&lt; PB5);
+}
+
+void loop() {
+    prizgi();
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      rcall prizgi     <span class="c">; PC na sklad, skoci (3 takti)</span>
+      ...
+
+prizgi:
+      sbi   0x05, 5
+      ret              <span class="c">; PC s sklada (4 takti)</span></code></pre></div>
+</div>
+<p class="vzpn">Klic in vrnitev skupaj stane 7 taktov, samo delo pa 2. Zato se za kratke operacije
+podprogram ne izplača — to je razlog, da prevajalniki majhne funkcije <em>vgnezdijo</em>
+(<em class="tuj">inline</em>).</p>
+</div>
+
+<div class="zgled">
+<h4>Zgled 6 — polje in posredno naslavljanje</h4>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>uint8_t *p = (uint8_t*)0x0100;
+uint8_t vsota = 0;
+
+for (uint8_t i = 0; i &lt; 10; i++) {
+    vsota += *p;
+    p++;
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      ldi   r26, 0x00  <span class="c">; XL</span>
+      ldi   r27, 0x01  <span class="c">; XH -> X = 0x0100</span>
+      ldi   r18, 10    <span class="c">; stevec</span>
+      clr   r19        <span class="c">; vsota</span>
+zanka:
+      ld    r16, X+    <span class="c">; naloži in povecaj kazalec</span>
+      add   r19, r16
+      dec   r18
+      brne  zanka</code></pre></div>
+</div>
+<p class="vzpn">Kazalec <code>p</code> v jeziku C in kazalni register <strong>X</strong> (par R27:R26)
+sta ista stvar. Tu se vidi, da je <em>posredno registrsko naslavljanje</em> iz teme 07 tisto,
+kar sploh omogoča polja in kazalce v višjih jezikih.</p>
+</div>
+
+<h3>Preslikava konstruktov jezika C v ukaze</h3>
+<div class="tabela">
+<table>
+<thead><tr><th>V jeziku C</th><th>V zbirniku</th><th>Opomba</th></tr></thead>
+<tbody>
+<tr><td><code>x = 5;</code></td><td><code>LDI Rd, 5</code></td><td>takojšnje naslavljanje; le registri R16–R31</td></tr>
+<tr><td><code>x = y;</code></td><td><code>MOV Rd, Rr</code></td><td>registrsko naslavljanje</td></tr>
+<tr><td><code>x = x + y;</code></td><td><code>ADD Rd, Rr</code></td><td>rezultat prepiše cilj</td></tr>
+<tr><td><code>x++;</code></td><td><code>INC Rd</code></td><td>ne spremeni zastavice C</td></tr>
+<tr><td><code>if (a == b)</code></td><td><code>CP</code> + <code>BREQ</code></td><td>primerjava postavi zastavice, skok jih prebere</td></tr>
+<tr><td><code>if (a &lt; b)</code></td><td><code>CP</code> + <code>BRLO</code> (nepredznačeno)<br><code>CP</code> + <code>BRLT</code> (predznačeno)</td><td>izbira skoka je odvisna od tipa spremenljivke</td></tr>
+<tr><td><code>while</code> / <code>for</code></td><td>oznaka + telo + <code>CP</code> + <code>BRxx</code> nazaj</td><td>zanke v strojni kodi ni; je le skok nazaj</td></tr>
+<tr><td><code>f();</code></td><td><code>RCALL</code> … <code>RET</code></td><td>povratni naslov gre na sklad</td></tr>
+<tr><td><code>polje[i]</code></td><td><code>LD Rd, X+</code></td><td>posredno registrsko naslavljanje</td></tr>
+<tr><td><code>zapis.polje</code></td><td><code>LDD Rd, Y+q</code></td><td>naslavljanje z odmikom</td></tr>
+<tr><td><code>x |= (1&lt;&lt;n);</code></td><td><code>SBI</code> (če je vse znano) ali <code>IN</code>+<code>OR</code>+<code>OUT</code></td><td>en ukaz ali trije — odvisno od tega, kaj prevajalnik ve</td></tr>
+<tr><td>lokalna spremenljivka</td><td>register, ali sklad prek <code>PUSH</code>/<code>POP</code></td><td>registrov je 32; ko zmanjka, gredo na sklad</td></tr>
+<tr><td><code>return x;</code></td><td>vrednost v <code>R24</code></td><td>dogovor prevajalnika avr-gcc; 16-bitna v R25:R24</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prispodoba">
+<strong>Kako to pokazati dijakom v živo.</strong> Prevajalnik lahko vprašate, kaj je naredil:
+<code>avr-objdump -d -S skica.ino.elf</code> izpiše vsako vrstico C in pod njo ukaze, v katere se je
+prevedla. Ko dijaki vidijo, da <code>digitalWrite(13, HIGH)</code> porabi okoli petdeset ukazov,
+<code>PORTB |= (1&lt;&lt;PB5)</code> pa enega, razlika med ravnmi ni več abstraktna.
+</div>
+
+<h3>Popolni program v zbirniku</h3>
+<p>Za občutek, kako je videti program brez jezika C. Utripanje LED na pinu 13:</p>
+<pre><span class="c">; --- utrip.S — prevedemo z: avr-gcc -mmcu=atmega328p -Os -o utrip.elf utrip.S ---</span>
+#include &lt;avr/io.h&gt;
+
+      .global main
+main:
+      sbi   _SFR_IO_ADDR(DDRB), PB5     <span class="c">; PB5 je izhod</span>
+
+zanka:
+      sbi   _SFR_IO_ADDR(PORTB), PB5    <span class="c">; prizgi</span>
+      rcall pocakaj
+      cbi   _SFR_IO_ADDR(PORTB), PB5    <span class="c">; ugasni</span>
+      rcall pocakaj
+      rjmp  zanka                       <span class="c">; v nedogled</span>
+
+pocakaj:                                <span class="c">; groba zakasnitev z gnezdenimi zankami</span>
+      ldi   r20, 20
+z3:   ldi   r21, 255
+z2:   ldi   r22, 255
+z1:   dec   r22
+      brne  z1
+      dec   r21
+      brne  z2
+      dec   r20
+      brne  z3
+      ret</pre>
+<p>Ker ne uporabimo stikala <code>-nostdlib</code>, prevajalnik sam doda zagonsko kodo, ki nastavi
+sklad in pokliče <code>main</code> — zato nam ni treba pisati prekinitvene tabele.</p>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 8.1</p>
+<p>Kaj naredi ta program in kaj je v R19 na koncu? Zapiši ga tudi v jeziku C.</p>
+<pre>      LDI  R16, 5
+      LDI  R17, 3
+      CLR  R19
+zanka:
+      ADD  R19, R16
+      DEC  R17
+      BRNE zanka</pre>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Trikrat prišteje 5 — torej izvede <strong>množenje 5 &times; 3</strong>. Na koncu je R19 = <strong>15</strong>, R17 = 0.
+To je klasičen način množenja na procesorjih brez ukaza <code>MUL</code>.</p>
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>uint8_t a = 5, n = 3, vsota = 0;
+do {
+    vsota += a;
+    n--;
+} while (n != 0);</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      ldi  r16, 5
+      ldi  r17, 3
+      clr  r19
+zanka:
+      add  r19, r16
+      dec  r17
+      brne zanka</code></pre></div>
+</div>
+<p>Pomembno je, da je to zanka <code>do…while</code> in ne <code>while</code>: telo se izvede
+vsaj enkrat, ker je preverjanje na koncu. Če bi bilo <code>n = 0</code>, bi ta program
+prištel 256-krat, ne nič.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 8.2</p>
+<p>Napiši program, ki v R20 poišče večjega od R16 in R17 — najprej v C, nato v zbirniku.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>if (a &gt;= b) {
+    c = a;
+} else {
+    c = b;
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      cp   r16, r17
+      brsh prvi        <span class="c">; R16 &gt;= R17 ?</span>
+      mov  r20, r17
+      rjmp naprej
+prvi: mov  r20, r16
+naprej:</code></pre></div>
+</div>
+<p>Pogosti napaki: <code>BRLO</code> namesto <code>BRSH</code> (obrnjena logika) in pozabljen
+<code>RJMP naprej</code>, zaradi česar se izvedeta obe veji in je rezultat vedno R16.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 8.3</p>
+<p>Prevedi v zbirnik: <code>for (i = 0; i &lt; 8; i++) { polje[i] = i; }</code>,
+kjer se polje začne na naslovu 0x0300.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<div class="vzp">
+<div><h5 class="hc">C</h5><pre><code>uint8_t *p = (uint8_t*)0x0300;
+
+for (uint8_t i = 0; i &lt; 8; i++) {
+    *p = i;
+    p++;
+}</code></pre></div>
+<div><h5 class="ha">Zbirnik</h5><pre><code>      ldi   r26, 0x00  <span class="c">; XL</span>
+      ldi   r27, 0x03  <span class="c">; XH -> X = 0x0300</span>
+      clr   r16        <span class="c">; i = 0</span>
+      ldi   r18, 8     <span class="c">; meja</span>
+zanka:
+      st    X+, r16    <span class="c">; polje[i] = i</span>
+      inc   r16
+      cp    r16, r18
+      brlo  zanka</code></pre></div>
+</div>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 8.4</p>
+<p>Spodnja zanka naj traja natanko 1000 taktov. Koliko ponovitev potrebuješ in zakaj se izračun
+ne izide brez dodatnega ukaza <code>NOP</code>?</p>
+<pre>      LDI  R24, ?
+zanka:
+      DEC  R24
+      BRNE zanka</pre>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><code>DEC</code> traja 1 takt, <code>BRNE</code> pa 2 takta, kadar skoči, in samo 1, kadar ne skoči.
+En obhod je torej 3 takte, zadnji pa le 2.</p>
+<p>Pri <em>n</em> ponovitvah: <code>1 (LDI) + 3n &minus; 1 (zadnji BRNE ne skoči)</code>.
+Za 1000 taktov: <code>3n = 1000</code> ne da celega števila. Pri <em>n</em> = 333 dobimo
+<code>1 + 999 &minus; 1 = 999</code> taktov — manjka natanko eden, zato dodamo <code>NOP</code>.</p>
+<pre>      LDI  R24, 333    <span class="c">; 1 takt</span>
+zanka:
+      DEC  R24         <span class="c">; 1 takt</span>
+      BRNE zanka       <span class="c">; 2 takta (zadnjic 1)</span>
+      NOP              <span class="c">; 1 takt za izravnavo</span>
+                       <span class="c">; skupaj: 1 + 333*3 - 1 + 1 = 1000</span></pre>
+<p>Tisti "&minus;1" je past, ki jo dijaki skoraj vedno spregledajo — in prav zato je ta vaja vredna.
+Pri 16 MHz je 1000 taktov 62,5 &micro;s.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 8.5</p>
+<p>Zakaj se ta ukaz ne prevede in kako ga popraviš?</p>
+<pre>      LDI  R5, 100</pre>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ukaz <code>LDI</code> deluje <strong>samo na registrih R16–R31</strong>. Razlog je v zgradbi ukaza:
+za konstanto je potrebnih 8 bitov, za register torej ostanejo le 4 — s štirimi biti pa lahko naslovimo
+16 registrov, ne 32. Isto omejitev imajo <code>CPI</code>, <code>SUBI</code>, <code>ANDI</code> in
+<code>ORI</code>.</p>
+<p>Popravek: uporabi register iz zgornje polovice, ali pa vrednost naloži posredno:</p>
+<pre>      LDI  R16, 100
+      MOV  R5, R16</pre>
+<p>To je odličen primer teme 04: <em>oblika ukaza omejuje, kaj je z njim sploh mogoče</em>.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Ukaz <code>CP R16, R17</code>:</p>
+<button class="opt">shrani razliko v R16</button>
+<button class="opt">odšteje in postavi zastavice, rezultata pa ne shrani</button>
+<button class="opt">skoči, če sta enaka</button>
+<div class="fb">Postavi <strong>samo zastavice</strong>. Odločitev prepusti naslednjemu pogojnemu skoku.</div>
+</div>
+<div class="q" data-pravilen="0">
+<p class="vpr">2. Zanka <code>DEC R17 / BRNE zanka</code> se konča, ko:</p>
+<button class="opt">R17 doseže 0</button><button class="opt">R17 doseže 255</button><button class="opt">se postavi zastavica C</button>
+<div class="fb">Ko <strong>R17 doseže 0</strong> — takrat se postavi Z in <code>BRNE</code> ne skoči več.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. <code>PORTB |= (1 &lt;&lt; PB5);</code> je:</p>
+<button class="opt">ukaz zbirnika AVR</button>
+<button class="opt">stavek v jeziku C, ki se prevede v ukaz <code>SBI</code></button>
+<button class="opt">funkcija iz knjižnice Arduino</button>
+<div class="fb">Stavek v <strong>jeziku C</strong>. <code>PORTB</code> in <code>PB5</code> sta makra iz <code>avr/io.h</code>, <code>|=</code> in <code>&lt;&lt;</code> pa operatorja jezika C. Prevede se v en sam ukaz <code>SBI</code>.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">4. Zakaj se en stavek v Javi prevede v več strojnih ukazov, ena vrstica zbirnika pa v enega?</p>
+<button class="opt">Ker je Java počasnejši jezik.</button>
+<button class="opt">Ker je zbirnik skoraj neposredna preslikava strojnih ukazov, Java pa abstrakcija nad njimi.</button>
+<button class="opt">Ker Java ne uporablja registrov.</button>
+<div class="fb">Zbirnik je <strong>simbolni zapis istega strojnega ukaza</strong>. Višji jeziki opišejo, kaj hočemo, prevajalnik pa poišče zaporedje ukazov, ki to doseže.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 9 ================= -->
+<section class="tema" id="t9">
+<h2><span class="n">09</span>Vhodno-izhodni sistem in priklop naprav</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>našteje vhodne in izhodne naprave ter opredeli njihove komunikacijske vmesnike</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak opiše načine priklapljanja vhodno-izhodnih naprav.</li>
+<li>Razloži pomnilniško preslikan V/I in ga primerja z ločenim V/I naslovnim prostorom.</li>
+<li>Opiše zgradbo V/I vmesnika: podatkovni, statusni in krmilni register.</li>
+</ul>
+</div>
+
+<h3>Problem: kako CPE sploh govori z napravo</h3>
+<p>CPE zna samo dvoje: brati z naslova in pisati na naslov. Tipka, LED, senzor in serijska vrata pa niso
+pomnilnik. Rešitev je vmesno vezje — <strong>V/I vmesnik</strong> (krmilnik naprave) — ki se proti CPE obnaša
+kot nekaj pomnilniških celic, proti napravi pa govori njen jezik.</p>
+
+<figure>
+<svg viewBox="0 0 720 250" role="img" aria-label="Zgradba vhodno-izhodnega vmesnika">
+<style>
+ .g9-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.5}
+ .g9-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.5}
+ .g9-t{font:12px -apple-system,sans-serif;fill:#1c1c1a}
+ .g9-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g9-tb{font:bold 12.5px -apple-system,sans-serif;fill:#7a4b2a}
+ .g9-ar{stroke:#1c1c1a;stroke-width:1.6;fill:none;marker-end:url(#a9);marker-start:url(#a9b)}
+</style>
+<defs>
+<marker id="a9" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker>
+<marker id="a9b" markerWidth="9" markerHeight="9" refX="1" refY="4.5" orient="auto"><path d="M9,0 L0,4.5 L9,9 z" fill="#1c1c1a"/></marker>
+</defs>
+<rect class="g9-bf" x="20" y="70" width="90" height="60" rx="6"/><text class="g9-t" x="52" y="105">CPE</text>
+<line class="g9-ar" x1="110" y1="100" x2="200" y2="100"/><text class="g9-ts" x="118" y="92">vodila</text>
+
+<rect class="g9-b" x="200" y="34" width="230" height="150" rx="8" stroke-dasharray="5 4"/>
+<text class="g9-tb" x="212" y="54">V/I vmesnik</text>
+<rect class="g9-bf" x="214" y="64" width="200" height="30"/><text class="g9-t" x="224" y="84">podatkovni register</text>
+<rect class="g9-bf" x="214" y="100" width="200" height="30"/><text class="g9-t" x="224" y="120">statusni register</text>
+<rect class="g9-bf" x="214" y="136" width="200" height="30"/><text class="g9-t" x="224" y="156">krmilni register</text>
+
+<line class="g9-ar" x1="430" y1="108" x2="520" y2="108"/>
+<rect class="g9-b" x="520" y="70" width="140" height="60" rx="6"/>
+<text class="g9-t" x="540" y="96">naprava</text><text class="g9-ts" x="532" y="116">tipka, LED, tipalo</text>
+
+<text class="g9-ts" x="20" y="212">Podatkovni register: prek njega gre vsebina. Statusni: pove, ali je naprava pripravljena, ali je podatek nov, ali je prišlo do napake.</text>
+<text class="g9-ts" x="20" y="232">Krmilni: vanj CPE zapiše nastavitve — hitrost prenosa, smer pina, ali naj naprava sproža prekinitve.</text>
+</svg>
+<figcaption>Trije registri so skupni skoraj vsem V/I vmesnikom — od serijskih vrat do pretvornika A/D.</figcaption>
+</figure>
+
+<h3>Dva načina priklopa</h3>
+<div class="tabela">
+<table>
+<thead><tr><th></th><th>Pomnilniško preslikan V/I<br><em class="tuj">memory-mapped I/O</em></th><th>Ločen V/I prostor<br><em class="tuj">port-mapped / isolated I/O</em></th></tr></thead>
+<tbody>
+<tr><td>Naslovni prostor</td><td>naprave zasedejo del istega prostora kot pomnilnik</td><td>naprave imajo svoj, ločen prostor</td></tr>
+<tr><td>Ukazi</td><td>isti kot za pomnilnik (<code>LDS</code>, <code>STS</code>)</td><td>posebni ukazi (<code>IN</code>, <code>OUT</code>)</td></tr>
+<tr><td>Krmilno vodilo</td><td>ne potrebuje dodatnega signala</td><td>potrebuje signal M/IO</td></tr>
+<tr><td>Prednost</td><td>na voljo so vsi načini naslavljanja; enostavno programiranje v C</td><td>ne troši pomnilniškega prostora; jasna ločnica</td></tr>
+<tr><td>Slabost</td><td>del naslovnega prostora je izgubljen za pomnilnik</td><td>manj prožno; potreben poseben ukaz</td></tr>
+<tr><td>Uporablja</td><td>ARM, AVR (deloma), večina sodobnih sistemov</td><td>x86 (poleg pomnilniško preslikanega)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prispodoba">
+<strong>Prispodoba.</strong> Pomnilniško preslikan V/I je kot stanovanjski blok, kjer so med stanovanji tudi
+pisarne — na vratih piše številka in vstopiš enako. Ločen V/I je kot ločena stavba s svojim
+oštevilčenjem — za vstop potrebuješ drugačen ključ (poseben ukaz).
+</div>
+
+<h3>Primer: pin kot vhod in kot izhod</h3>
+<p>Pri AVR ima vsak sklop vrat (PORTB, PORTC, PORTD) tri registre:</p>
+<ul>
+<li><code>DDRx</code> — smer: bit 1 = izhod, bit 0 = vhod (krmilni register),</li>
+<li><code>PORTx</code> — izhodna vrednost (podatkovni register za pisanje),</li>
+<li><code>PINx</code> — prebrano stanje pinov (podatkovni register za branje).</li>
+</ul>
+<pre>      LDI  R16, 0b00000001
+      OUT  DDRB, R16       <span class="c">; PB0 je izhod, ostali vhodi</span>
+      LDI  R16, 0b00000010
+      OUT  PORTB, R16      <span class="c">; na PB1 (vhod) vklopi dvižni upor</span>
+
+beri: IN   R17, PINB       <span class="c">; preberi stanje pinov</span>
+      <span class="c">; ... obdelaj ...</span>
+      RJMP beri</pre>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 9.1</p>
+<p>Naštej pet vhodnih in pet izhodnih naprav ter za vsako navedi vmesnik, prek katerega se običajno priklopi.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><em>Vhodne:</em> tipkovnica (USB), miška (USB/Bluetooth), tipalo temperature (I²C ali analogni vhod),
+mikrofon (analogni vhod + A/D), skener (USB), tipka (digitalni pin GPIO).<br>
+<em>Izhodne:</em> zaslon (HDMI/DisplayPort), tiskalnik (USB/omrežje), LED (GPIO), zvočnik (analogni izhod),
+motor (PWM prek gonilnika), rele (GPIO prek tranzistorja).<br>
+Naprave, ki so <em>oboje</em>: disk (SATA/NVMe), omrežna kartica, zaslon na dotik.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 9.2</p>
+<p>Zakaj mora vmesnik imeti statusni register? Kaj bi šlo narobe brez njega?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>CPE je hitrejša od naprave za več velikostnih redov. Brez statusnega registra CPE ne bi vedela,
+<em>kdaj</em> je podatek pripravljen ali kdaj je naprava sposobna sprejeti naslednjega. Brala bi staro
+ali nesmiselno vrednost, pri pisanju pa bi prepisala podatek, ki ga naprava še ni oddala.
+Statusni register je torej rokovanje (<em class="tuj">handshake</em>) med hitro CPE in počasno napravo.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 9.3</p>
+<p>Sistem ima 16-bitno naslovno vodilo. Naprave so pomnilniško preslikane in zasedejo naslove
+od 0xFF00 do 0xFFFF. Koliko pomnilnika ostane in koliko naprav (po 4 registre) lahko priklopimo?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Skupaj 2<sup>16</sup> = 65 536 naslovov. Naprave zasedejo 256 naslovov (0xFF00–0xFFFF),
+za pomnilnik torej ostane <strong>65 280 naslovov ≈ 63,75 kB</strong>. Če vsaka naprava potrebuje 4 registre,
+lahko priklopimo <strong>256 / 4 = 64 naprav</strong>.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 9.4</p>
+<p>Dijak zapiše <code>OUT PORTB, R16</code>, LED pa ne zasveti. Naštej tri možne vzroke v programu.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>(1) V <code>DDRB</code> pin ni nastavljen kot izhod — brez tega je pin vhod in ne more gnati LED.
+(2) Napačna maska — postavljen je napačen bit, npr. <code>0b00000010</code> namesto <code>0b00000001</code>.
+(3) Program takoj za tem pin ponastavi (npr. <code>CLR R16 / OUT PORTB, R16</code> brez zakasnitve —
+LED utripa prehitro, da bi jo videli).
+Zunaj programa so še: LED je obrnjena, manjka predupor, napačen pin na plošči.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Pri pomnilniško preslikanem V/I do naprave dostopamo:</p>
+<button class="opt">s posebnimi ukazi IN in OUT</button>
+<button class="opt">z istimi ukazi kot do pomnilnika</button>
+<button class="opt">samo prek prekinitev</button>
+<div class="fb">Z <strong>istimi ukazi</strong> — naprava je videti kot nekaj pomnilniških celic.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. V katerem registru vmesnika je podatek "naprava je pripravljena"?</p>
+<button class="opt">podatkovnem</button><button class="opt">statusnem</button><button class="opt">krmilnem</button>
+<div class="fb"><strong>Statusnem</strong>. Krmilni je za nastavitve, ki jih pošlje CPE, podatkovni za samo vsebino.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Register <code>DDRB</code> pri AVR določa:</p>
+<button class="opt">vrednost na izhodu</button><button class="opt">smer pinov (vhod/izhod)</button><button class="opt">hitrost prenosa</button>
+<div class="fb"><strong>Smer.</strong> Vrednost določa <code>PORTB</code>, prebrano stanje pa najdemo v <code>PINB</code>.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 10 ================= -->
+<section class="tema" id="t10">
+<h2><span class="n">10</span>Prenos podatkov: vzporedno, zaporedno, sinhrono, asinhrono</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>razume razliko med vzporednim in zaporednim prenosom, pozna značilnosti sinhronih in asinhronih prenosov</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak primerja vzporedni in zaporedni prenos ter pojasni, zakaj je zaporedni danes prevladal.</li>
+<li>Loči sinhroni in asinhroni prenos.</li>
+<li>Opiše okvir asinhronega prenosa (UART/SCI) in izračuna trajanje prenosa pri dani hitrosti.</li>
+</ul>
+</div>
+
+<h3>Vzporedno ali zaporedno</h3>
+<div class="tabela">
+<table>
+<thead><tr><th></th><th>Vzporedni prenos</th><th>Zaporedni prenos</th></tr></thead>
+<tbody>
+<tr><td>Kako</td><td>vsak bit svoj vodnik, vsi hkrati</td><td>vsi biti po enem vodniku, drug za drugim</td></tr>
+<tr><td>Vodniki</td><td>8, 16, 32 …</td><td>1 (ali 2 za dvosmerno)</td></tr>
+<tr><td>Hitrost na kratki razdalji</td><td>velika</td><td>manjša pri istem taktu</td></tr>
+<tr><td>Na dolgi razdalji</td><td>slaba — <em>časovni razmik</em> in presluh</td><td>odlična</td></tr>
+<tr><td>Cena kabla</td><td>visoka</td><td>nizka</td></tr>
+<tr><td>Primeri</td><td>vodila v čipu, stari LPT, stari IDE</td><td>USB, SATA, PCIe, UART, I²C, SPI, Ethernet</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Zakaj je zaporedni prenos prehitel vzporednega.</strong> Pri visokih frekvencah biti po vzporednih
+vodnikih ne pridejo hkrati — vsak vodnik ima malenkost drugačno dolžino in kapacitivnost
+(<em>časovni razmik</em>, angl. <em class="tuj">clock skew</em>), poleg tega se sosednji vodniki motijo
+(<em>presluh</em>). Zato je bilo ceneje in hitreje en sam vodnik pognati zelo hitro, kot osem počasneje.
+Prav zato je SATA nadomestil IDE, USB pa LPT.
+</div>
+
+<h3>Sinhrono ali asinhrono</h3>
+<ul>
+<li><strong>Sinhrono</strong> — poleg podatkov teče še <strong>urni signal</strong>. Sprejemnik ve točno, kdaj
+odčitati bit. Hitro in zanesljivo, a potrebuje dodaten vodnik. Primeri: SPI, I²C, PCIe.</li>
+<li><strong>Asinhrono</strong> — urnega signala <strong>ni</strong>. Obe strani se vnaprej dogovorita za hitrost
+(<em>baud rate</em>), sprejemnik pa se sinhronizira ob vsakem znaku posebej, s pomočjo začetnega bita.
+Manj vodnikov, a obe strani morata imeti dovolj natančno uro. Primer: UART/SCI, RS-232.</li>
+</ul>
+
+<h3>Okvir asinhronega prenosa (UART/SCI)</h3>
+<figure>
+<svg viewBox="0 0 720 210" role="img" aria-label="Okvir asinhronega serijskega prenosa">
+<style>
+ .g10-w{stroke:#7a4b2a;stroke-width:2.4;fill:none}
+ .g10-g{stroke:#e2e2dd;stroke-width:1}
+ .g10-t{font:11.5px -apple-system,sans-serif;fill:#1c1c1a;text-anchor:middle}
+ .g10-ts{font:10.5px -apple-system,sans-serif;fill:#6b6b66;text-anchor:middle}
+ .g10-tb{font:bold 12px -apple-system,sans-serif;fill:#7a4b2a}
+</style>
+<text class="g10-tb" x="16" y="20">Prenos znaka 'A' = 0x41 = 0b0100 0001, 8N1, LSB prvi</text>
+<text class="g10-ts" x="40" y="52" style="text-anchor:start">1 (mirovanje)</text>
+<text class="g10-ts" x="40" y="128" style="text-anchor:start">0</text>
+<line class="g10-g" x1="120" y1="46" x2="700" y2="46"/>
+<line class="g10-g" x1="120" y1="122" x2="700" y2="122"/>
+<!-- idle high, start low, bits LSB first: 1 0 0 0 0 0 1 0 , stop high -->
+<path class="g10-w" d="M120,46 L160,46 L160,122 L210,122
+ L210,46 L260,46
+ L260,122 L410,122
+ L410,122 L510,122
+ L510,46 L560,46
+ L560,122 L610,122
+ L610,46 L700,46"/>
+<line class="g10-g" x1="160" y1="36" x2="160" y2="140" stroke-dasharray="3 3"/>
+<line class="g10-g" x1="210" y1="36" x2="210" y2="140" stroke-dasharray="3 3"/>
+<line class="g10-g" x1="610" y1="36" x2="610" y2="140" stroke-dasharray="3 3"/>
+<text class="g10-t" x="185" y="158">START</text><text class="g10-ts" x="185" y="172">0</text>
+<text class="g10-t" x="235" y="158">b0</text><text class="g10-ts" x="235" y="172">1</text>
+<text class="g10-t" x="285" y="158">b1</text><text class="g10-ts" x="285" y="172">0</text>
+<text class="g10-t" x="335" y="158">b2</text><text class="g10-ts" x="335" y="172">0</text>
+<text class="g10-t" x="385" y="158">b3</text><text class="g10-ts" x="385" y="172">0</text>
+<text class="g10-t" x="435" y="158">b4</text><text class="g10-ts" x="435" y="172">0</text>
+<text class="g10-t" x="485" y="158">b5</text><text class="g10-ts" x="485" y="172">0</text>
+<text class="g10-t" x="535" y="158">b6</text><text class="g10-ts" x="535" y="172">1</text>
+<text class="g10-t" x="585" y="158">b7</text><text class="g10-ts" x="585" y="172">0</text>
+<text class="g10-t" x="655" y="158">STOP</text><text class="g10-ts" x="655" y="172">1</text>
+<text class="g10-ts" x="360" y="198" style="text-anchor:middle">Padajoči rob začetnega bita sprejemniku pove, kdaj naj začne šteti. Vsak bit odčita na sredini svojega časovnega okna.</text>
+</svg>
+<figcaption>Oznaka 8N1 pomeni: 8 podatkovnih bitov, brez paritete (None), 1 zaključni bit. Skupaj 10 bitov na znak.</figcaption>
+</figure>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Del okvira</th><th>Dolžina</th><th>Vloga</th></tr></thead>
+<tbody>
+<tr><td>Mirovanje</td><td>poljubno</td><td>linija je v stanju 1</td></tr>
+<tr><td>Začetni bit (start)</td><td>1 bit, vedno 0</td><td>sproži sinhronizacijo sprejemnika</td></tr>
+<tr><td>Podatkovni biti</td><td>5–9, običajno 8</td><td>vsebina; najprej najmanj pomemben bit (LSB)</td></tr>
+<tr><td>Paritetni bit</td><td>0 ali 1 bit</td><td>preprosto odkrivanje napak (soda/liha pariteta)</td></tr>
+<tr><td>Zaključni bit (stop)</td><td>1, 1,5 ali 2 bita, vedno 1</td><td>loči znak od naslednjega, vrne linijo v mirovanje</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Baud rate.</strong> Hitrost v baudih pove <em>število simbolov na sekundo</em>. Pri UART je en simbol
+en bit, zato je 9600 baudov = 9600 bitov/s. Ker gre pri 8N1 na znak 10 bitov, prenesemo
+9600 / 10 = <strong>960 znakov na sekundo</strong>. Prav zato je učinkovitost 8N1 le 80 %.
+</div>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 10.1</p>
+<p>Pri hitrosti 9600 baudov in formatu 8N1 prenašamo besedilo dolgo 1200 znakov. Koliko časa traja prenos?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Na znak 10 bitov → 1200 × 10 = 12 000 bitov. 12 000 / 9600 = <strong>1,25 s</strong>.
+Če bi uporabili 8E1 (z bitom parite), bi šlo 11 bitov na znak → 13 200 / 9600 = 1,375 s.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 10.2</p>
+<p>Koliko časa traja en bit pri 115 200 baudih? Koliko taktov ima mikrokrmilnik pri 16 MHz na voljo
+za obdelavo enega bita?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>1 / 115 200 = 8,68 µs... natančneje 8,68 × 10<sup>−6</sup> s = <strong>8,68 µs</strong>.
+Pri 16 MHz en takt traja 62,5 ns, torej 8,68 µs / 62,5 ns ≈ <strong>139 taktov</strong>.
+To pojasni, zakaj se serijski prenos v strojni opremi (vgrajen UART) izplača — programsko bi ta okvir
+zasedel skoraj celotno procesorsko moč.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 10.3</p>
+<p>Pošiljatelj je nastavljen na 9600 baudov, sprejemnik na 4800. Kaj bo sprejemnik prebral in zakaj?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Nesmisel. Sprejemnik odčitava dvakrat počasneje, kot pošiljatelj pošilja — vsak njegov "časovni predal"
+zajame dva poslana bita in odčita napačnega. Rezultat so naključni znaki, pogosto pa tudi napaka okvira
+(<em class="tuj">framing error</em>), ker na mestu zaključnega bita ne najde 1. To je najpogostejši vzrok
+za "kitajske pismenke" v serijskem terminalu.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 10.4</p>
+<p>Zakaj je pri prenosu na 10 metrov zaporedni prenos boljši od vzporednega, čeprav prenaša en bit naenkrat?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Pri 10 metrih se razlike v dolžini in kapacitivnosti vodnikov pri visokih frekvencah nakopičijo,
+zato biti ne prispejo hkrati (časovni razmik) — vzporedni prenos moramo upočasniti na hitrost
+najpočasnejšega vodnika. Poleg tega se sosednji vodniki induktivno motijo (presluh), kar zahteva
+oklop in dodatno upočasnitev. En sam, dobro prilagojen vodnik teh težav nima in ga lahko poženemo
+z izredno visoko frekvenco — zato je npr. SATA (zaporedni) hitrejši od IDE (vzporednega) kljub enemu vodniku.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Pri asinhronem prenosu sinhronizacijo zagotavlja:</p>
+<button class="opt">ločen urni vodnik</button><button class="opt">začetni bit in vnaprej dogovorjena hitrost</button>
+<button class="opt">paritetni bit</button>
+<div class="fb"><strong>Začetni bit</strong> pove, kdaj se znak začne; hitrost je dogovorjena vnaprej. Urnega vodnika ni — to je bistvo asinhronosti.</div>
+</div>
+<div class="q" data-pravilen="2">
+<p class="vpr">2. Pri 8N1 je na en znak porabljenih:</p>
+<button class="opt">8 bitov</button><button class="opt">9 bitov</button><button class="opt">10 bitov</button><button class="opt">11 bitov</button>
+<div class="fb"><strong>10</strong>: 1 začetni + 8 podatkovnih + 1 zaključni.</div>
+</div>
+<div class="q" data-pravilen="0">
+<p class="vpr">3. Zakaj je USB nadomestil vzporedna vrata LPT?</p>
+<button class="opt">Ker vzporedni prenos na daljših razdaljah in visokih frekvencah trpi zaradi časovnega razmika in presluha.</button>
+<button class="opt">Ker vzporedni prenos ne zna prenašati binarnih podatkov.</button>
+<button class="opt">Ker USB ne potrebuje napajanja.</button>
+<div class="fb">Zaradi <strong>fizikalnih omejitev vzporednega prenosa</strong> pri visokih hitrostih. En hiter vodnik prekaša osem počasnih.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 11 ================= -->
+<section class="tema" id="t11">
+<h2><span class="n">11</span>Odtipavanje in prekinitve</h2>
+<p class="ure">Predlog 4 ure · standard znanja: <em>obrazloži pojem prekinitve, našteje običajne vzroke za nastop prekinitve</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak pojasni pojem odtipavanja (pozivanja, <em class="tuj">polling</em>) in ga primerja s prekinitvami.</li>
+<li>Našteje običajne vzroke za nastop prekinitve.</li>
+<li>Opiše časovni potek prekinitve in vlogo prekinitvenega vektorja ter ukaza RETI.</li>
+</ul>
+</div>
+
+<h3>Dva načina, kako izvedeti, da se je nekaj zgodilo</h3>
+<p><strong>Odtipavanje</strong> (pozivanje, angl. <em class="tuj">polling</em>): program v zanki nenehno sprašuje
+napravo, ali je kaj novega.</p>
+<pre>glavna:
+      IN   R16, PIND
+      SBRC R16, 2          <span class="c">; preskoči, če je bit 2 enak 0 (tipka pritisnjena)</span>
+      RJMP glavna          <span class="c">; ni pritisnjena → sprašuj naprej</span>
+      RCALL obdelaj_tipko
+      RJMP glavna</pre>
+
+<p><strong>Prekinitev</strong> (angl. <em class="tuj">interrupt</em>): naprava sama javi CPE, da se je nekaj zgodilo.
+CPE prekine, kar dela, opravi kratek podprogram in se vrne.</p>
+
+<div class="prispodoba">
+<strong>Prispodoba.</strong> Odtipavanje je, kot bi vsakih pet sekund odprl vhodna vrata in pogledal,
+ali je kdo prišel. Prekinitev je zvonec. Zvonec pusti, da med čakanjem počneš kaj koristnega —
+in nikogar ne zamudiš.
+</div>
+
+<div class="tabela">
+<table>
+<thead><tr><th></th><th>Odtipavanje</th><th>Prekinitve</th></tr></thead>
+<tbody>
+<tr><td>Kdo sproži</td><td>program</td><td>naprava</td></tr>
+<tr><td>Poraba procesorskega časa</td><td>velika — CPE stalno sprašuje</td><td>majhna — le ko se kaj zgodi</td></tr>
+<tr><td>Odzivni čas</td><td>odvisen od dolžine zanke, lahko dolg</td><td>kratek in predvidljiv</td></tr>
+<tr><td>Nevarnost zamude dogodka</td><td>velika (kratek dogodek med dvema poizvedbama)</td><td>majhna</td></tr>
+<tr><td>Zapletenost programa</td><td>majhna, enostavno za razumeti</td><td>večja — pazljivost pri deljenih spremenljivkah</td></tr>
+<tr><td>Primerno za</td><td>počasne, redke dogodke; en sam vir</td><td>hitre, nepredvidljive, več virov hkrati</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Običajni vzroki za prekinitev</h3>
+<ul>
+<li><strong>Zunanja</strong> — sprememba stanja na pinu (tipka, senzor).</li>
+<li><strong>Časovnik</strong> — potekel je nastavljen interval.</li>
+<li><strong>Serijski vmesnik</strong> — prispel je znak ali pa je oddajni medpomnilnik prazen.</li>
+<li><strong>Pretvornik A/D</strong> — pretvorba je končana.</li>
+<li><strong>Ponastavitev (reset)</strong> — vklop napajanja, padec napetosti, časovnik čuvaj.</li>
+<li><strong>Programska napaka</strong> — deljenje z nič, nedovoljen ukaz, neporavnan dostop (pri večjih CPE).</li>
+<li><strong>Programska prekinitev</strong> — ukaz, s katerim program sam skoči v jedro OS (sistemski klic).</li>
+</ul>
+
+<h3>Časovni potek prekinitve</h3>
+<figure>
+<svg viewBox="0 0 720 290" role="img" aria-label="Časovni potek prekinitve">
+<style>
+ .g11-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.5}
+ .g11-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.5}
+ .g11-t{font:12px -apple-system,sans-serif;fill:#1c1c1a}
+ .g11-ts{font:11px -apple-system,sans-serif;fill:#6b6b66}
+ .g11-tb{font:bold 12px -apple-system,sans-serif;fill:#7a4b2a}
+ .g11-ar{stroke:#1c1c1a;stroke-width:1.6;fill:none;marker-end:url(#a11)}
+ .g11-arr{stroke:#b04a4a;stroke-width:2;fill:none;marker-end:url(#a11r)}
+</style>
+<defs>
+<marker id="a11" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker>
+<marker id="a11r" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#b04a4a"/></marker>
+</defs>
+<text class="g11-tb" x="16" y="20">glavni program</text>
+<rect class="g11-bf" x="16" y="30" width="180" height="34" rx="4"/><text class="g11-t" x="30" y="52">... ukaz N ...</text>
+<rect class="g11-bf" x="16" y="66" width="180" height="34" rx="4"/><text class="g11-t" x="30" y="88">... ukaz N+1 ...</text>
+<text class="g11-ts" x="16" y="122">(sem se vrnemo)</text>
+<rect class="g11-bf" x="16" y="200" width="180" height="34" rx="4"/><text class="g11-t" x="30" y="222">... ukaz N+2 ...</text>
+
+<path class="g11-arr" d="M196,83 C260,83 260,120 300,120"/>
+<text class="g11-ts" x="205" y="76" fill="#b04a4a">prekinitev!</text>
+
+<rect class="g11-b" x="300" y="34" width="230" height="180" rx="6" stroke-dasharray="5 4"/>
+<text class="g11-tb" x="312" y="54">obravnava prekinitve</text>
+<text class="g11-t" x="312" y="76">1. dokončaj tekoči ukaz</text>
+<text class="g11-t" x="312" y="96">2. shrani PC na sklad</text>
+<text class="g11-t" x="312" y="116">3. onemogoči prekinitve (I = 0)</text>
+<text class="g11-t" x="312" y="136">4. iz prekinitvene tabele preberi</text>
+<text class="g11-ts" x="326" y="152">prekinitveni vektor → naslov PSP</text>
+<text class="g11-t" x="312" y="174">5. izvedi PSP (kratek!)</text>
+<text class="g11-t" x="312" y="196">6. RETI: PC s sklada, I = 1</text>
+
+<path class="g11-ar" d="M400,214 C400,250 200,250 120,214"/>
+<text class="g11-ts" x="230" y="266">RETI vrne izvajanje točno tja, kjer je bilo prekinjeno</text>
+<text class="g11-ts" x="560" y="90">PSP = prekinitveno</text>
+<text class="g11-ts" x="560" y="106">servisni podprogram</text>
+<text class="g11-ts" x="560" y="130">(angl. ISR —</text>
+<text class="g11-ts" x="560" y="146">interrupt service</text>
+<text class="g11-ts" x="560" y="162">routine)</text>
+</svg>
+<figcaption>Prekinitveni vektor je naslov, na katerem se začne obravnava. Tabela vektorjev je na začetku programskega pomnilnika.</figcaption>
+</figure>
+
+<div class="opomba">
+<strong>Pravila za pisanje prekinitvenega podprograma.</strong> (1) Naj bo <em>kratek</em> — dolgo obravnavo naredimo
+v glavni zanki, PSP le postavi zastavico. (2) Naj <em>shrani in obnovi</em> vse registre, ki jih uporabi,
+vključno s SREG — glavni program o prekinitvi ne ve nič in pričakuje registre nedotaknjene.
+(3) Spremenljivke, ki jih deli z glavnim programom, morajo biti označene kot <code>volatile</code> (v jeziku C).
+(4) Konča se z <code>RETI</code>, nikoli z <code>RET</code> — <code>RETI</code> poleg vrnitve tudi ponovno
+omogoči prekinitve.
+</div>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 11.1</p>
+<p>Sistem meri temperaturo enkrat na minuto in hkrati čaka na pritisk tipke, ki mora biti zaznan v 20 ms.
+Kateri način uporabiš za kateri dogodek in zakaj?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><strong>Tipka: prekinitev</strong> (zunanja prekinitev na pinu) — zahteva kratek in zajamčen odzivni čas,
+z odtipavanjem bi jo lahko zamudili, če bi program med tem počel kaj drugega.
+<strong>Temperatura: odtipavanje</strong> ali časovniška prekinitev — dogodek je redek in počasen,
+zamuda nekaj sekund ni pomembna. Rešitev v praksi: časovnik sproža prekinitev vsako sekundo,
+program pa vsako 60. prekinitev opravi meritev.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 11.2</p>
+<p>Zakaj se prekinitveni podprogram konča z <code>RETI</code> in ne z <code>RET</code>?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Ob sprejemu prekinitve strojna oprema samodejno počisti bit I v SREG, da med obravnavo ne pride do
+nove prekinitve. <code>RET</code> bi le vrnil PC s sklada, bit I pa bi ostal 0 — <strong>program bi
+odtlej deloval brez prekinitev</strong>, kar je zelo zoprna napaka, ker se pokaže šele kasneje.
+<code>RETI</code> vrne PC <em>in</em> postavi I nazaj na 1.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 11.3</p>
+<p>Program v glavni zanki šteje do milijona, prekinitev pa mu poveča spremenljivko <code>stevec</code>.
+Ko dodaš prekinitev, glavni program začne dajati napačne rezultate. Kaj se je zgodilo?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Prekinitveni podprogram najverjetneje <strong>ni shranil registrov</strong>, ki jih uporablja. Ko se vrne,
+je v registru, ki ga je glavni program uporabljal za štetje, druga vrednost. Rešitev: na začetku PSP
+<code>PUSH</code> vseh uporabljenih registrov in SREG, na koncu <code>POP</code> v obratnem vrstnem redu.
+Druga možnost: PSP in glavni program dostopata do iste spremenljivke brez zaščite — če je večbajtna,
+lahko prekinitev nastopi sredi njenega branja in dobimo pol stare, pol nove vrednosti.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 11.4</p>
+<p>Naštej štiri vire prekinitev pri mikrokrmilniku in za vsakega povej, kaj bi tipično počel njegov PSP.</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p><em>Zunanja prekinitev na pinu</em> — zabeleži pritisk tipke v zastavico, ki jo obdela glavna zanka.
+<em>Prekoračitev časovnika</em> — poveča programski števec časa, vsakih N ponovitev opravi periodično nalogo.
+<em>UART sprejem</em> — prebere prispeli znak iz podatkovnega registra in ga da v krožni medpomnilnik.
+<em>Konec pretvorbe A/D</em> — shrani rezultat meritve in po potrebi sproži naslednjo pretvorbo.
+Skupno vsem: podprogram naredi <strong>najmanj, kar je nujno</strong>, in delo prepusti glavni zanki.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Glavna prednost prekinitev pred odtipavanjem je:</p>
+<button class="opt">enostavnejši program</button>
+<button class="opt">CPE ne troši časa s čakanjem in se odzove hitreje</button>
+<button class="opt">manjša poraba pomnilnika</button>
+<div class="fb">CPE lahko med čakanjem <strong>počne kaj drugega</strong>, odziv pa je hiter in predvidljiv. Program je pri prekinitvah praviloma bolj zapleten, ne manj.</div>
+</div>
+<div class="q" data-pravilen="0">
+<p class="vpr">2. Prekinitveni vektor je:</p>
+<button class="opt">naslov, na katerem se začne prekinitveni podprogram</button>
+<button class="opt">vrednost, ki jo prekinitev vpiše v register</button>
+<button class="opt">čas od prekinitve do odziva</button>
+<div class="fb"><strong>Naslov obravnave.</strong> Vsak vir prekinitve ima svoj vektor v tabeli na začetku programskega pomnilnika.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. Kaj se shrani na sklad ob nastopu prekinitve?</p>
+<button class="opt">vsi registri</button><button class="opt">vsebina PC (povratni naslov)</button><button class="opt">nič</button>
+<div class="fb"><strong>PC.</strong> Registre mora shraniti prekinitveni podprogram sam — strojna oprema tega ne naredi namesto nas.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= TEMA 12 ================= -->
+<section class="tema" id="t12">
+<h2><span class="n">12</span>Časovniki in števci</h2>
+<p class="ure">Predlog 3 ure · standard znanja: <em>pozna načine delovanja časovnika/števca, napiše program z njegovo uporabo</em></p>
+
+<div class="cilji">
+<h4>Cilji</h4>
+<ul>
+<li>Dijak loči način števca in način časovnika.</li>
+<li>Opiše načine delovanja: normalni, CTC in PWM.</li>
+<li>Izračuna periodo prekinitve iz frekvence ure, predderilnika in vrednosti primerjave.</li>
+</ul>
+</div>
+
+<h3>Ena naprava, dve rabi</h3>
+<p>Časovnik/števec je preprosto <strong>register, ki se sam povečuje</strong>. Razlika je le v tem, kaj ga poganja:</p>
+<ul>
+<li><strong>Način časovnika</strong> — poganja ga notranja ura mikrokrmilnika. Ker je frekvenca ure znana,
+je štetje enakovredno merjenju časa.</li>
+<li><strong>Način števca</strong> — poganja ga zunanji signal na pinu. Šteje dogodke: obrate, impulze,
+prehode svetlobne zapore.</li>
+</ul>
+<p>Ko register prekorači svojo največjo vrednost (npr. iz 255 na 0 pri 8-bitnem), pride do
+<strong>prekoračitve</strong> (<em class="tuj">overflow</em>), ki lahko sproži prekinitev.</p>
+
+<h3>Predderilnik</h3>
+<p>8-bitni časovnik pri 16 MHz bi se prelil vsakih 256/16 000 000 s = 16 µs — prepogosto za karkoli
+uporabnega. <strong>Predderilnik</strong> (<em class="tuj">prescaler</em>) uro pred štetjem deli s stalnim
+faktorjem (1, 8, 64, 256, 1024).</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Predderilnik</th><th>Frekvenca štetja pri 16 MHz</th><th>Trajanje enega koraka</th><th>Čas do prekoračitve (8-bitni)</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>16 MHz</td><td>62,5 ns</td><td>16 µs</td></tr>
+<tr><td>8</td><td>2 MHz</td><td>500 ns</td><td>128 µs</td></tr>
+<tr><td>64</td><td>250 kHz</td><td>4 µs</td><td>1,024 ms</td></tr>
+<tr><td>256</td><td>62,5 kHz</td><td>16 µs</td><td>4,096 ms</td></tr>
+<tr><td>1024</td><td>15 625 Hz</td><td>64 µs</td><td>16,384 ms</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Ključna enačba.</strong><br>
+<code>f<sub>štetja</sub> = f<sub>ure</sub> / N</code> &nbsp;&nbsp;(N = predderilnik)<br>
+<code>T<sub>prekinitve</sub> = (OCR + 1) × N / f<sub>ure</sub></code> &nbsp;&nbsp;(v načinu CTC)<br>
+oziroma iz nje: <code>OCR = f<sub>ure</sub> × T / N − 1</code>
+</div>
+
+<h3>Trije načini delovanja</h3>
+<figure>
+<svg viewBox="0 0 780 380" role="img" aria-label="Poteki signalov v načinih normalno, CTC in PWM">
+<style>
+ .g12-ax{stroke:#6b6b66;stroke-width:1.2}
+ .g12-cnt{stroke:#7a4b2a;stroke-width:2;fill:none}
+ .g12-out{stroke:#2e6b45;stroke-width:2.2;fill:none}
+ .g12-lim{stroke:#b04a4a;stroke-width:1.2;stroke-dasharray:4 3}
+ .g12-t{font:11.5px -apple-system,sans-serif;fill:#1c1c1a}
+ .g12-ts{font:10.5px -apple-system,sans-serif;fill:#6b6b66}
+ .g12-tb{font:bold 12px -apple-system,sans-serif;fill:#7a4b2a}
+</style>
+<!-- NORMALNI -->
+<text class="g12-tb" x="16" y="18">NORMALNI — šteje do vrha (255), se prelije, začne znova</text>
+<line class="g12-ax" x1="60" y1="90" x2="760" y2="90"/>
+<line class="g12-ax" x1="60" y1="90" x2="60" y2="30"/>
+<text class="g12-ts" x="26" y="36">255</text><text class="g12-ts" x="42" y="94">0</text>
+<path class="g12-cnt" d="M60,90 L200,34 L200,90 L340,34 L340,90 L480,34 L480,90 L620,34 L620,90"/>
+<text class="g12-ts" x="190" y="108">prekinitev ob prelivu</text>
+
+<!-- CTC -->
+<text class="g12-tb" x="16" y="148">CTC — šteje do vrednosti OCR, se ponastavi (natančna perioda)</text>
+<line class="g12-ax" x1="60" y1="220" x2="760" y2="220"/>
+<line class="g12-ax" x1="60" y1="220" x2="60" y2="160"/>
+<line class="g12-lim" x1="60" y1="182" x2="760" y2="182"/>
+<text class="g12-ts" x="20" y="186">OCR</text>
+<path class="g12-cnt" d="M60,220 L150,182 L150,220 L240,182 L240,220 L330,182 L330,220 L420,182 L420,220 L510,182 L510,220 L600,182 L600,220"/>
+<path class="g12-out" d="M60,240 L150,240 L150,232 L240,232 L240,240 L330,240 L330,232 L420,232 L420,240 L510,240 L510,232 L600,232 L600,240"/>
+<text class="g12-ts" x="628" y="240">izhod se obrne</text>
+<text class="g12-ts" x="60" y="258">Perioda je natanko (OCR+1) korakov — od tod nastavljiva frekvenca.</text>
+
+<!-- PWM -->
+<text class="g12-tb" x="16" y="296">PWM — razmerje vklopa določa povprečno moč</text>
+<line class="g12-ax" x1="60" y1="360" x2="760" y2="360"/>
+<path class="g12-out" d="M60,360 L60,336 L95,336 L95,360 L200,360 L200,336 L235,336 L235,360 L340,360 L340,336 L375,336 L375,360 L480,360"/>
+<text class="g12-ts" x="66" y="376">25 % — LED slabo sveti</text>
+<path class="g12-out" d="M500,360 L500,336 L596,336 L596,360 L620,360 L620,336 L716,336 L716,360 L740,360"/>
+<text class="g12-ts" x="506" y="376">80 % — LED sveti močno</text>
+</svg>
+<figcaption>Isti števec, trije načini uporabe. PWM je najpogostejši način krmiljenja svetlosti in hitrosti motorja.</figcaption>
+</figure>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Način</th><th>Kaj počne</th><th>Tipična raba</th></tr></thead>
+<tbody>
+<tr><td><strong>Normalni</strong></td><td>šteje do vrha, se prelije, sproži prekinitev</td><td>groba periodična opravila, merjenje dolgih časov</td></tr>
+<tr><td><strong>CTC</strong> (<em class="tuj">Clear Timer on Compare</em>)</td><td>šteje do vrednosti v OCR, se ponastavi</td><td>natančna perioda, generiranje frekvence, ura</td></tr>
+<tr><td><strong>PWM</strong> (<em class="tuj">Pulse Width Modulation</em>)</td><td>izhod je 1, dokler je števec pod OCR</td><td>svetlost LED, hitrost motorja, servo, zvok</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="prispodoba">
+<strong>Zakaj PWM deluje.</strong> LED ne moremo "malo prižgati" — sveti ali ne. PWM jo prižiga in ugaša
+tako hitro (npr. 500-krat na sekundo), da oko vidi le povprečje. Če je prižgana 25 % časa,
+jo vidimo kot četrtino svetlo. Isto velja za motor, le da tam povprečenje opravi vztrajnost rotorja.
+</div>
+
+<h3>Primer nastavitve (AVR, prekinitev vsako milisekundo)</h3>
+<pre><span class="c">; f_ure = 16 MHz, želimo T = 1 ms, izberemo N = 64</span>
+<span class="c">; OCR = 16 000 000 × 0,001 / 64 − 1 = 250 − 1 = 249</span>
+
+      LDI  R16, 249
+      OUT  OCR0A, R16          <span class="c">; primerjalna vrednost</span>
+      LDI  R16, 0b00000010
+      OUT  TCCR0A, R16         <span class="c">; način CTC</span>
+      LDI  R16, 0b00000011
+      OUT  TCCR0B, R16         <span class="c">; predderilnik 64 → časovnik teče</span>
+      LDI  R16, 0b00000010
+      STS  TIMSK0, R16         <span class="c">; omogoči prekinitev ob ujemanju</span>
+      SEI                      <span class="c">; globalno omogoči prekinitve</span></pre>
+
+<div class="vaje">
+<h3>Vaje</h3>
+
+<div class="vaja"><p class="oz">Vaja 12.1</p>
+<p>f<sub>ure</sub> = 8 MHz, predderilnik 256, 8-bitni časovnik v normalnem načinu.
+Kako pogosto se sproži prekinitev ob prelivu?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Frekvenca štetja = 8 000 000 / 256 = 31 250 Hz → en korak traja 32 µs.
+Preliv nastopi po 256 korakih: 256 × 32 µs = <strong>8,192 ms</strong> (≈ 122 prekinitev na sekundo).</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 12.2</p>
+<p>Pri 16 MHz in predderilniku 1024 želimo prekinitev vsakih 10 ms v načinu CTC.
+Kolikšna mora biti vrednost OCR?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>OCR = f × T / N − 1 = 16 000 000 × 0,01 / 1024 − 1 = 156,25 − 1 = 155,25.
+Ker mora biti celo število, vzamemo <strong>OCR = 155</strong>, kar da dejansko periodo
+156 × 1024 / 16 000 000 = <strong>9,984 ms</strong> — napaka 0,16 %.
+Za točnejši rezultat bi izbrali manjši predderilnik (npr. 256 → OCR = 624, kar zahteva 16-bitni časovnik).</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 12.3</p>
+<p>Z 8-bitnim PWM želimo LED svetiti s 30 % svetlosti. Kolikšna naj bo vrednost OCR?
+Kaj se zgodi, če vpišemo 255?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>0,30 × 255 ≈ <strong>77</strong>. Pri 255 je razmerje vklopa 100 % — LED sveti stalno, kot da bi PWM
+sploh ne uporabili. Pri 0 je ugasnjena. Opomba za razpravo: <em>zaznana</em> svetlost ni linearna s
+sekundo razmerja vklopa — oko je logaritmično, zato se za lepo zatemnitev uporabi gama korekcija.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 12.4</p>
+<p>Merimo vrtljaje kolesa. Na kolesu je en magnet, senzor da en impulz na obrat.
+Kateri način časovnika/števca uporabiš in kako izračunaš vrtljaje na minuto?</p>
+<details class="resitev"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Uporabimo <strong>način števca</strong>: zunanji impulzi poganjajo števec. Hkrati z drugim časovnikom
+(v načinu časovnika, CTC) merimo natanko eno sekundo. Ob vsaki sekundi preberemo števec, ga
+pomnožimo s 60 in dobimo vrtljaje na minuto, nato števec ponastavimo.
+Alternativa pri nizkih hitrostih: merimo <em>čas med dvema impulzoma</em> in vrtljaje izračunamo kot
+60 / T — to je pri počasnem vrtenju natančneje.</p>
+</div></details></div>
+</div>
+
+<div class="kviz">
+<h4>Kviz</h4>
+<div class="q" data-pravilen="1">
+<p class="vpr">1. Razlika med načinom časovnika in načinom števca je:</p>
+<button class="opt">v širini registra</button>
+<button class="opt">v viru signala, ki povečuje register (notranja ura ali zunanji dogodki)</button>
+<button class="opt">v tem, ali sproža prekinitve</button>
+<div class="fb">V <strong>viru signala</strong>. Vezje je isto — le kaj ga poganja, je drugačno.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">2. Čemu služi predderilnik?</p>
+<button class="opt">Poveča frekvenco ure.</button>
+<button class="opt">Deli uro, da lahko merimo daljše časovne intervale.</button>
+<button class="opt">Shranjuje vrednost primerjave.</button>
+<div class="fb"><strong>Deli uro.</strong> Brez njega bi se 8-bitni časovnik pri 16 MHz prelil vsakih 16 µs.</div>
+</div>
+<div class="q" data-pravilen="1">
+<p class="vpr">3. S PWM krmilimo svetlost LED tako, da:</p>
+<button class="opt">spreminjamo napetost na LED</button>
+<button class="opt">spreminjamo razmerje časa vklopa in izklopa</button>
+<button class="opt">spreminjamo frekvenco ure</button>
+<div class="fb"><strong>Razmerje vklopa</strong> (<em class="tuj">duty cycle</em>). Napetost ostaja ista, spreminja se povprečje, ki ga oko zazna kot svetlost.</div>
+</div>
+</div>
+</section>
+
+<!-- ================= STANDARDI ================= -->
+<section class="tema" id="standardi">
+<h2>Preslikava standardov znanja na teme</h2>
+<p>Spodnja tabela pokaže, kje v gradivu je pokrit vsak standard znanja iz učnega načrta
+(poglavje 4.1.1). <strong>Minimalni standardi so v učnem načrtu odebeljeni</strong> in so tako označeni tudi tu.</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Standard znanja (dijak …)</th><th>Tema</th><th>Kje se preveri</th></tr></thead>
+<tbody>
+<tr><td><strong>opiše elemente zgradbe CPE</strong></td><td>01</td><td>vaja 1.4, kviz 1.1</td></tr>
+<tr><td><strong>opredeli vlogo elementov zgradbe</strong></td><td>01</td><td>vaja 1.3, 1.4</td></tr>
+<tr><td><strong>našteje dele zgradbe ukazov in opredeli njihovo vlogo</strong></td><td>04</td><td>vaja 4.1, kviz 4.3</td></tr>
+<tr><td>razlikuje arhitekturi CISC in RISC</td><td>05</td><td>vaja 5.1, 5.3, kviz 5.1</td></tr>
+<tr><td><strong>našteje vrste registrov in opiše njihov namen</strong></td><td>06</td><td>tabela registrov, vaja 6.3</td></tr>
+<tr><td>razlikuje vrste naslavljanj glede na njihov namen</td><td>07</td><td>vaja 7.1, 7.4</td></tr>
+<tr><td><strong>obrazloži pojem prekinitve</strong></td><td>11</td><td>vaja 11.1, kviz 11.1</td></tr>
+<tr><td><strong>našteje običajne vzroke za nastop prekinitve</strong></td><td>11</td><td>vaja 11.4</td></tr>
+<tr><td><strong>našteje vhodne in izhodne naprave ter opredeli njihove komunikacijske vmesnike</strong></td><td>09</td><td>vaja 9.1</td></tr>
+<tr><td><strong>razume razliko med vzporednim in zaporednim prenosom</strong></td><td>10</td><td>vaja 10.4, kviz 10.3</td></tr>
+<tr><td><strong>pozna značilnosti sinhronih in asinhronih prenosov</strong></td><td>10</td><td>vaja 10.3, kviz 10.1</td></tr>
+<tr><td>opiše harvardsko arhitekturo in njene sestavne dele</td><td>02</td><td>vaja 2.1, 2.3</td></tr>
+<tr><td>razume programski model mikrokrmilnika</td><td>06</td><td>celotna tema</td></tr>
+<tr><td>uporabi osnovne ukaze na ravni zbirnika</td><td>08</td><td>vaje 8.1–8.4</td></tr>
+<tr><td>napiše programe z uporabo prekinitev</td><td>11</td><td>projektna naloga</td></tr>
+<tr><td>napiše program z uporabo vzporednega in serijskega vmesnika</td><td>09, 10</td><td>projektna naloga</td></tr>
+<tr><td>pozna načine delovanja časovnika/števca in napiše program</td><td>12</td><td>vaje 12.1–12.4, projektna naloga</td></tr>
+<tr><td>poveže izbrano V/I napravo z danim sistemom</td><td>09</td><td>projektna naloga (praktični del)</td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="opomba">
+<strong>Kaj še ni pokrito v tem gradivu.</strong> Standardi, ki zahtevajo <em>praktično delo na strojni opremi</em>
+(priklop naprave, pisanje in preizkušanje programov na plošči), so v gradivu zastopani le konceptualno.
+Za njihovo doseganje so predvidene laboratorijske vaje na razvojni plošči (Arduino ali podobno)
+in projektna naloga, opisana v naslednjem razdelku.
+</div>
+</section>
+
+<!-- ================= PROJEKTNA NALOGA ================= -->
+<section class="tema" id="projekt">
+<h2>Projektna naloga — sklop »Čuvaj«</h2>
+<p class="ure">16 korakov po približno 1 uro · Arduino Uno in ESP32 · delo v parih</p>
+
+<p>Projektna naloga tega sklopa je zasnovana kot <strong>ločen dokument</strong>, ker je predolga,
+da bi jo stlačili sem, in ker jo dijaki dobijo v roke posebej.</p>
+
+<div class="opomba">
+<strong>Kaj gradijo.</strong> <em>Čuvaj</em> je naprava, ki jo dijak postavi v svojo sobo. Ko nekdo
+odpre vrata, si zapiše čas in izmerjeno svetlobo, dogodek pokaže na zaslonu in pošlje sporočilo
+na telefon prek Telegrama. S telefona ji je mogoče tudi ukazovati.
+</div>
+
+<p>Naprava je izbrana tako, da <strong>zahteva vso snov tega sklopa</strong> in nič več:
+registre in vrata (temi 06, 09), prekinitve in odtipavanje (tema 11), časovnike v načinih CTC in PWM
+(tema 12), pretvornik A/D (tema 09), asinhroni UART in sinhroni I²C (tema 10), pomnilnik in krožni
+medpomnilnik (tema 03), načine naslavljanja (tema 07) in zbirnik (temi 04, 08). Prehod z Arduina Uno
+na ESP32 v koraku 13 pa naredi merljivo razliko med arhitekturama (teme 00, 01, 02, 05).</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Faza</th><th>Koraki</th><th>Kaj nastane</th></tr></thead>
+<tbody>
+<tr><td>A — golo železo (Uno)</td><td>1–6</td><td>LED prek registrov, tipka, prva lastna prekinitev in časovnik, serijski dnevnik</td></tr>
+<tr><td>B — podatki in prikaz</td><td>7–10</td><td>meritev svetlobe, dnevnik dogodkov v RAM-u, PWM, zaslon OLED</td></tr>
+<tr><td>C — arhitektura od blizu</td><td>11–12</td><td>zbirnik in štetje taktov, nizi v programskem pomnilniku</td></tr>
+<tr><td>D — povezava s svetom</td><td>13–16</td><td>prehod na ESP32, sporočilo na telefon, ukazi s telefona, zagovor</td></tr>
+</tbody>
+</table>
+</div>
+
+<p>Vsak korak se konča z nečim, kar deluje, tako da dijak nikoli ne odide s polovico.
+Sklop obsega 16 ur, kar pusti 19 ur za teorijo, utrjevanje in preverjanje.</p>
+
+<h3>Kje najdete gradivo</h3>
+<ul>
+<li><strong>projekt-cuvaj-dijaki.html</strong> — navodila, namigi in ogrodja kode. Brez rešitev.</li>
+<li><strong>projekt-cuvaj-ucitelj.html</strong> — isto plus polne rešitve s kodo, pričakovane vrednosti
+meritev, tipične napake dijakov, razporeditev vsake ure, vprašanja za zagovor z odgovori in merila
+za ocenjevanje.</li>
+</ul>
+
+<h3>Če opreme ni</h3>
+<p>Koraki 1–12 so v celoti izvedljivi v spletnem simulatorju, vključno s časovniki in prekinitvami.
+Če ESP32 ni na voljo, ostane projekt pri Unu, ki podatke pošilja po serijskih vratih na računalnik —
+dijak se o arhitekturi nauči isto, naprava pa ni samostojna.</p>
+</section>
+
+<!-- ================= SLOVARČEK ================= -->
+<section class="tema" id="slovar">
+<h2>Slovarček izrazov</h2>
+<p>Slovenski izraz, angleška ustreznica in kratka opredelitev. Namenjeno tudi za ponovitev pred testom.</p>
+
+<div class="tabela">
+<table>
+<thead><tr><th>Slovensko</th><th>Angleško</th><th>Pomen</th></tr></thead>
+<tbody>
+<tr><td>aritmetično-logična enota (ALE)</td><td>arithmetic logic unit (ALU)</td><td>del CPE, ki izvaja računske in logične operacije</td></tr>
+<tr><td>cevovod</td><td>pipeline</td><td>prekrivanje faz več ukazov, da se v vsakem taktu zaključi en ukaz</td></tr>
+<tr><td>časovnik / števec</td><td>timer / counter</td><td>register, ki se samodejno povečuje ob uri ali ob zunanjih impulzih</td></tr>
+<tr><td>enota za krmiljenje (KE)</td><td>control unit</td><td>del CPE, ki dekodira ukaze in usklajuje delovanje</td></tr>
+<tr><td>kazalec sklada</td><td>stack pointer (SP)</td><td>register z naslovom vrha sklada</td></tr>
+<tr><td>mikrokrmilnik, mikrokontroler</td><td>microcontroller (MCU)</td><td>cel računalnik na enem čipu</td></tr>
+<tr><td>naslovno vodilo</td><td>address bus</td><td>vodila, po katerih CPE pošlje naslov</td></tr>
+<tr><td>odtipavanje, pozivanje</td><td>polling</td><td>ponavljajoče spraševanje naprave po stanju</td></tr>
+<tr><td>okvir</td><td>frame</td><td>zaokrožena enota serijskega prenosa (start, podatki, stop)</td></tr>
+<tr><td>opkoda, operacijska koda</td><td>opcode</td><td>del ukaza, ki določa operacijo</td></tr>
+<tr><td>ozko grlo</td><td>bottleneck</td><td>omejitev, ki določa zmogljivost celotnega sistema</td></tr>
+<tr><td>pomnilniško preslikan V/I</td><td>memory-mapped I/O</td><td>naprave zasedejo del pomnilniškega naslovnega prostora</td></tr>
+<tr><td>predderilnik</td><td>prescaler</td><td>delilnik ure pred vhodom v časovnik</td></tr>
+<tr><td>predpomnilnik</td><td>cache</td><td>hiter vmesni pomnilnik med CPE in glavnim pomnilnikom</td></tr>
+<tr><td>prekinitev</td><td>interrupt</td><td>zahteva naprave, da CPE prekine tekoče delo</td></tr>
+<tr><td>prekinitveni vektor</td><td>interrupt vector</td><td>naslov, kjer se začne obravnava določene prekinitve</td></tr>
+<tr><td>prekinitveno servisni podprogram (PSP)</td><td>interrupt service routine (ISR)</td><td>podprogram, ki obravnava prekinitev</td></tr>
+<tr><td>prekoračitev, preliv</td><td>overflow</td><td>rezultat presega obseg, ki ga register še lahko zapiše</td></tr>
+<tr><td>prenos</td><td>carry</td><td>bit, ki "odteče" iz najvišjega mesta pri seštevanju</td></tr>
+<tr><td>programski števec</td><td>program counter (PC)</td><td>register z naslovom naslednjega ukaza</td></tr>
+<tr><td>razmerje vklopa</td><td>duty cycle</td><td>delež periode, ko je signal v stanju 1</td></tr>
+<tr><td>sklad</td><td>stack</td><td>pomnilniška struktura LIFO za povratne naslove in lokalne podatke</td></tr>
+<tr><td>statusni register</td><td>status register (SREG)</td><td>register z zastavicami o zadnjem rezultatu</td></tr>
+<tr><td>strojni cikel</td><td>machine cycle</td><td>zaporedje prevzemi–dekodiraj–izvedi</td></tr>
+<tr><td>vodilo</td><td>bus</td><td>snop vodnikov za hkraten prenos več bitov</td></tr>
+<tr><td>zastavica</td><td>flag</td><td>en bit v statusnem registru</td></tr>
+<tr><td>zbirnik</td><td>assembly</td><td>simbolni zapis strojnih ukazov</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Viri</h3>
+<ul>
+<li>Učni načrt <em>Računalniški sistemi in omrežja</em>, izbirni strokovni predmet tehniške gimnazije (210 ur).
+Ministrstvo za izobraževanje, znanost in šport ter Zavod RS za šolstvo, Ljubljana 2020.
+ISBN 978-961-03-0490-6. Sprejeto na 205. seji Strokovnega sveta RS za splošno izobraževanje, 20. 2. 2020.</li>
+<li>Interno gradivo <em>Predstavitev — Arhitektura računalniških sistemov</em>.</li>
+</ul>
+
+<p style="margin-top:30px;font-size:13.5px;color:#6b6b66">
+Gradivo je pripravljeno za lastno rabo pri pouku. Vsi primeri v zbirniku so pisani za družino AVR
+(npr. ATmega328P na plošči Arduino Uno) in jih je mogoče preizkusiti na razvojni plošči.
+</p>
+</section>
+
+</main>
+</div>
+
+<script>
+// --- kviz ---
+document.querySelectorAll('.q').forEach(function(q){
+  var opts = q.querySelectorAll('button.opt');
+  var fb = q.querySelector('.fb');
+  opts.forEach(function(b, i){
+    b.addEventListener('click', function(){
+      opts.forEach(function(x){ x.classList.remove('pravilno','napacno'); });
+      // pravilni odgovor je vedno tisti, ki ga opisuje povratna informacija;
+      // označimo ga eksplicitno prek atributa data-pravilen na vprašanju
+      var pravilen = parseInt(q.dataset.pravilen || '0', 10);
+      if (i === pravilen) { b.classList.add('pravilno'); }
+      else { b.classList.add('napacno'); opts[pravilen].classList.add('pravilno'); }
+      fb.classList.add('viden');
+    });
+  });
+});
+
+// --- rešitve ---
+function vseResitve(odpri){
+  document.querySelectorAll('details.resitev').forEach(function(d){ d.open = odpri; });
+}
+
+// --- način za tiskanje ---
+var tiskVklopljen = false;
+function preklopiTisk(){
+  tiskVklopljen = !tiskVklopljen;
+  document.body.classList.toggle('tisk', tiskVklopljen);
+  vseResitve(tiskVklopljen);
+  document.querySelectorAll('.q .fb').forEach(function(f){ f.classList.toggle('viden', tiskVklopljen); });
+  document.getElementById('btnTisk').textContent = tiskVklopljen ? 'Nazaj v interaktivni način' : 'Način za tiskanje';
+}
+
+// pred tiskanjem vse razgrni
+window.addEventListener('beforeprint', function(){
+  document.querySelectorAll('details.resitev').forEach(function(d){ d.open = true; });
+  document.querySelectorAll('.q .fb').forEach(function(f){ f.classList.add('viden'); });
+});
+
+// --- označevanje aktivne teme v meniju ---
+var povezave = Array.prototype.slice.call(document.querySelectorAll('#nav a'));
+var razdelki = povezave.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+function osvezi(){
+  var y = window.scrollY + 140, aktiven = 0;
+  razdelki.forEach(function(s, i){ if (s && s.offsetTop <= y) aktiven = i; });
+  povezave.forEach(function(a, i){ a.classList.toggle('active', i === aktiven); });
+}
+window.addEventListener('scroll', osvezi, {passive:true});
+osvezi();
+</script>
+</body>
+</html>

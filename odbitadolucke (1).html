@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Od bita do lučke — pomik, maska in vrata B, razloženo od začetka</title>
+<style>
+:root{
+  --bg:#f7f7f5; --panel:#fff; --ink:#1c1c1a; --muted:#6b6b66; --line:#e2e2dd;
+  --accent:#7a4b2a; --accent-soft:#f2e9e2; --ok:#2e6b45; --ok-soft:#e6f0e9;
+  --warn:#8a5a12; --warn-soft:#faf1e0; --red:#a03535; --red-soft:#fbeaea;
+  --viol:#5b3a7a; --viol-soft:#efe7f5;
+  --code-bg:#f2f2ef; --max:74ch;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16.5px/1.7 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+h1,h2,h3,h4,nav,button,table,.badge,figcaption{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{display:flex;min-height:100vh}
+#nav{width:270px;flex:0 0 270px;background:var(--panel);border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 60px}
+#nav .brand{font-size:15px;font-weight:700;margin:0 0 4px;line-height:1.35}
+#nav .brandsub{font-size:12.5px;color:var(--muted);margin:0 0 16px}
+#nav a{display:block;padding:7px 10px;margin:1px 0;border-radius:6px;text-decoration:none;
+  color:var(--ink);font-size:13.5px;border-left:3px solid transparent;line-height:1.35}
+#nav a:hover{background:var(--accent-soft)}
+#nav a.active{background:var(--accent-soft);border-left-color:var(--accent);font-weight:600}
+#nav a .num{display:inline-block;width:1.9em;color:var(--muted);font-variant-numeric:tabular-nums}
+main{flex:1;min-width:0;padding:40px 48px 130px;max-width:1040px;margin:0 auto}
+header.doc{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:14px}
+header.doc h1{font-size:32px;line-height:1.15;margin:0 0 8px;letter-spacing:-.01em}
+header.doc .sub{color:var(--muted);font-size:15.5px;margin:0}
+section{padding:46px 0 6px;border-top:1px solid var(--line)}
+section:first-of-type{border-top:none;padding-top:20px}
+section > h2{font-size:25px;margin:0 0 14px;letter-spacing:-.01em}
+section > h2 .n{color:var(--accent);font-variant-numeric:tabular-nums;margin-right:.55em}
+h3{font-size:18px;margin:30px 0 8px}
+p,li{max-width:var(--max)}
+p{margin:0 0 13px}
+ul,ol{margin:0 0 15px;padding-left:23px}
+li{margin:6px 0}
+em.tuj{font-style:italic;color:var(--muted)}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  overflow-x:auto;font-size:13.5px;line-height:1.6}
+pre code{background:none;padding:0}
+pre .c{color:var(--muted)}
+.blok{border-radius:0 9px 9px 0;padding:14px 18px;margin:20px 0}
+.opomba{background:var(--warn-soft);border-left:4px solid var(--warn)}
+.opomba strong{color:var(--warn)}
+.dobro{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.dobro strong{color:var(--ok)}
+.past{background:var(--red-soft);border-left:4px solid var(--red)}
+.past strong{color:var(--red)}
+.kljuc{background:var(--accent-soft);border:1.5px solid var(--accent);border-radius:10px;
+  padding:16px 20px;margin:22px 0;font-size:17px}
+.kljuc strong{color:var(--accent)}
+.tabela{overflow-x:auto;margin:20px 0}
+table{border-collapse:collapse;width:100%;font-size:14px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:600;font-size:13px}
+tbody tr:nth-child(even){background:#fafaf8}
+figure{margin:24px 0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:20px}
+figure svg{display:block;max-width:100%;height:auto;margin:0 auto}
+figcaption{font-size:13.5px;color:var(--muted);text-align:center;margin-top:14px}
+details.res{margin:12px 0;border:1px solid var(--line);border-radius:8px;background:var(--panel);padding:12px 16px}
+details.res > summary{cursor:pointer;font-size:14px;font-weight:600;color:var(--accent);
+  font-family:-apple-system,sans-serif;list-style:none}
+details.res > summary::-webkit-details-marker{display:none}
+details.res > summary::before{content:"\25B8  "}
+details.res[open] > summary::before{content:"\25BE  "}
+details.res > .telo{padding-top:12px}
+.vaja{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px 18px;margin:0 0 14px}
+.vaja .oz{font-size:11.5px;font-weight:700;color:var(--accent);letter-spacing:.07em;
+  text-transform:uppercase;font-family:-apple-system,sans-serif;margin:0 0 6px}
+#orodja{position:sticky;top:0;z-index:20;background:rgba(247,247,245,.94);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);padding:9px 48px;margin:-40px -48px 26px;
+  display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#orodja button{font-size:13px;padding:6px 13px;border:1px solid var(--line);background:#fff;
+  border-radius:7px;cursor:pointer;color:var(--ink)}
+#orodja button:hover{border-color:var(--accent);color:var(--accent)}
+#orodja .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+@media print{
+  :root{--bg:#fff;--panel:#fff}
+  body{font-size:10.5pt;line-height:1.45}
+  #nav,#orodja{display:none!important}
+  .wrap{display:block} main{max-width:none;padding:0;margin:0}
+  section{page-break-before:always;border-top:none;padding-top:0}
+  section:first-of-type{page-break-before:avoid}
+  h2,h3{page-break-after:avoid}
+  figure,table,.kljuc,.vaja,pre{page-break-inside:avoid}
+  details.res > summary{display:none}
+  details.res > .telo{padding-top:0}
+  details.res::before{content:"Rešitev:";font-weight:700;font-size:9.5pt}
+  a{color:#000;text-decoration:none}
+  @page{margin:16mm 14mm}
+}
+@media (max-width:900px){
+  .wrap{display:block}
+  #nav{position:static;width:auto;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  main{padding:24px 18px 80px}
+  #orodja{margin:-24px -18px 20px;padding:9px 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav id="nav">
+  <p class="brand">Od bita do lučke</p>
+  <p class="brandsub">Razloženo od popolnega začetka</p>
+  <a href="#b1"><span class="num">1</span>Kaj je bit in kaj pove njegovo mesto</a>
+  <a href="#b2"><span class="num">2</span>Pomik v levo — od kod matematika</a>
+  <a href="#b3"><span class="num">3</span>Zakaj ne napišemo kar 32</a>
+  <a href="#b4"><span class="num">4</span>Maska: spremeni enega, ostale pusti</a>
+  <a href="#b5"><span class="num">5</span>Kje so vrata B na plošči</a>
+  <a href="#b6"><span class="num">6</span>Cela pot do svetleče lučke</a>
+  <a href="#b7"><span class="num">7</span>Preizkusi sam</a>
+</nav>
+<main>
+<div id="orodja">
+  <button onclick="document.querySelectorAll('details.res').forEach(d=>d.open=true)">Odpri vse rešitve</button>
+  <button onclick="document.querySelectorAll('details.res').forEach(d=>d.open=false)">Zapri vse</button>
+  <button onclick="window.print()">Natisni / shrani PDF</button>
+  <span class="sp">Deluje brez interneta.</span>
+</div>
+
+<header class="doc">
+  <h1>Od bita do lučke</h1>
+  <p class="sub">Kaj je pomik, kaj je maska in kje so »vrata B« — razloženo od popolnega začetka</p>
+</header>
+
+<p style="margin-top:20px">Ta dokument razloži eno samo vrstico:</p>
+<pre><code>PORTB |= (1 &lt;&lt; PB5);</code></pre>
+<p>Vsaka beseda v njej je razložena posebej, po vrsti, s slikami. Če razumete to vrstico,
+razumete devetdeset odstotkov vsega, kar se pri delu z registri dogaja.</p>
+
+<!-- ============================================================ 1 -->
+<section id="b1">
+<h2><span class="n">1</span>Kaj je bit in kaj pove njegovo mesto</h2>
+
+<p><strong>Bit</strong> je najmanjši podatek: ima lahko vrednost 0 ali 1. Nič drugega.</p>
+
+<p>Osem bitov skupaj tvori <strong>bajt</strong>. In tu pride ključna stvar, ki jo je treba razumeti:
+<strong>bit ni pomemben samo po svoji vrednosti, ampak tudi po tem, na katerem mestu stoji.</strong></p>
+
+<p>To že poznate iz vsakdanjih števil. V številu <strong>352</strong> dvojka ne pomeni dva, ampak
+2 &times; 1. Petica ne pomeni pet, ampak 5 &times; 10. Trojka pomeni 3 &times; 100.
+<em>Mesto določa težo.</em> Pri desetiških številih so teže 1, 10, 100, 1000 — potence števila 10.</p>
+
+<p>Pri dvojiških številih je čisto enako, le da so teže potence števila <strong>2</strong>:</p>
+
+<figure>
+<svg viewBox="0 0 880 300" role="img" aria-label="Osem bitov z njihovimi mesti in težami">
+<style>
+ .s1-c{fill:#fff;stroke:#7a4b2a;stroke-width:1.8}
+ .s1-cf{fill:#e6f0e9;stroke:#2e6b45;stroke-width:2.4}
+ .s1-t{font:bold 20px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a;text-anchor:middle}
+ .s1-m{font:12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66;text-anchor:middle}
+ .s1-w{font:bold 13px -apple-system,"Segoe UI",Arial,sans-serif;fill:#7a4b2a;text-anchor:middle}
+ .s1-p{font:12.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a;text-anchor:middle}
+ .s1-lb{font:13px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .s1-ts{font:12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+</style>
+<text class="s1-lb" x="30" y="34" style="font-weight:bold">Osem bitov enega bajta</text>
+<text class="s1-ts" x="30" y="54">Beremo jih od desne proti levi: bit 0 je skrajno desno.</text>
+
+<rect class="s1-c"  x="120" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="156" y="106">0</text>
+<rect class="s1-c"  x="200" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="236" y="106">0</text>
+<rect class="s1-cf" x="280" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="316" y="106">1</text>
+<rect class="s1-c"  x="360" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="396" y="106">0</text>
+<rect class="s1-c"  x="440" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="476" y="106">0</text>
+<rect class="s1-c"  x="520" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="556" y="106">0</text>
+<rect class="s1-c"  x="600" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="636" y="106">0</text>
+<rect class="s1-c"  x="680" y="70" width="72" height="54" rx="5"/><text class="s1-t" x="716" y="106">0</text>
+
+<text class="s1-m" x="156" y="144">bit 7</text>
+<text class="s1-m" x="236" y="144">bit 6</text>
+<text class="s1-m" x="316" y="144" style="fill:#2e6b45;font-weight:bold">bit 5</text>
+<text class="s1-m" x="396" y="144">bit 4</text>
+<text class="s1-m" x="476" y="144">bit 3</text>
+<text class="s1-m" x="556" y="144">bit 2</text>
+<text class="s1-m" x="636" y="144">bit 1</text>
+<text class="s1-m" x="716" y="144">bit 0</text>
+
+<text class="s1-p" x="156" y="176">2⁷</text><text class="s1-p" x="236" y="176">2⁶</text>
+<text class="s1-p" x="316" y="176" style="fill:#2e6b45;font-weight:bold">2⁵</text>
+<text class="s1-p" x="396" y="176">2⁴</text><text class="s1-p" x="476" y="176">2³</text>
+<text class="s1-p" x="556" y="176">2²</text><text class="s1-p" x="636" y="176">2¹</text>
+<text class="s1-p" x="716" y="176">2⁰</text>
+
+<text class="s1-w" x="156" y="200">128</text><text class="s1-w" x="236" y="200">64</text>
+<text class="s1-w" x="316" y="200" style="fill:#2e6b45;font-size:16px">32</text>
+<text class="s1-w" x="396" y="200">16</text><text class="s1-w" x="476" y="200">8</text>
+<text class="s1-w" x="556" y="200">4</text><text class="s1-w" x="636" y="200">2</text>
+<text class="s1-w" x="716" y="200">1</text>
+
+<text class="s1-ts" x="30" y="106">mesto:</text>
+<text class="s1-ts" x="30" y="176">teža:</text>
+
+<rect x="120" y="222" width="632" height="52" rx="8" fill="#e6f0e9" stroke="#2e6b45" stroke-width="1.4"/>
+<text class="s1-lb" x="140" y="244">Vrednost bajta = seštevek tež tistih mest, kjer stoji enica.</text>
+<text class="s1-lb" x="140" y="264" style="font-weight:bold;fill:#2e6b45">Tu stoji enica samo na mestu 5, zato je vrednost 32.</text>
+</svg>
+<figcaption>Mesto bita ni le »kje po vrsti« — mesto <em>je</em> potenca števila 2.</figcaption>
+</figure>
+
+<div class="kljuc">
+<strong>Prvo pravilo.</strong> Bit na mestu <em>n</em> ima težo 2<sup><em>n</em></sup>.
+Bit 0 ima težo 1, bit 1 težo 2, bit 2 težo 4, bit 3 težo 8, bit 4 težo 16,
+<strong>bit 5 težo 32</strong>, bit 6 težo 64 in bit 7 težo 128.
+</div>
+
+<p>Primer za vajo: <code>0b0010&nbsp;1001</code>. Enice stojijo na mestih 5, 3 in 0.
+Vrednost je torej 32 + 8 + 1 = <strong>41</strong>.</p>
+</section>
+
+<!-- ============================================================ 2 -->
+<section id="b2">
+<h2><span class="n">2</span>Pomik v levo — od kod matematika</h2>
+
+<p>Zdaj razumemo, kaj pomeni <code>1 &lt;&lt; 5</code>.</p>
+
+<p>Znak <code>&lt;&lt;</code> pomeni <strong>»pomakni v levo«</strong>. Zapis <code>1 &lt;&lt; 5</code> beremo:
+<em>vzemi enico in jo pomakni za pet mest v levo</em>.</p>
+
+<p>Zakaj je to množenje? Spet pomaga primerjava z desetiškimi števili, ki jih poznate:</p>
+
+<figure>
+<svg viewBox="0 0 916 330" role="img" aria-label="Primerjava pomika pri desetiških in dvojiških številih">
+<style>
+ .s2-t{font:14px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .s2-tb{font:bold 13px -apple-system,"Segoe UI",Arial,sans-serif;fill:#7a4b2a}
+ .s2-ts{font:12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+ .s2-m{font:bold 19px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a}
+ .s2-mg{font:bold 19px ui-monospace,Menlo,Consolas,monospace;fill:#2e6b45}
+ .s2-a{stroke:#2e6b45;stroke-width:2;fill:none;marker-end:url(#s2tip)}
+</style>
+<defs><marker id="s2tip" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+<path d="M0,0 L10,5 L0,10 z" fill="#2e6b45"/></marker></defs>
+
+<rect x="20" y="20" width="400" height="130" rx="9" fill="#fafaf8" stroke="#e2e2dd" stroke-width="1.4"/>
+<text class="s2-tb" x="38" y="44">DESETIŠKO — to že poznate</text>
+<text class="s2-m" x="38" y="76">5</text>
+<text class="s2-ts" x="70" y="76">pomakni za eno mesto v levo →</text>
+<text class="s2-m" x="300" y="76">50</text>
+<text class="s2-m" x="38" y="108">50</text>
+<text class="s2-ts" x="82" y="108">pomakni za eno mesto v levo →</text>
+<text class="s2-m" x="312" y="108">500</text>
+<text class="s2-t" x="38" y="138">Vsak pomik pomnoži z <tspan style="font-weight:bold">10</tspan> — ker je osnova 10.</text>
+
+<rect x="460" y="20" width="400" height="130" rx="9" fill="#e6f0e9" stroke="#2e6b45" stroke-width="1.4"/>
+<text class="s2-tb" x="478" y="44" style="fill:#2e6b45">DVOJIŠKO — ista logika</text>
+<text class="s2-mg" x="478" y="76">1</text>
+<text class="s2-ts" x="510" y="76">pomakni za eno mesto v levo →</text>
+<text class="s2-mg" x="740" y="76">10</text>
+<text class="s2-ts" x="778" y="76">= 2</text>
+<text class="s2-mg" x="478" y="108">10</text>
+<text class="s2-ts" x="522" y="108">pomakni za eno mesto v levo →</text>
+<text class="s2-mg" x="752" y="108">100</text>
+<text class="s2-ts" x="806" y="108">= 4</text>
+<text class="s2-t" x="478" y="138">Vsak pomik pomnoži z <tspan style="font-weight:bold">2</tspan> — ker je osnova 2.</text>
+
+<text class="s2-tb" x="20" y="190">Enica potuje po mestih: 1 &lt;&lt; 5</text>
+
+<g>
+<text class="s2-ts" x="20" y="222">1 &lt;&lt; 0</text><text class="s2-m" x="100" y="222">0000 0001</text><text class="s2-ts" x="256" y="222">= 1</text>
+<text class="s2-ts" x="20" y="248">1 &lt;&lt; 1</text><text class="s2-m" x="100" y="248">0000 0010</text><text class="s2-ts" x="256" y="248">= 2</text>
+<text class="s2-ts" x="20" y="274">1 &lt;&lt; 2</text><text class="s2-m" x="100" y="274">0000 0100</text><text class="s2-ts" x="256" y="274">= 4</text>
+<text class="s2-ts" x="320" y="222">1 &lt;&lt; 3</text><text class="s2-m" x="400" y="222">0000 1000</text><text class="s2-ts" x="556" y="222">= 8</text>
+<text class="s2-ts" x="320" y="248">1 &lt;&lt; 4</text><text class="s2-m" x="400" y="248">0001 0000</text><text class="s2-ts" x="556" y="248">= 16</text>
+<text class="s2-ts" x="320" y="274" style="fill:#2e6b45;font-weight:bold">1 &lt;&lt; 5</text>
+<text class="s2-mg" x="400" y="274">0010 0000</text><text class="s2-ts" x="556" y="274" style="fill:#2e6b45;font-weight:bold">= 32</text>
+<text class="s2-ts" x="620" y="222">1 &lt;&lt; 6</text><text class="s2-m" x="700" y="222">0100 0000</text><text class="s2-ts" x="856" y="222">= 64</text>
+<text class="s2-ts" x="620" y="248">1 &lt;&lt; 7</text><text class="s2-m" x="700" y="248">1000 0000</text><text class="s2-ts" x="852" y="248">= 128</text>
+</g>
+<path class="s2-a" d="M540,286 C560,306 420,312 400,290"/>
+<text class="s2-ts" x="596" y="300" style="fill:#2e6b45">enica je pristala natanko na mestu 5</text>
+</svg>
+<figcaption>Pomik v levo je množenje z osnovo. Pri desetiških z 10, pri dvojiških z 2.</figcaption>
+</figure>
+
+<div class="kljuc">
+<strong>Drugo pravilo.</strong> <code>1 &lt;&lt; n</code> pomeni <em>2 na n</em> in postavi enico natanko
+na mesto <em>n</em>. Zato je <code>1 &lt;&lt; 5</code> enako 2<sup>5</sup> = <strong>32</strong>
+in v dvojiškem zapisu <code>0b0010&nbsp;0000</code>.
+</div>
+
+<p>Pomik v desno (<code>&gt;&gt;</code>) dela obratno: deli z 2. <code>32 &gt;&gt; 2</code> je 8.</p>
+</section>
+
+<!-- ============================================================ 3 -->
+<section id="b3">
+<h2><span class="n">3</span>Zakaj ne napišemo kar 32</h2>
+
+<p>Povsem upravičeno vprašanje. In odgovor je: <strong>lahko bi</strong>. Ti dve vrstici sta za
+procesor popolnoma enaki:</p>
+
+<pre><code>PORTB |= (1 &lt;&lt; PB5);   <span class="c">// tako pišemo</span>
+PORTB |= 32;           <span class="c">// enako deluje</span>
+PORTB |= 0b00100000;   <span class="c">// tudi to je isto</span></code></pre>
+
+<p>Razlika ni v delovanju, ampak v <strong>berljivosti</strong>. Ko piše <code>32</code>, morate v glavi
+računati, katero mesto je to. Ko piše <code>(1 &lt;&lt; PB5)</code>, takoj vidite, da gre za
+<strong>pin PB5</strong> — in prav to vas zanima.</p>
+
+<p><code>PB5</code> je samo ime za število 5. Definirano je v datoteki <code>avr/io.h</code>, ki jo
+okolje Arduino samodejno vključi. Prav tako <code>PB0</code> je 0, <code>PB1</code> je 1 in tako naprej.</p>
+
+<div class="tabela"><table>
+<thead><tr><th>Če hočete pin…</th><th>Napišete</th><th>Kar je</th><th>V dvojiškem</th><th>Kot število</th></tr></thead>
+<tbody>
+<tr><td>PB0 (Arduino 8)</td><td><code>1 &lt;&lt; PB0</code></td><td>1 &lt;&lt; 0</td><td><code>0000 0001</code></td><td>1</td></tr>
+<tr><td>PB1 (Arduino 9)</td><td><code>1 &lt;&lt; PB1</code></td><td>1 &lt;&lt; 1</td><td><code>0000 0010</code></td><td>2</td></tr>
+<tr><td>PB2 (Arduino 10)</td><td><code>1 &lt;&lt; PB2</code></td><td>1 &lt;&lt; 2</td><td><code>0000 0100</code></td><td>4</td></tr>
+<tr><td>PB3 (Arduino 11)</td><td><code>1 &lt;&lt; PB3</code></td><td>1 &lt;&lt; 3</td><td><code>0000 1000</code></td><td>8</td></tr>
+<tr><td>PB4 (Arduino 12)</td><td><code>1 &lt;&lt; PB4</code></td><td>1 &lt;&lt; 4</td><td><code>0001 0000</code></td><td>16</td></tr>
+<tr><td><strong>PB5 (Arduino 13)</strong></td><td><code>1 &lt;&lt; PB5</code></td><td>1 &lt;&lt; 5</td><td><code>0010 0000</code></td><td><strong>32</strong></td></tr>
+</tbody></table></div>
+
+<div class="dobro blok">
+<strong>Praktičen sklep.</strong> Če zamenjate LED s pina 13 na pin 9, popravite samo
+<code>PB5</code> v <code>PB1</code> in vse deluje. Če bi pisali <code>32</code>, bi morali
+vedeti, da je treba to zamenjati z <code>2</code> — in prej ali slej bi se zmotili.
+</div>
+</section>
+
+<!-- ============================================================ 4 -->
+<section id="b4">
+<h2><span class="n">4</span>Maska: spremeni enega, ostalih sedem pusti pri miru</h2>
+
+<p>Zdaj še <code>|=</code>. In tu je razlog, zakaj vse to sploh počnemo tako zapleteno.</p>
+
+<p><strong>Težava:</strong> register <code>PORTB</code> ima osem bitov in vsak od njih krmili svoj pin.
+Ko hočete prižgati LED na pinu 13, morate spremeniti <em>samo bit 5</em>. Ostalih sedem bitov krmili
+druge pine — morda tam visijo drugi deli vezja, ki morajo ostati, kot so.</p>
+
+<div class="past blok">
+<strong>Zakaj ne smemo pisati <code>PORTB = 32;</code></strong><br>
+Ta zapis pomeni »<em>celotni register naj bo enak 32</em>«, kar postavi bit 5 na 1 in
+<strong>vseh ostalih sedem bitov na 0</strong>. Če je bila na pinu 9 prižgana druga LED, se ugasne.
+Če je bil pin 10 uporabljen za nekaj drugega, ga pokvarite. Enačaj torej <em>povozi vse</em>.
+</div>
+
+<p><strong>Rešitev</strong> je <strong>maska</strong> — število, v katerem so enice natanko tam,
+kjer hočemo poseči, in ničle povsod drugod. In operacija <strong>ALI</strong>
+(v jeziku C znak <code>|</code>), ki ima tole lastnost:</p>
+
+<div class="tabela"><table>
+<thead><tr><th>bit v registru</th><th>bit v maski</th><th>rezultat</th><th>kaj se je zgodilo</th></tr></thead>
+<tbody>
+<tr><td>0</td><td><strong>0</strong></td><td>0</td><td>ostane pri miru</td></tr>
+<tr><td>1</td><td><strong>0</strong></td><td>1</td><td>ostane pri miru</td></tr>
+<tr><td>0</td><td><strong>1</strong></td><td>1</td><td><strong>postavljen na 1</strong></td></tr>
+<tr><td>1</td><td><strong>1</strong></td><td>1</td><td><strong>postavljen na 1</strong></td></tr>
+</tbody></table></div>
+
+<p>Preberite zadnji stolpec: <strong>kjer ima maska ničlo, se ne zgodi nič; kjer ima enico,
+bit postane 1.</strong> Prav to potrebujemo.</p>
+
+<figure>
+<svg viewBox="0 0 880 400" role="img" aria-label="Kako maska in operacija ALI spremenita samo en bit">
+<style>
+ .s4-c{fill:#fff;stroke:#7a4b2a;stroke-width:1.6}
+ .s4-cg{fill:#e6f0e9;stroke:#2e6b45;stroke-width:2.2}
+ .s4-cr{fill:#fbeaea;stroke:#a03535;stroke-width:1.6}
+ .s4-t{font:bold 17px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a;text-anchor:middle}
+ .s4-lb{font:13px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .s4-lbb{font:bold 13px -apple-system,"Segoe UI",Arial,sans-serif;fill:#7a4b2a}
+ .s4-ts{font:11.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66;text-anchor:middle}
+ .s4-tss{font:12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+</style>
+<text class="s4-ts" x="221" y="34" style="text-anchor:start;font-weight:bold">mesto:</text>
+<text class="s4-ts" x="300" y="34">7</text><text class="s4-ts" x="360" y="34">6</text>
+<text class="s4-ts" x="420" y="34" style="fill:#2e6b45;font-weight:bold">5</text>
+<text class="s4-ts" x="480" y="34">4</text><text class="s4-ts" x="540" y="34">3</text>
+<text class="s4-ts" x="600" y="34">2</text><text class="s4-ts" x="660" y="34">1</text><text class="s4-ts" x="720" y="34">0</text>
+
+<text class="s4-lbb" x="30" y="72">trenutno v PORTB</text>
+<rect class="s4-c" x="272" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="300" y="74">0</text>
+<rect class="s4-c" x="332" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="360" y="74">1</text>
+<rect class="s4-c" x="392" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="420" y="74">0</text>
+<rect class="s4-c" x="452" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="480" y="74">0</text>
+<rect class="s4-c" x="512" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="540" y="74">1</text>
+<rect class="s4-c" x="572" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="600" y="74">0</text>
+<rect class="s4-c" x="632" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="660" y="74">0</text>
+<rect class="s4-c" x="692" y="48" width="56" height="38" rx="4"/><text class="s4-t" x="720" y="74">1</text>
+<text class="s4-tss" x="768" y="74">= 73</text>
+
+<text class="s4-lbb" x="30" y="140" style="fill:#2e6b45">maska (1 &lt;&lt; PB5)</text>
+<text class="s4-tss" x="30" y="158">enica samo na mestu 5</text>
+<rect class="s4-c" x="272" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="300" y="142">0</text>
+<rect class="s4-c" x="332" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="360" y="142">0</text>
+<rect class="s4-cg" x="392" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="420" y="142" style="fill:#2e6b45">1</text>
+<rect class="s4-c" x="452" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="480" y="142">0</text>
+<rect class="s4-c" x="512" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="540" y="142">0</text>
+<rect class="s4-c" x="572" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="600" y="142">0</text>
+<rect class="s4-c" x="632" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="660" y="142">0</text>
+<rect class="s4-c" x="692" y="116" width="56" height="38" rx="4"/><text class="s4-t" x="720" y="142">0</text>
+<text class="s4-tss" x="768" y="142">= 32</text>
+
+<text style="font:bold 26px -apple-system,sans-serif;fill:#7a4b2a" x="220" y="182">ALI</text>
+<line x1="272" y1="168" x2="748" y2="168" stroke="#7a4b2a" stroke-width="2"/>
+
+<text class="s4-lbb" x="30" y="212">rezultat v PORTB</text>
+<rect class="s4-c" x="272" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="300" y="214">0</text>
+<rect class="s4-c" x="332" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="360" y="214">1</text>
+<rect class="s4-cg" x="392" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="420" y="214" style="fill:#2e6b45">1</text>
+<rect class="s4-c" x="452" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="480" y="214">0</text>
+<rect class="s4-c" x="512" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="540" y="214">1</text>
+<rect class="s4-c" x="572" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="600" y="214">0</text>
+<rect class="s4-c" x="632" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="660" y="214">0</text>
+<rect class="s4-c" x="692" y="188" width="56" height="38" rx="4"/><text class="s4-t" x="720" y="214">1</text>
+<text class="s4-tss" x="768" y="214">= 105</text>
+
+<text class="s4-ts" x="300" y="248">isti</text><text class="s4-ts" x="360" y="248">isti</text>
+<text class="s4-ts" x="420" y="248" style="fill:#2e6b45;font-weight:bold">SPREMENJEN</text>
+<text class="s4-ts" x="480" y="248">isti</text><text class="s4-ts" x="540" y="248">isti</text>
+<text class="s4-ts" x="600" y="248">isti</text><text class="s4-ts" x="660" y="248">isti</text><text class="s4-ts" x="720" y="248">isti</text>
+
+<rect x="30" y="276" width="820" height="46" rx="8" fill="#e6f0e9" stroke="#2e6b45" stroke-width="1.4"/>
+<text class="s4-lb" x="48" y="304">Spremenil se je natanko en bit — tisti, kjer je imela maska enico. Sedem drugih pinov je ostalo nedotaknjenih.</text>
+
+<rect x="30" y="336" width="820" height="46" rx="8" fill="#fbeaea" stroke="#a03535" stroke-width="1.4"/>
+<text class="s4-lb" x="48" y="364">Če bi napisali PORTB = 32, bi rezultat bil 0010 0000 — bita 6, 3 in 0 bi se ugasnila. To je napaka.</text>
+</svg>
+<figcaption>Maska pove, <em>kam</em> poseči. Operacija ALI poskrbi, da se drugod ne zgodi nič.</figcaption>
+</figure>
+
+<div class="kljuc">
+<strong>Tretje pravilo.</strong> <code>|=</code> je okrajšava za »<em>register je enak samemu sebi ALI maska</em>«.
+<code>PORTB |= (1&lt;&lt;PB5);</code> je isto kot <code>PORTB = PORTB | (1&lt;&lt;PB5);</code> —
+in pomeni: <strong>postavi bit 5, ostalih se ne dotikaj</strong>.
+</div>
+
+<h3>Štirje vzorci, ki jih potrebujete</h3>
+<div class="tabela"><table>
+<thead><tr><th>Kaj hočete</th><th>Zapis</th><th>Zakaj deluje</th></tr></thead>
+<tbody>
+<tr><td><strong>postaviti</strong> bit na 1</td><td><code>PORTB |= (1&lt;&lt;PB5);</code></td>
+    <td>ALI z enico da vedno 1, ALI z ničlo ne spremeni nič</td></tr>
+<tr><td><strong>počistiti</strong> bit na 0</td><td><code>PORTB &amp;= ~(1&lt;&lt;PB5);</code></td>
+    <td><code>~</code> obrne masko v <code>1101 1111</code>; IN z ničlo da 0, IN z enico ne spremeni nič</td></tr>
+<tr><td><strong>obrniti</strong> bit</td><td><code>PORTB ^= (1&lt;&lt;PB5);</code></td>
+    <td>izključujoči ALI z enico obrne, z ničlo pusti</td></tr>
+<tr><td><strong>preveriti</strong> bit</td><td><code>if (PINB &amp; (1&lt;&lt;PB5))</code></td>
+    <td>IN pusti samo ta bit; rezultat je 0 ali 32, nikoli 1</td></tr>
+</tbody></table></div>
+
+<div class="opomba blok">
+<strong>Past pri preverjanju.</strong> <code>PINB &amp; (1&lt;&lt;PB5)</code> vrne <strong>32</strong>,
+ne 1. Zato je <code>if (PINB &amp; (1&lt;&lt;PB5))</code> pravilno (v jeziku C je vse, kar ni nič,
+resnično), <code>if ((PINB &amp; (1&lt;&lt;PB5)) == 1)</code> pa <strong>nikoli</strong> ne bo držalo.
+</div>
+</section>
+
+<!-- ============================================================ 5 -->
+<section id="b5">
+<h2><span class="n">5</span>Kje so vrata B — na pravi plošči</h2>
+
+<p>»Vrata« (angleško <em class="tuj">port</em>) so <strong>skupina pinov, ki jih krmili en register</strong>.
+Ker ima register osem bitov, ima ena skupina največ osem pinov.</p>
+
+<p>ATmega328P — čip na sredini Arduina — ima tri take skupine: <strong>B</strong>, <strong>C</strong>
+in <strong>D</strong>. Vsaka ima svoj register: <code>PORTB</code>, <code>PORTC</code>, <code>PORTD</code>.</p>
+
+<p>Te oznake so <strong>čipove</strong>, ne Arduinove. Arduino je pine ob izdelavi plošče preštevilčil
+po svoje — od 0 do 13 in A0 do A5 — ker so te številke bolj prijazne začetniku. Zato ni videti
+nobene povezave. Spodnja slika pokaže, kaj je kaj:</p>
+
+<figure>
+<svg viewBox="0 0 900 520" role="img" aria-label="Plošča Arduino Uno z označenimi skupinami pinov B, C in D">
+<style>
+ .a-b{fill:#1a8b93;stroke:#0d6b71;stroke-width:2}
+ .a-hd{fill:#1c1c1a;stroke:#000;stroke-width:1}
+ .a-pin{fill:#c9a227;stroke:#8a6d10;stroke-width:.8}
+ .a-chip{fill:#22252a;stroke:#000;stroke-width:1.4}
+ .a-usb{fill:#b8bcc0;stroke:#7f8388;stroke-width:1.4}
+ .a-jack{fill:#171717;stroke:#000;stroke-width:1.4}
+ .a-num{font:bold 11.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a;text-anchor:middle}
+ .a-pb{font:10.5px ui-monospace,Menlo,Consolas,monospace;text-anchor:middle}
+ .a-w{font:10.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#dff4f5;text-anchor:middle}
+ .a-ws{font:10px -apple-system,"Segoe UI",Arial,sans-serif;fill:#a8dade;text-anchor:start}
+ .a-tw{font:bold 11.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#fff;text-anchor:middle}
+ .a-t{font:12px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .a-chipt{font:11.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#d8d8d8;text-anchor:middle}
+</style>
+<defs><marker id="atip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#bff0d0"/></marker></defs>
+
+<!-- ===== zastavice skupin ===== -->
+<rect x="296" y="66" width="152" height="28" rx="6" fill="#2e6b45"/>
+<text class="a-tw" x="372" y="85">VRATA B</text>
+<line x1="372" y1="94" x2="372" y2="108" stroke="#2e6b45" stroke-width="2"/>
+
+<rect x="496" y="66" width="200" height="28" rx="6" fill="#7a4b2a"/>
+<text class="a-tw" x="596" y="85">VRATA D</text>
+<line x1="596" y1="94" x2="596" y2="108" stroke="#7a4b2a" stroke-width="2"/>
+
+<!-- ===== oznake pinov nad ploščo ===== -->
+<text class="a-num" x="208" y="120">SCL</text><text class="a-num" x="234" y="120">SDA</text>
+<text class="a-num" x="260" y="120">ARF</text><text class="a-num" x="286" y="120">GND</text>
+<text class="a-num" x="312" y="120">13</text><text class="a-num" x="338" y="120">12</text>
+<text class="a-num" x="364" y="120">11</text><text class="a-num" x="390" y="120">10</text>
+<text class="a-num" x="416" y="120">9</text><text class="a-num" x="442" y="120">8</text>
+<text class="a-pb" x="312" y="136" style="fill:#2e6b45;font-weight:bold">PB5</text>
+<text class="a-pb" x="338" y="136" style="fill:#2e6b45">PB4</text>
+<text class="a-pb" x="364" y="136" style="fill:#2e6b45">PB3</text>
+<text class="a-pb" x="390" y="136" style="fill:#2e6b45">PB2</text>
+<text class="a-pb" x="416" y="136" style="fill:#2e6b45">PB1</text>
+<text class="a-pb" x="442" y="136" style="fill:#2e6b45">PB0</text>
+
+<text class="a-num" x="508" y="120">7</text><text class="a-num" x="534" y="120">6</text>
+<text class="a-num" x="560" y="120">5</text><text class="a-num" x="586" y="120">4</text>
+<text class="a-num" x="612" y="120">3</text><text class="a-num" x="638" y="120">2</text>
+<text class="a-num" x="664" y="120">1</text><text class="a-num" x="690" y="120">0</text>
+<text class="a-pb" x="508" y="136" style="fill:#7a4b2a">PD7</text>
+<text class="a-pb" x="534" y="136" style="fill:#7a4b2a">PD6</text>
+<text class="a-pb" x="560" y="136" style="fill:#7a4b2a">PD5</text>
+<text class="a-pb" x="586" y="136" style="fill:#7a4b2a">PD4</text>
+<text class="a-pb" x="612" y="136" style="fill:#7a4b2a">PD3</text>
+<text class="a-pb" x="638" y="136" style="fill:#7a4b2a">PD2</text>
+<text class="a-pb" x="664" y="136" style="fill:#7a4b2a">PD1</text>
+<text class="a-pb" x="690" y="136" style="fill:#7a4b2a">PD0</text>
+
+<!-- ===== plošča ===== -->
+<rect class="a-b" x="90" y="146" width="720" height="282" rx="14"/>
+<rect class="a-usb" x="62" y="164" width="56" height="52" rx="3"/>
+<text class="a-ws" x="126" y="196">USB</text>
+<rect class="a-jack" x="62" y="352" width="56" height="46" rx="7"/>
+<text class="a-ws" x="126" y="380">napajanje</text>
+
+<!-- letvi zgoraj -->
+<rect class="a-hd" x="196" y="148" width="256" height="26" rx="2"/>
+<rect class="a-pin" x="200" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="226" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="252" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="278" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="304" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="330" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="356" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="382" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="408" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="434" y="153" width="16" height="16" rx="2"/>
+
+<rect class="a-hd" x="496" y="148" width="204" height="26" rx="2"/>
+<rect class="a-pin" x="500" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="526" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="552" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="578" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="604" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="630" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="656" y="153" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="682" y="153" width="16" height="16" rx="2"/>
+<text class="a-w" x="598" y="192">DIGITAL</text>
+
+<!-- vgrajena LED na pinu 13 -->
+<line x1="312" y1="174" x2="312" y2="196" stroke="#e8d84a" stroke-width="2.4"/>
+<rect x="300" y="196" width="24" height="15" rx="2" fill="#e8d84a" stroke="#a89a1c" stroke-width="1"/>
+<text x="312" y="208" style="font:bold 10px -apple-system,sans-serif;fill:#4a4207;text-anchor:middle">L</text>
+<text class="a-ws" x="336" y="209" style="fill:#e8d84a">vgrajena LED na pinu 13</text>
+
+<!-- čip -->
+<rect class="a-chip" x="380" y="250" width="236" height="86" rx="4"/>
+<circle cx="396" cy="264" r="4" fill="#555"/>
+<text class="a-chipt" x="498" y="288">ATmega328P</text>
+<text class="a-chipt" x="498" y="308" style="font-size:10px">tu so registri PORTB, PORTC, PORTD</text>
+
+<!-- puščica register -> pin 13 -->
+<path d="M400,250 C368,238 330,232 316,214" fill="none" stroke="#bff0d0" stroke-width="2"
+      stroke-dasharray="5 4" marker-end="url(#atip)"/>
+<text class="a-ws" x="404" y="240" style="fill:#bff0d0">bit 5 registra PORTB</text>
+
+<text class="a-w" x="706" y="384" style="font-size:12px;fill:#bfe8ea">ARDUINO UNO</text>
+
+<!-- letvi spodaj -->
+<rect class="a-hd" x="196" y="400" width="204" height="26" rx="2"/>
+<rect class="a-pin" x="200" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="226" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="252" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="278" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="304" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="330" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="356" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="382" y="405" width="16" height="16" rx="2"/>
+<text class="a-w" x="298" y="392">POWER &mdash; 5V, GND, VIN, RESET</text>
+
+<rect class="a-hd" x="466" y="400" width="152" height="26" rx="2"/>
+<rect class="a-pin" x="470" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="496" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="522" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="548" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="574" y="405" width="16" height="16" rx="2"/>
+<rect class="a-pin" x="600" y="405" width="16" height="16" rx="2"/>
+<text class="a-w" x="542" y="392">ANALOG IN</text>
+
+<text class="a-num" x="478" y="448">A0</text><text class="a-num" x="504" y="448">A1</text>
+<text class="a-num" x="530" y="448">A2</text><text class="a-num" x="556" y="448">A3</text>
+<text class="a-num" x="582" y="448">A4</text><text class="a-num" x="608" y="448">A5</text>
+<text class="a-pb" x="478" y="464" style="fill:#5b3a7a">PC0</text>
+<text class="a-pb" x="504" y="464" style="fill:#5b3a7a">PC1</text>
+<text class="a-pb" x="530" y="464" style="fill:#5b3a7a">PC2</text>
+<text class="a-pb" x="556" y="464" style="fill:#5b3a7a">PC3</text>
+<text class="a-pb" x="582" y="464" style="fill:#5b3a7a">PC4</text>
+<text class="a-pb" x="608" y="464" style="fill:#5b3a7a">PC5</text>
+
+<line x1="542" y1="470" x2="542" y2="482" stroke="#5b3a7a" stroke-width="2"/>
+<rect x="466" y="482" width="152" height="28" rx="6" fill="#5b3a7a"/>
+<text class="a-tw" x="542" y="501">VRATA C</text>
+</svg>
+<figcaption>Poenostavljena shema plošče: prikazani so le deli, ki so za to razlago pomembni. Vrata so skupina pinov, ki jih krmili en sam register.</figcaption>
+</figure>
+
+<div class="kljuc">
+<strong>Kar mora ostati v glavi.</strong> Pin, ki je na plošči natisnjen kot <strong>13</strong>,
+je za čip <strong>PB5</strong> — peti bit vrat B. Prav na njem je že iz tovarne prispajkana majhna
+LED z oznako <strong>L</strong>, zato za prvi poskus ni treba priklopiti prav ničesar.
+</div>
+
+<div class="tabela"><table>
+<thead><tr><th>Vrata</th><th>Register</th><th>Pini na Arduinu</th><th>Koliko jih je</th><th>Opomba</th></tr></thead>
+<tbody>
+<tr><td><strong>B</strong></td><td><code>PORTB</code></td><td>8, 9, 10, 11, 12, <strong>13</strong></td><td>6</td>
+    <td>PB6 in PB7 sta porabljena za kristal ure, zato nista na letvi</td></tr>
+<tr><td><strong>C</strong></td><td><code>PORTC</code></td><td>A0, A1, A2, A3, A4, A5</td><td>6</td>
+    <td>PC6 je pin RESET</td></tr>
+<tr><td><strong>D</strong></td><td><code>PORTD</code></td><td>0, 1, 2, 3, 4, 5, 6, 7</td><td>8</td>
+    <td>edina skupina, ki je cela na voljo; 0 in 1 sta serijska vrata</td></tr>
+</tbody></table></div>
+
+<div class="opomba blok">
+<strong>Zakaj se številke ne ujemajo.</strong> Arduinov pin 5 je <code>PD5</code>, ne <code>PB5</code>.
+Arduinov pin 13 je <code>PB5</code>. Ujemanja ni in ga tudi ne more biti — Arduino je pine
+oštevilčil po vrstnem redu na letvi, čip pa jih ima razvrščene po svojih notranjih skupinah.
+Tabelo preslikave je najbolje natisniti in obesiti.
+</div>
+</section>
+
+<!-- ============================================================ 6 -->
+<section id="b6">
+<h2><span class="n">6</span>Cela pot: od vrstice do svetleče lučke</h2>
+
+<p>Zdaj lahko preberemo celo vrstico. Pravzaprav potrebujemo dve:</p>
+<pre><code>DDRB  |= (1 &lt;&lt; PB5);   <span class="c">// 1. pin naj bo izhod</span>
+PORTB |= (1 &lt;&lt; PB5);   <span class="c">// 2. izhod naj bo visok</span></code></pre>
+
+<figure>
+<svg viewBox="0 0 880 400" role="img" aria-label="Sedem korakov od vrstice kode do svetleče LED">
+<style>
+ .s6-k{fill:#fff;stroke:#7a4b2a;stroke-width:1.6;rx:8}
+ .s6-kf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.8;rx:8}
+ .s6-kg{fill:#e6f0e9;stroke:#2e6b45;stroke-width:2;rx:8}
+ .s6-n{font:bold 13px -apple-system,sans-serif;fill:#fff;text-anchor:middle}
+ .s6-t{font:12.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .s6-tm{font:12px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a}
+ .s6-ts{font:11px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+ .s6-a{stroke:#1c1c1a;stroke-width:1.8;fill:none;marker-end:url(#s6tip)}
+</style>
+<defs><marker id="s6tip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker></defs>
+
+<circle cx="42" cy="46" r="14" fill="#7a4b2a"/><text class="s6-n" x="42" y="51">1</text>
+<rect class="s6-kf" x="70" y="26" width="300" height="40"/>
+<text class="s6-tm" x="84" y="51">PORTB |= (1 &lt;&lt; PB5);</text>
+<text class="s6-ts" x="386" y="51">to napišete v okolju Arduino</text>
+
+<line class="s6-a" x1="42" y1="66" x2="42" y2="92"/>
+<circle cx="42" cy="112" r="14" fill="#7a4b2a"/><text class="s6-n" x="42" y="117">2</text>
+<rect class="s6-k" x="70" y="92" width="300" height="40"/>
+<text class="s6-tm" x="84" y="117">1 &lt;&lt; 5  →  0010 0000  =  32</text>
+<text class="s6-ts" x="386" y="117">prevajalnik izračuna masko</text>
+
+<line class="s6-a" x1="42" y1="132" x2="42" y2="158"/>
+<circle cx="42" cy="178" r="14" fill="#7a4b2a"/><text class="s6-n" x="42" y="183">3</text>
+<rect class="s6-k" x="70" y="158" width="300" height="40"/>
+<text class="s6-tm" x="84" y="183">sbi  0x05, 5</text>
+<text class="s6-ts" x="386" y="183">nastane en sam strojni ukaz (2 takta)</text>
+
+<line class="s6-a" x1="42" y1="198" x2="42" y2="224"/>
+<circle cx="42" cy="244" r="14" fill="#7a4b2a"/><text class="s6-n" x="42" y="249">4</text>
+<rect class="s6-k" x="70" y="224" width="300" height="40"/>
+<text class="s6-t" x="84" y="249">bit 5 v registru PORTB postane 1</text>
+<text class="s6-ts" x="386" y="249">register je pomnilniška celica v čipu</text>
+
+<line class="s6-a" x1="42" y1="264" x2="42" y2="290"/>
+<circle cx="42" cy="310" r="14" fill="#2e6b45"/><text class="s6-n" x="42" y="315">5</text>
+<rect class="s6-k" x="70" y="290" width="300" height="40"/>
+<text class="s6-t" x="84" y="315">tranzistor v vezju pina se sklene</text>
+<text class="s6-ts" x="386" y="315">bit je z žico povezan s tem tranzistorjem</text>
+
+<line class="s6-a" x1="42" y1="330" x2="42" y2="356"/>
+<circle cx="42" cy="376" r="14" fill="#2e6b45"/><text class="s6-n" x="42" y="381">6</text>
+<rect class="s6-kg" x="70" y="356" width="300" height="40"/>
+<text class="s6-t" x="84" y="381">na pinu 13 je 5 V → LED zasveti</text>
+<text class="s6-ts" x="386" y="381">tok steče skozi LED v maso</text>
+
+<line x1="640" y1="20" x2="640" y2="396" stroke="#e2e2dd" stroke-width="1.5"/>
+<text class="s6-t" x="664" y="46" style="font-weight:bold">Kaj je kje</text>
+<text class="s6-ts" x="664" y="76">koraki 1–3:</text>
+<text class="s6-ts" x="664" y="94">na vašem računalniku</text>
+<text class="s6-ts" x="664" y="112">(prevajanje)</text>
+<text class="s6-ts" x="664" y="146">korak 4:</text>
+<text class="s6-ts" x="664" y="164">znotraj čipa</text>
+<text class="s6-ts" x="664" y="182">(pomnilnik)</text>
+<text class="s6-ts" x="664" y="216">koraka 5–6:</text>
+<text class="s6-ts" x="664" y="234">elektronika</text>
+<text class="s6-ts" x="664" y="252">(napetost in tok)</text>
+<text class="s6-ts" x="664" y="300">Vsa vrstica se izvede</text>
+<text class="s6-ts" x="664" y="318">v 125 milijardninkah</text>
+<text class="s6-ts" x="664" y="336">sekunde.</text>
+</svg>
+<figcaption>Šest korakov od vrstice v urejevalniku do svetleče lučke na mizi.</figcaption>
+</figure>
+
+<div class="kljuc">
+<strong>Zakaj sta potrebni dve vrstici.</strong> <code>DDRB</code> pove, ali je pin <em>vhod ali izhod</em>.
+<code>PORTB</code> pove, <em>kakšna napetost</em> naj bo na izhodu. Če pozabite prvo vrstico,
+pin ostane vhod in LED ne zasveti — čeprav ste v <code>PORTB</code> zapisali pravilno vrednost.
+To je najpogostejša napaka pri prvi vaji.
+</div>
+</section>
+
+<!-- ============================================================ 7 -->
+<section id="b7">
+<h2><span class="n">7</span>Preizkusi sam</h2>
+
+<div class="vaja"><p class="oz">Vaja 1</p>
+<p>Koliko je <code>1 &lt;&lt; 3</code>? Zapiši v dvojiškem in desetiškem zapisu.</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<p><code>0b0000 1000</code> = <strong>8</strong>. Enica je pristala na mestu 3, teža mesta 3 je 2<sup>3</sup> = 8.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 2</p>
+<p>Katero vrednost ima <code>0b0100 0101</code>?</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Enice stojijo na mestih 6, 2 in 0. Torej 64 + 4 + 1 = <strong>69</strong>.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 3</p>
+<p>V registru <code>PORTB</code> je trenutno <code>0b0000 1001</code>. Kaj bo v njem po ukazu
+<code>PORTB |= (1 &lt;&lt; PB4);</code>?</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Maska <code>1 &lt;&lt; 4</code> je <code>0b0001 0000</code>. Operacija ALI postavi bit 4 in ostalih
+ne spremeni: <code>0b0001 1001</code> = <strong>25</strong>. Bita 3 in 0 sta ostala postavljena —
+prav to je namen maske.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 4</p>
+<p>Kaj bi se zgodilo, če bi namesto tega napisali <code>PORTB = (1 &lt;&lt; PB4);</code>?
+Zakaj je to skoraj vedno napaka?</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<p>V registru bi ostalo samo <code>0b0001 0000</code> = 16. Bita 3 in 0 bi se <strong>ugasnila</strong>,
+kar pomeni, da bi ugasnili tudi pina 11 in 8. Enačaj povozi ves register; <code>|=</code> spremeni
+samo tisto, kar hočemo.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 5</p>
+<p>Napiši vrstico, ki <em>ugasne</em> LED na pinu 13, ne da bi se dotaknila drugih pinov.</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<pre><code>PORTB &amp;= ~(1 &lt;&lt; PB5);</code></pre>
+<p>Po korakih: <code>1&lt;&lt;PB5</code> je <code>0010 0000</code>. Znak <code>~</code> obrne vse bite in
+da <code>1101 1111</code>. Operacija IN pusti bit pri miru povsod, kjer je v maski enica, na mestu 5
+pa ga pomnoži z ničlo in ga s tem počisti.</p>
+</div></details></div>
+
+<div class="vaja"><p class="oz">Vaja 6</p>
+<p>LED želiš prestaviti s pina 13 na pin 9. Kaj v obeh vrsticah spremeniš?</p>
+<details class="res"><summary>Pokaži rešitev</summary><div class="telo">
+<p>Pin 9 je <code>PB1</code>, kar je še vedno v vratih B, zato ostaneta ista registra:</p>
+<pre><code>DDRB  |= (1 &lt;&lt; PB1);
+PORTB |= (1 &lt;&lt; PB1);</code></pre>
+<p>Če bi jo prestavil na pin 5, bi bila stvar drugačna: pin 5 je <code>PD5</code>, torej v vratih D,
+zato bi se spremenila tudi registra — <code>DDRD</code> in <code>PORTD</code>.</p>
+</div></details></div>
+
+<div class="dobro blok" style="margin-top:26px">
+<strong>Če je do sem jasno, je jasno tudi vse ostalo.</strong> Vsak register v mikrokrmilniku —
+za časovnik, za serijska vrata, za pretvornik A/D — se nastavlja z istimi štirimi vzorci.
+Spremenijo se samo imena registrov in bitov. Nikoli več ne bo nič bolj zapletenega od tega.
+</div>
+</section>
+
+</main>
+</div>
+<script>
+var pov=Array.prototype.slice.call(document.querySelectorAll('#nav a'));
+var raz=pov.map(function(a){return document.querySelector(a.getAttribute('href'));});
+function osvezi(){var y=window.scrollY+150,akt=0;
+  raz.forEach(function(s,i){if(s&&s.getBoundingClientRect().top+window.scrollY<=y)akt=i;});
+  pov.forEach(function(a,i){a.classList.toggle('active',i===akt);});}
+window.addEventListener('scroll',osvezi,{passive:true});osvezi();
+window.addEventListener('beforeprint',function(){
+  document.querySelectorAll('details.res').forEach(function(d){d.open=true;});});
+</script>
+</body>
+</html>
