@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVR: ukazi, registri in tri ravni zapisa (ATmega328P / Arduino Uno)</title>
+<style>
+:root{
+  --bg:#f7f7f5; --panel:#fff; --ink:#1c1c1a; --muted:#6b6b66; --line:#e2e2dd;
+  --accent:#7a4b2a; --accent-soft:#f2e9e2; --ok:#2e6b45; --ok-soft:#e6f0e9;
+  --warn:#8a5a12; --warn-soft:#faf1e0; --red:#a03535; --red-soft:#fbeaea;
+  --code-bg:#f2f2ef; --max:78ch;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.65 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif}
+h1,h2,h3,h4,nav,button,table,.badge,figcaption,.oz{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{display:flex;min-height:100vh}
+#nav{width:280px;flex:0 0 280px;background:var(--panel);border-right:1px solid var(--line);
+  position:sticky;top:0;height:100vh;overflow-y:auto;padding:22px 18px 60px}
+#nav h2{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px}
+#nav .brand{font-size:15px;font-weight:700;margin:0 0 4px;line-height:1.35}
+#nav .brandsub{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+#nav a{display:block;padding:6px 9px;margin:1px 0;border-radius:6px;text-decoration:none;
+  color:var(--ink);font-size:13.5px;border-left:3px solid transparent;line-height:1.35}
+#nav a:hover{background:var(--accent-soft)}
+#nav a.active{background:var(--accent-soft);border-left-color:var(--accent);font-weight:600}
+main{flex:1;min-width:0;padding:40px 44px 120px;max-width:1060px;margin:0 auto}
+header.doc{border-bottom:2px solid var(--ink);padding-bottom:20px;margin-bottom:10px}
+header.doc h1{font-size:31px;line-height:1.15;margin:0 0 8px;letter-spacing:-.01em}
+header.doc .sub{color:var(--muted);font-size:15px;margin:0}
+section{padding:42px 0 6px;border-top:1px solid var(--line)}
+section:first-of-type{border-top:none}
+section > h2{font-size:24px;margin:0 0 14px;letter-spacing:-.01em}
+h3{font-size:17.5px;margin:28px 0 8px}
+h4{font-size:15px;margin:20px 0 6px;color:var(--accent)}
+p,li{max-width:var(--max)}
+p{margin:0 0 12px}
+ul,ol{margin:0 0 14px;padding-left:22px}
+li{margin:4px 0}
+em.tuj{font-style:italic;color:var(--muted)}
+code{background:var(--code-bg);padding:1px 5px;border-radius:4px;font-size:.88em;
+  font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace}
+pre{background:var(--code-bg);border:1px solid var(--line);border-radius:8px;padding:14px 16px;
+  overflow-x:auto;font-size:13px;line-height:1.55}
+pre code{background:none;padding:0}
+pre .c{color:var(--muted)}
+.blok{border-radius:0 8px 8px 0;padding:12px 16px;margin:16px 0}
+.opomba{background:var(--warn-soft);border-left:4px solid var(--warn)}
+.opomba strong{color:var(--warn)}
+.past{background:var(--red-soft);border-left:4px solid var(--red)}
+.past strong{color:var(--red)}
+.dobro{background:var(--ok-soft);border-left:4px solid var(--ok)}
+.dobro strong{color:var(--ok)}
+.tabela{overflow-x:auto;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:13.5px;background:var(--panel)}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:var(--accent-soft);font-weight:600;font-size:12.5px;position:sticky;top:0}
+tbody tr:nth-child(even){background:#fafaf8}
+td code{font-size:12.5px;white-space:nowrap}
+.skupina td{background:var(--accent-soft)!important;font-weight:700;color:var(--accent);font-size:12.5px;
+  letter-spacing:.05em;text-transform:uppercase}
+.tri{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin:20px 0}
+.tri > div{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px 16px}
+.tri h4{margin:0 0 8px;font-size:13px;letter-spacing:.05em;text-transform:uppercase}
+.tri pre{margin:0;font-size:12px}
+.tri .kdo{font-size:12px;color:var(--muted);margin:10px 0 0}
+#orodja{position:sticky;top:0;z-index:20;background:rgba(247,247,245,.93);backdrop-filter:blur(6px);
+  border-bottom:1px solid var(--line);padding:9px 44px;margin:-40px -44px 24px;
+  display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+#orodja button{font-size:13px;padding:6px 13px;border:1px solid var(--line);background:#fff;
+  border-radius:7px;cursor:pointer;color:var(--ink)}
+#orodja button:hover{border-color:var(--accent);color:var(--accent)}
+#orodja .sp{margin-left:auto;font-size:12px;color:var(--muted)}
+a.vir{color:var(--accent)}
+.isci{display:flex;gap:12px;align-items:center;margin:18px 0 0}
+.isci input{flex:1;max-width:620px;font:14px -apple-system,"Segoe UI",Arial,sans-serif;
+  padding:9px 13px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.isci input:focus{outline:none;border-color:var(--accent)}
+#stevec{font-size:12.5px;color:var(--muted);font-family:-apple-system,sans-serif;white-space:nowrap}
+tr.skrit{display:none}
+.pin{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:18px 0}
+@media (max-width:820px){ .pin{grid-template-columns:1fr} }
+@media print{
+  :root{--bg:#fff;--panel:#fff}
+  body{font-size:9.8pt;line-height:1.4}
+  #nav,#orodja{display:none!important}
+  .wrap{display:block} main{max-width:none;padding:0;margin:0}
+  section{page-break-before:always;border-top:none;padding-top:0}
+  section:first-of-type{page-break-before:avoid}
+  h2,h3,h4{page-break-after:avoid}
+  table{font-size:8.6pt} th{position:static}
+  tr{page-break-inside:avoid}
+  .tri{grid-template-columns:1fr 1fr 1fr}
+  a{color:#000;text-decoration:none}
+  @page{margin:14mm 12mm}
+}
+@media (max-width:1000px){ .tri{grid-template-columns:1fr} }
+@media (max-width:900px){
+  .wrap{display:block}
+  #nav{position:static;width:auto;height:auto;border-right:none;border-bottom:1px solid var(--line)}
+  main{padding:24px 18px 80px}
+  #orodja{margin:-24px -18px 20px;padding:9px 18px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav id="nav">
+  <p class="brand">AVR: ukazi in registri</p>
+  <p class="brandsub">ATmega328P · Arduino Uno</p>
+  <h2>Razumeti</h2>
+  <a href="#tri">Tri ravni zapisa</a>
+  <a href="#prevod">Kaj v kaj se prevede</a>
+  <a href="#kako">Kako pisati zbirnik na Unu</a>
+  <h2>Preglednice</h2>
+  <a href="#ukazi">Ukazi AVR — vseh 123</a>
+  <a href="#sopini">Ali so pini registri?</a>
+  <a href="#registri">Registri ATmega328P</a>
+  <a href="#pini">Pini Arduino ↔ vrata</a>
+  <h2>Naprej</h2>
+  <a href="#viri">Uradna dokumentacija</a>
+</nav>
+<main>
+<div id="orodja">
+  <button onclick="window.print()">Natisni / shrani PDF</button>
+  <span class="sp">Deluje brez interneta.</span>
+</div>
+
+<header class="doc">
+  <h1>AVR: ukazi, registri in tri ravni zapisa</h1>
+  <p class="sub">Referenca za ATmega328P (Arduino Uno) — kaj je zbirnik, kaj je C, in kje se srečata</p>
+</header>
+
+<!-- ============================================================ -->
+<section id="tri">
+<h2>Tri ravni zapisa iste stvari</h2>
+
+<p><code>PORTB |= (1 &lt;&lt; PB5);</code> <strong>ni ukaz zbirnika.</strong> To je stavek v jeziku C —
+istem jeziku, v katerem je napisan vsak program v okolju Arduino. Zato ga v seznamu ukazov AVR ne
+boste našli in prav je, da ste ga pogrešali.</p>
+
+<p>Zmeda izvira iz tega, da okolje Arduino skriva, v katerem jeziku pravzaprav pišemo. Ločimo tri
+ravni, ki počnejo <em>isto stvar</em>:</p>
+
+<div class="tri">
+<div>
+<h4 style="color:var(--muted)">1 · Arduino</h4>
+<pre><code>pinMode(13, OUTPUT);
+digitalWrite(13, HIGH);</code></pre>
+<p class="kdo">Jezik: <strong>C++</strong>.<br>
+<code>pinMode</code> in <code>digitalWrite</code> sta <em>funkciji</em> iz Arduinove knjižnice.
+Skrijeta vse — tudi to, kateri register se pravzaprav spremeni.</p>
+</div>
+<div>
+<h4 style="color:var(--accent)">2 · C z registri</h4>
+<pre><code>DDRB  |= (1 &lt;&lt; PB5);
+PORTB |= (1 &lt;&lt; PB5);</code></pre>
+<p class="kdo">Jezik: <strong>C</strong>.<br>
+<code>PORTB</code> in <code>PB5</code> sta <em>makra</em> iz datoteke <code>avr/io.h</code>.
+<code>|=</code> in <code>&lt;&lt;</code> sta operatorja jezika C. Ukaza tu ni nobenega.</p>
+</div>
+<div>
+<h4 style="color:var(--ok)">3 · Zbirnik</h4>
+<pre><code>sbi  0x04, 5   <span class="c">; DDRB</span>
+sbi  0x05, 5   <span class="c">; PORTB</span></code></pre>
+<p class="kdo">Jezik: <strong>zbirnik AVR</strong>.<br>
+<code>SBI</code> <em>je</em> pravi strojni ukaz iz nabora AVR. Tega najdete v seznamu ukazov.</p>
+</div>
+</div>
+
+<div class="blok dobro">
+<strong>Ključno.</strong> Vse tri različice na koncu naredijo popolnoma isto: postavijo peti bit
+v registru vrat B. Razlikujejo se le po tem, koliko plasti je vmes — in prav zato je bilo v gradivu
+smiselno začeti pri drugi ravni. Prva raven ne pokaže registrov, tretja pa je za prvo uro prezahtevna.
+</div>
+
+<h3>Kako se prebere <code>PORTB |= (1 &lt;&lt; PB5);</code></h3>
+<div class="tabela"><table>
+<thead><tr><th>Del</th><th>Kaj je</th><th>Pomen</th></tr></thead>
+<tbody>
+<tr><td><code>PORTB</code></td><td>makro iz <code>avr/io.h</code></td>
+    <td>razširi se v naslov registra vrat B v pomnilniku (0x25), zapisan tako, da ga C vidi kot spremenljivko</td></tr>
+<tr><td><code>PB5</code></td><td>makro iz <code>avr/io.h</code></td><td>preprosto število <strong>5</strong> — številka bita</td></tr>
+<tr><td><code>1 &lt;&lt; PB5</code></td><td>operator pomika v C</td>
+    <td>enico pomakni za 5 mest v levo → <code>0b0010&nbsp;0000</code> = 32. To je <em>maska</em>.</td></tr>
+<tr><td><code>|=</code></td><td>operator v C</td>
+    <td>bitni ALI s prireditvijo: <code>PORTB = PORTB | maska</code>. Postavi ta bit, ostale pusti pri miru.</td></tr>
+</tbody></table></div>
+
+<div class="blok opomba">
+<strong>Trije vzorci, ki jih je vredno znati na pamet.</strong><br>
+<code>x |= (1&lt;&lt;n)</code> — <strong>postavi</strong> bit n na 1<br>
+<code>x &amp;= ~(1&lt;&lt;n)</code> — <strong>počisti</strong> bit n na 0<br>
+<code>x ^= (1&lt;&lt;n)</code> — <strong>obrni</strong> bit n<br>
+<code>if (x &amp; (1&lt;&lt;n))</code> — <strong>preveri</strong>, ali je bit n postavljen
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="prevod">
+<h2>Kaj se v kaj prevede</h2>
+
+<p>Prevajalnik <code>avr-gcc</code> zgornji stavek C prevede v strojne ukaze. Kateri ukaz nastane,
+je odvisno od tega, <em>kaj ve ob prevajanju</em>:</p>
+
+<div class="tabela"><table>
+<thead><tr><th>Stavek v C</th><th>Prevede se v</th><th>Taktov</th><th>Zakaj</th></tr></thead>
+<tbody>
+<tr><td><code>PORTB |= (1&lt;&lt;PB5);</code></td><td><code>SBI 0x05, 5</code></td><td>2</td>
+    <td>register je v spodnjem V/I prostoru in številka bita je znana → en sam ukaz</td></tr>
+<tr><td><code>PORTB &amp;= ~(1&lt;&lt;PB5);</code></td><td><code>CBI 0x05, 5</code></td><td>2</td><td>enako</td></tr>
+<tr><td><code>PORTB |= (1&lt;&lt;n);</code> &nbsp;(n je spremenljivka)</td>
+    <td><code>IN</code> + <code>OR</code> + <code>OUT</code></td><td>3+</td>
+    <td>bit ni znan ob prevajanju → beri–spremeni–zapiši</td></tr>
+<tr><td><code>TIMSK1 |= (1&lt;&lt;OCIE1A);</code></td>
+    <td><code>LDS</code> + <code>ORI</code> + <code>STS</code></td><td>5</td>
+    <td>TIMSK1 je nad naslovom 0x5F, kjer <code>SBI</code> ne seže</td></tr>
+<tr><td><code>digitalWrite(13, HIGH);</code></td><td>klic funkcije, ~50 ukazov</td><td>~50</td>
+    <td>preveri veljavnost pina, poišče vrata v tabeli, izklopi PWM, šele nato postavi bit</td></tr>
+</tbody></table></div>
+
+<div class="blok dobro">
+<strong>To je merljiv rezultat za pouk.</strong> <code>digitalWrite</code> je približno
+<strong>25-krat počasnejši</strong> od neposrednega zapisa v register. Pri utripanju LED to ni
+pomembno, pri programskem generiranju signala pa je razlika med tem, ali naprava deluje ali ne.
+Dijaki to lahko izmerijo — to je vaja iz koraka 11 projekta.
+</div>
+
+<h3>Kako si sami ogledate prevod</h3>
+<p>Prevajalnik lahko vprašate, kaj je naredil. V ukazni vrstici (pot do orodij je znotraj namestitve
+Arduina, v mapi <code>hardware/tools/avr/bin</code>):</p>
+<pre><code>avr-objdump -d -S skica.ino.elf &gt; izpis.txt</code></pre>
+<p>Datoteko <code>.elf</code> najdete v začasni mapi za prevajanje — v Arduino IDE jo pokaže
+<em>Datoteka → Nastavitve → Podroben izpis med prevajanjem</em>. V izpisu vidite vsako vrstico C
+in pod njo ukaze, v katere se je prevedla. Za pouk je to izjemno nazorno.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="kako">
+<h2>Kako na Arduino Uno res pišete zbirnik</h2>
+
+<p>Da — mogoče je, in v gradivu je uporabljeno na dveh mestih (tema 08 in korak 11 projekta).
+Obstajajo tri poti, od najlažje do najbolj čiste.</p>
+
+<h3>Pot A — vstavljeni zbirnik v skici</h3>
+<p>Najhitreje za posamezne ukaze. Zbirnik zapišemo kar sredi kode C:</p>
+<pre><code>void setup() {
+  DDRB |= (1 &lt;&lt; PB5);
+}
+
+void loop() {
+  asm volatile (
+    "sbi %0, %1  \n\t"      <span class="c">; postavi bit -> LED gori</span>
+    :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PB5)
+  );
+  delay(500);
+
+  asm volatile (
+    "cbi %0, %1  \n\t"      <span class="c">; pocisti bit -> LED ugasne</span>
+    :: "I" (_SFR_IO_ADDR(PORTB)), "I" (PB5)
+  );
+  delay(500);
+}</code></pre>
+<p>Razlaga zapisa: <code>volatile</code> prepove prevajalniku, da bi blok izbrisal;
+<code>%0</code> in <code>%1</code> sta nadomestka za operanda, našteta za dvopičjem;
+<code>"I"</code> pomeni "konstanta, znana ob prevajanju"; <code>_SFR_IO_ADDR</code> pretvori
+naslov registra v obliko, ki jo <code>SBI</code> pričakuje.</p>
+
+<h3>Pot B — ločena datoteka <code>.S</code> v mapi skice</h3>
+<p>Za daljše podprograme. V mapo skice dodajte datoteko, na primer <code>utrip.S</code>
+(velika črka S je pomembna — pomeni, da gre datoteka najprej skozi predprocesor):</p>
+<pre><code><span class="c">; --- utrip.S ---</span>
+#include &lt;avr/io.h&gt;
+
+    .global prizgi          <span class="c">; ime, vidno iz jezika C</span>
+prizgi:
+    sbi   _SFR_IO_ADDR(PORTB), PB5
+    ret                     <span class="c">; vrni se v klicoci program</span>
+
+    .global ugasni
+ugasni:
+    cbi   _SFR_IO_ADDR(PORTB), PB5
+    ret
+
+    .global zakasni_1000    <span class="c">; natanko 1000 taktov</span>
+zakasni_1000:
+    ldi   r24, 333          <span class="c">; 1 takt</span>
+1:  dec   r24               <span class="c">; 1 takt</span>
+    brne  1b                <span class="c">; 2 takta (1, ko ne skoci)</span>
+    nop                     <span class="c">; 1 takt za izravnavo</span>
+    ret</code></pre>
+<p>V skici jih razglasite in uporabite:</p>
+<pre><code>extern "C" {
+  void prizgi(void);
+  void ugasni(void);
+  void zakasni_1000(void);
+}
+
+void setup() { DDRB |= (1 &lt;&lt; PB5); }
+
+void loop() {
+  prizgi();  delay(500);
+  ugasni();  delay(500);
+}</code></pre>
+<div class="blok opomba">
+<strong>Zakaj <code>extern "C"</code>.</strong> Skica se prevaja kot C++, ta pa imenom funkcij
+doda okrasje (<em class="tuj">name mangling</em>), da loči preobložene različice.
+<code>extern "C"</code> to izklopi, tako da se ime v C++ ujema z imenom v zbirniku.
+Brez tega povezovalnik javi <em>undefined reference</em>.
+</div>
+
+<h3>Pot C — program v celoti v zbirniku, brez okolja Arduino</h3>
+<p>Najbolj čisto, a zahteva ukazno vrstico. Datoteka <code>utrip.S</code>:</p>
+<pre><code>#include &lt;avr/io.h&gt;
+
+    .global main
+main:
+    sbi   _SFR_IO_ADDR(DDRB), PB5     <span class="c">; PB5 je izhod</span>
+
+zanka:
+    sbi   _SFR_IO_ADDR(PORTB), PB5    <span class="c">; prizgi</span>
+    rcall pocakaj
+    cbi   _SFR_IO_ADDR(PORTB), PB5    <span class="c">; ugasni</span>
+    rcall pocakaj
+    rjmp  zanka
+
+pocakaj:                              <span class="c">; groba zakasnitev ~0,25 s</span>
+    ldi   r20, 20
+z3: ldi   r21, 255
+z2: ldi   r22, 255
+z1: dec   r22
+    brne  z1
+    dec   r21
+    brne  z2
+    dec   r20
+    brne  z3
+    ret</code></pre>
+<p>Prevajanje in nalaganje (pot do orodij prilagodite svoji namestitvi, ime vrat tudi):</p>
+<pre><code>avr-gcc -mmcu=atmega328p -Os -o utrip.elf utrip.S
+avr-objcopy -O ihex -R .eeprom utrip.elf utrip.hex
+avrdude -c arduino -p m328p -P /dev/ttyUSB0 -b 115200 -U flash:w:utrip.hex</code></pre>
+<p>Ker ne uporabimo <code>-nostdlib</code>, avr-gcc sam doda zagonsko kodo, ki nastavi sklad in
+pokliče <code>main</code> — zato nam ni treba pisati prekinitvene tabele.</p>
+
+<h3>Orodja, ki se pri pouku obnesejo</h3>
+<div class="tabela"><table>
+<thead><tr><th>Orodje</th><th>Za kaj je uporabno</th><th>Opomba</th></tr></thead>
+<tbody>
+<tr><td>Arduino IDE</td><td>poti A in B</td><td>že imate; datoteke <code>.S</code> prevaja sama</td></tr>
+<tr><td>Microchip Studio (Windows)</td><td>čisti projekti v zbirniku, <strong>razhroščevalnik s štetjem taktov</strong></td>
+    <td>brezplačen; simulator pokaže vsebino registrov korak za korakom — za pouk je to zlata vredno</td></tr>
+<tr><td><code>avr-objdump</code></td><td>pogled, v kaj se je prevedel vaš C</td><td>del namestitve Arduina</td></tr>
+<tr><td>simulatorji v brskalniku</td><td>delo brez strojne opreme</td>
+    <td>uporabni, kadar dijak nima plošče doma; vstavljeni zbirnik večinoma podpirajo</td></tr>
+</tbody></table></div>
+
+<div class="blok past">
+<strong>Realno pričakovanje.</strong> Cel projekt v zbirniku pri 16 urah ni izvedljiv in tudi učni
+načrt tega ne zahteva — pravi le <em>"uporabi osnovne ukaze na ravni zbirnika"</em>. Smiselno je,
+da dijaki v zbirniku napišejo kratek, oster kos: zakasnitveno zanko s preštetimi takti, preklop pina,
+morda prekinitveni podprogram. Vse ostalo naj bo v C, kjer se ukvarjajo z <em>zamislijo</em>,
+ne z registri za shranjevanje.
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="ukazi">
+<h2>Ukazi AVR — pregled</h2>
+<p>Spodaj je <strong>celoten nabor ukazov ATmega328P — vseh 123</strong>, razvrščenih po skupinah. Polje za filtriranje išče po imenu ukaza in po opisu.
+Število taktov velja za <strong>ATmega328P</strong> (nekateri novejši AVR imajo drugačne vrednosti).
+Oznake: <code>Rd</code> ciljni register, <code>Rr</code> izvorni, <code>K</code> konstanta,
+<code>A</code> naslov V/I registra, <code>b</code> številka bita, <code>k</code> naslov.</p>
+
+<div class="isci">
+  <input id="filter" type="search" placeholder="Filtriraj: vpiši ukaz (npr. brne) ali besedo (npr. prekinitev, sklad, kazalec)…"
+         oninput="filtriraj(this.value)" autocomplete="off">
+  <span id="stevec"></span>
+</div>
+<div class="tabela"><table id="tabUkazi">
+<thead><tr><th>Ukaz</th><th>Zapis</th><th>Kaj naredi</th><th>Zastavice</th><th>Takti</th></tr></thead>
+<tbody>
+<tr class="skupina" data-skupina="1"><td colspan="5">Aritmetika in logika</td></tr>
+<tr><td><code>ADD</code></td><td><code>ADD Rd, Rr</code></td><td>Rd &larr; Rd + Rr</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>ADC</code></td><td><code>ADC Rd, Rr</code></td><td>Rd &larr; Rd + Rr + C &mdash; za večbajtno seštevanje</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>ADIW</code></td><td><code>ADIW Rd, K</code></td><td>prištej 0&ndash;63 paru registrov (R25:24, X, Y, Z)</td><td>Z C N V S</td><td>2</td></tr>
+<tr><td><code>SUB</code></td><td><code>SUB Rd, Rr</code></td><td>Rd &larr; Rd &minus; Rr</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SUBI</code></td><td><code>SUBI Rd, K</code></td><td>Rd &larr; Rd &minus; K &nbsp;<em>(R16&ndash;R31)</em></td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SBC</code></td><td><code>SBC Rd, Rr</code></td><td>odštej z izposojo: Rd &larr; Rd &minus; Rr &minus; C</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SBCI</code></td><td><code>SBCI Rd, K</code></td><td>odštej konstanto z izposojo <em>(R16&ndash;R31)</em></td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SBIW</code></td><td><code>SBIW Rd, K</code></td><td>odštej 0&ndash;63 od para registrov</td><td>Z C N V S</td><td>2</td></tr>
+<tr><td><code>AND</code></td><td><code>AND Rd, Rr</code></td><td>logični IN po bitih &mdash; maskiranje</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>ANDI</code></td><td><code>ANDI Rd, K</code></td><td>logični IN s konstanto <em>(R16&ndash;R31)</em></td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>OR</code></td><td><code>OR Rd, Rr</code></td><td>logični ALI &mdash; postavljanje bitov</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>ORI</code></td><td><code>ORI Rd, K</code></td><td>logični ALI s konstanto <em>(R16&ndash;R31)</em></td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>EOR</code></td><td><code>EOR Rd, Rr</code></td><td>izključujoči ALI &mdash; obračanje bitov</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>COM</code></td><td><code>COM Rd</code></td><td>enojni komplement (obrne vse bite)</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>NEG</code></td><td><code>NEG Rd</code></td><td>dvojiški komplement (zamenja predznak)</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SBR</code></td><td><code>SBR Rd, K</code></td><td>postavi bite po maski &mdash; psevdoukaz za ORI</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>CBR</code></td><td><code>CBR Rd, K</code></td><td>počisti bite po maski &mdash; psevdoukaz za ANDI</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>INC</code></td><td><code>INC Rd</code></td><td>Rd &larr; Rd + 1 &nbsp;<strong>(ne spremeni C)</strong></td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>DEC</code></td><td><code>DEC Rd</code></td><td>Rd &larr; Rd &minus; 1 &nbsp;<strong>(ne spremeni C)</strong></td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>TST</code></td><td><code>TST Rd</code></td><td>preveri, ali je nič ali negativen &mdash; psevdoukaz za AND Rd,Rd</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>CLR</code></td><td><code>CLR Rd</code></td><td>Rd &larr; 0 &mdash; psevdoukaz za EOR Rd,Rd</td><td>Z N V S</td><td>1</td></tr>
+<tr><td><code>SER</code></td><td><code>SER Rd</code></td><td>Rd &larr; 0xFF <em>(R16&ndash;R31)</em></td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>MUL</code></td><td><code>MUL Rd, Rr</code></td><td>R1:R0 &larr; Rd &times; Rr (nepredznačeno)</td><td>Z C</td><td>2</td></tr>
+<tr><td><code>MULS</code></td><td><code>MULS Rd, Rr</code></td><td>R1:R0 &larr; Rd &times; Rr (predznačeno)</td><td>Z C</td><td>2</td></tr>
+<tr><td><code>MULSU</code></td><td><code>MULSU Rd, Rr</code></td><td>predznačeno &times; nepredznačeno</td><td>Z C</td><td>2</td></tr>
+<tr><td><code>FMUL</code></td><td><code>FMUL Rd, Rr</code></td><td>ulomkovo množenje, nepredznačeno</td><td>Z C</td><td>2</td></tr>
+<tr><td><code>FMULS</code></td><td><code>FMULS Rd, Rr</code></td><td>ulomkovo množenje, predznačeno</td><td>Z C</td><td>2</td></tr>
+<tr><td><code>FMULSU</code></td><td><code>FMULSU Rd, Rr</code></td><td>ulomkovo množenje, mešano</td><td>Z C</td><td>2</td></tr>
+<tr class="skupina" data-skupina="1"><td colspan="5">Skoki, veje in klici</td></tr>
+<tr><td><code>RJMP</code></td><td><code>RJMP k</code></td><td>relativni skok (doseg &plusmn;2 kB)</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>IJMP</code></td><td><code>IJMP</code></td><td>posredni skok na naslov v registru Z</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>JMP</code></td><td><code>JMP k</code></td><td>skok na poljuben naslov (32-bitni ukaz)</td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>RCALL</code></td><td><code>RCALL k</code></td><td>relativni klic podprograma; PC gre na sklad</td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>ICALL</code></td><td><code>ICALL</code></td><td>posredni klic na naslov v Z</td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>CALL</code></td><td><code>CALL k</code></td><td>klic na poljuben naslov</td><td>&mdash;</td><td>4</td></tr>
+<tr><td><code>RET</code></td><td><code>RET</code></td><td>vrnitev iz podprograma</td><td>&mdash;</td><td>4</td></tr>
+<tr><td><code>RETI</code></td><td><code>RETI</code></td><td>vrnitev iz <strong>prekinitve</strong>; postavi tudi bit I</td><td>I</td><td>4</td></tr>
+<tr><td><code>CPSE</code></td><td><code>CPSE Rd, Rr</code></td><td>primerjaj in preskoči naslednji ukaz, če sta enaka</td><td>&mdash;</td><td>1&ndash;3</td></tr>
+<tr><td><code>CP</code></td><td><code>CP Rd, Rr</code></td><td>primerjaj (odšteje, rezultata ne shrani)</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>CPC</code></td><td><code>CPC Rd, Rr</code></td><td>primerjaj z izposojo &mdash; za večbajtno</td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>CPI</code></td><td><code>CPI Rd, K</code></td><td>primerjaj s konstanto <em>(R16&ndash;R31)</em></td><td>Z C N V H S</td><td>1</td></tr>
+<tr><td><code>SBRC</code></td><td><code>SBRC Rr, b</code></td><td>preskoči naslednji ukaz, če je bit v registru 0</td><td>&mdash;</td><td>1&ndash;3</td></tr>
+<tr><td><code>SBRS</code></td><td><code>SBRS Rr, b</code></td><td>preskoči naslednji ukaz, če je bit v registru 1</td><td>&mdash;</td><td>1&ndash;3</td></tr>
+<tr><td><code>SBIC</code></td><td><code>SBIC A, b</code></td><td>preskoči, če je bit v V/I registru 0</td><td>&mdash;</td><td>1&ndash;3</td></tr>
+<tr><td><code>SBIS</code></td><td><code>SBIS A, b</code></td><td>preskoči, če je bit v V/I registru 1</td><td>&mdash;</td><td>1&ndash;3</td></tr>
+<tr><td><code>BRBS</code></td><td><code>BRBS s, k</code></td><td>skoči, če je izbrana zastavica v SREG postavljena</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRBC</code></td><td><code>BRBC s, k</code></td><td>skoči, če je izbrana zastavica počiščena</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BREQ</code></td><td><code>BREQ k</code></td><td>skoči, če <strong>enako</strong> (Z = 1)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRNE</code></td><td><code>BRNE k</code></td><td>skoči, če <strong>različno</strong> (Z = 0)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRCS</code></td><td><code>BRCS k</code></td><td>skoči, če C = 1 (prenos)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRCC</code></td><td><code>BRCC k</code></td><td>skoči, če C = 0</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRSH</code></td><td><code>BRSH k</code></td><td>skoči, če <strong>večje ali enako</strong>, nepredznačeno</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRLO</code></td><td><code>BRLO k</code></td><td>skoči, če <strong>manjše</strong>, nepredznačeno</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRMI</code></td><td><code>BRMI k</code></td><td>skoči, če negativno (N = 1)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRPL</code></td><td><code>BRPL k</code></td><td>skoči, če pozitivno (N = 0)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRGE</code></td><td><code>BRGE k</code></td><td>skoči, če <strong>večje ali enako</strong>, predznačeno</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRLT</code></td><td><code>BRLT k</code></td><td>skoči, če <strong>manjše</strong>, predznačeno</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRHS</code></td><td><code>BRHS k</code></td><td>skoči, če H = 1 (polprenos)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRHC</code></td><td><code>BRHC k</code></td><td>skoči, če H = 0</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRTS</code></td><td><code>BRTS k</code></td><td>skoči, če T = 1</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRTC</code></td><td><code>BRTC k</code></td><td>skoči, če T = 0</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRVS</code></td><td><code>BRVS k</code></td><td>skoči, če V = 1 (preliv)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRVC</code></td><td><code>BRVC k</code></td><td>skoči, če V = 0</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRIE</code></td><td><code>BRIE k</code></td><td>skoči, če so prekinitve dovoljene (I = 1)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr><td><code>BRID</code></td><td><code>BRID k</code></td><td>skoči, če so prekinitve prepovedane (I = 0)</td><td>&mdash;</td><td>1 / 2</td></tr>
+<tr class="skupina" data-skupina="1"><td colspan="5">Biti in zastavice</td></tr>
+<tr><td><code>SBI</code></td><td><code>SBI A, b</code></td><td><strong>postavi bit</strong> v V/I registru <em>(naslovi 0x00&ndash;0x1F)</em></td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>CBI</code></td><td><code>CBI A, b</code></td><td><strong>počisti bit</strong> v V/I registru <em>(naslovi 0x00&ndash;0x1F)</em></td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LSL</code></td><td><code>LSL Rd</code></td><td>logični pomik levo (&times; 2)</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>LSR</code></td><td><code>LSR Rd</code></td><td>logični pomik desno (&divide; 2, nepredznačeno)</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>ROL</code></td><td><code>ROL Rd</code></td><td>zasuk levo skozi zastavico C</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>ROR</code></td><td><code>ROR Rd</code></td><td>zasuk desno skozi zastavico C</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>ASR</code></td><td><code>ASR Rd</code></td><td>aritmetični pomik desno (ohrani predznak)</td><td>Z C N V S</td><td>1</td></tr>
+<tr><td><code>SWAP</code></td><td><code>SWAP Rd</code></td><td>zamenja spodnje in zgornje 4 bite</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>BSET</code></td><td><code>BSET s</code></td><td>postavi izbrano zastavico v SREG</td><td>SREG(s)</td><td>1</td></tr>
+<tr><td><code>BCLR</code></td><td><code>BCLR s</code></td><td>počisti izbrano zastavico v SREG</td><td>SREG(s)</td><td>1</td></tr>
+<tr><td><code>BST</code></td><td><code>BST Rr, b</code></td><td>shrani bit iz registra v zastavico T</td><td>T</td><td>1</td></tr>
+<tr><td><code>BLD</code></td><td><code>BLD Rd, b</code></td><td>naloži zastavico T v bit registra</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>SEC</code></td><td><code>SEC</code></td><td>postavi C</td><td>C</td><td>1</td></tr>
+<tr><td><code>CLC</code></td><td><code>CLC</code></td><td>počisti C</td><td>C</td><td>1</td></tr>
+<tr><td><code>SEN</code></td><td><code>SEN</code></td><td>postavi N</td><td>N</td><td>1</td></tr>
+<tr><td><code>CLN</code></td><td><code>CLN</code></td><td>počisti N</td><td>N</td><td>1</td></tr>
+<tr><td><code>SEZ</code></td><td><code>SEZ</code></td><td>postavi Z</td><td>Z</td><td>1</td></tr>
+<tr><td><code>CLZ</code></td><td><code>CLZ</code></td><td>počisti Z</td><td>Z</td><td>1</td></tr>
+<tr><td><code>SEI</code></td><td><code>SEI</code></td><td><strong>globalno dovoli prekinitve</strong></td><td>I</td><td>1</td></tr>
+<tr><td><code>CLI</code></td><td><code>CLI</code></td><td><strong>globalno prepovej prekinitve</strong></td><td>I</td><td>1</td></tr>
+<tr><td><code>SES</code></td><td><code>SES</code></td><td>postavi S</td><td>S</td><td>1</td></tr>
+<tr><td><code>CLS</code></td><td><code>CLS</code></td><td>počisti S</td><td>S</td><td>1</td></tr>
+<tr><td><code>SEV</code></td><td><code>SEV</code></td><td>postavi V</td><td>V</td><td>1</td></tr>
+<tr><td><code>CLV</code></td><td><code>CLV</code></td><td>počisti V</td><td>V</td><td>1</td></tr>
+<tr><td><code>SET</code></td><td><code>SET</code></td><td>postavi T</td><td>T</td><td>1</td></tr>
+<tr><td><code>CLT</code></td><td><code>CLT</code></td><td>počisti T</td><td>T</td><td>1</td></tr>
+<tr><td><code>SEH</code></td><td><code>SEH</code></td><td>postavi H</td><td>H</td><td>1</td></tr>
+<tr><td><code>CLH</code></td><td><code>CLH</code></td><td>počisti H</td><td>H</td><td>1</td></tr>
+<tr class="skupina" data-skupina="1"><td colspan="5">Prenos podatkov</td></tr>
+<tr><td><code>MOV</code></td><td><code>MOV Rd, Rr</code></td><td>Rd &larr; Rr</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>MOVW</code></td><td><code>MOVW Rd, Rr</code></td><td>kopira par registrov (16 bitov naenkrat)</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>LDI</code></td><td><code>LDI Rd, K</code></td><td>Rd &larr; konstanta &mdash; <strong>takojšnje</strong> <em>(R16&ndash;R31)</em></td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>LD</code></td><td><code>LD Rd, X</code></td><td>naloži prek kazalca X &mdash; <strong>posredno registrsko</strong></td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LD</code></td><td><code>LD Rd, X+</code></td><td>naloži, nato kazalec povečaj</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LD</code></td><td><code>LD Rd, -X</code></td><td>kazalec najprej zmanjšaj, nato naloži</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LD</code></td><td><code>LD Rd, Y / Y+ / -Y</code></td><td>isto prek kazalca Y</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LD</code></td><td><code>LD Rd, Z / Z+ / -Z</code></td><td>isto prek kazalca Z</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LDD</code></td><td><code>LDD Rd, Y+q</code></td><td>naloži <strong>z odmikom</strong> q = 0&ndash;63</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LDD</code></td><td><code>LDD Rd, Z+q</code></td><td>naloži z odmikom prek Z</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LDS</code></td><td><code>LDS Rd, k</code></td><td>naloži z naslova &mdash; <strong>neposredno</strong></td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>ST</code></td><td><code>ST X, Rr</code></td><td>shrani prek kazalca X</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>ST</code></td><td><code>ST X+, Rr</code></td><td>shrani, nato kazalec povečaj</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>ST</code></td><td><code>ST -X, Rr</code></td><td>kazalec zmanjšaj, nato shrani</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>ST</code></td><td><code>ST Y / Y+ / -Y, Rr</code></td><td>isto prek kazalca Y</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>ST</code></td><td><code>ST Z / Z+ / -Z, Rr</code></td><td>isto prek kazalca Z</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>STD</code></td><td><code>STD Y+q, Rr</code></td><td>shrani z odmikom</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>STD</code></td><td><code>STD Z+q, Rr</code></td><td>shrani z odmikom prek Z</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>STS</code></td><td><code>STS k, Rr</code></td><td>shrani na naslov &mdash; neposredno</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>LPM</code></td><td><code>LPM</code></td><td>R0 &larr; programski pomnilnik[Z] &mdash; <strong>harvard!</strong></td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>LPM</code></td><td><code>LPM Rd, Z</code></td><td>Rd &larr; programski pomnilnik[Z]</td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>LPM</code></td><td><code>LPM Rd, Z+</code></td><td>isto, nato Z povečaj</td><td>&mdash;</td><td>3</td></tr>
+<tr><td><code>SPM</code></td><td><code>SPM</code></td><td>zapiši v programski pomnilnik (za zagonski nalagalnik)</td><td>&mdash;</td><td>&mdash;</td></tr>
+<tr><td><code>IN</code></td><td><code>IN Rd, A</code></td><td>Rd &larr; V/I register (npr. PINB)</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>OUT</code></td><td><code>OUT A, Rr</code></td><td>V/I register &larr; Rr</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>PUSH</code></td><td><code>PUSH Rr</code></td><td>shrani register na sklad</td><td>&mdash;</td><td>2</td></tr>
+<tr><td><code>POP</code></td><td><code>POP Rd</code></td><td>vzemi register s sklada</td><td>&mdash;</td><td>2</td></tr>
+<tr class="skupina" data-skupina="1"><td colspan="5">Krmiljenje procesorja</td></tr>
+<tr><td><code>NOP</code></td><td><code>NOP</code></td><td>ne naredi nič &mdash; porabi natanko 1 takt</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>SLEEP</code></td><td><code>SLEEP</code></td><td>preide v način nizke porabe</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>WDR</code></td><td><code>WDR</code></td><td>ponastavi časovnik čuvaj</td><td>&mdash;</td><td>1</td></tr>
+<tr><td><code>BREAK</code></td><td><code>BREAK</code></td><td>prekinitev za razhroščevalnik</td><td>&mdash;</td><td>&mdash;</td></tr>
+</tbody></table></div>
+
+<div class="blok opomba">
+<strong>Tri omejitve, ki dijake najbolj presenetijo.</strong>
+(1) Ukazi s konstanto (<code>LDI</code>, <code>CPI</code>, <code>SUBI</code>, <code>ANDI</code>,
+<code>ORI</code>) delujejo <strong>samo na registrih R16–R31</strong>.
+(2) <code>SBI</code> in <code>CBI</code> dosežeta le V/I naslove <strong>0x00–0x1F</strong> —
+zato jih je mogoče uporabiti za <code>PORTB</code>, ne pa za <code>TIMSK1</code>.
+(3) <code>INC</code> in <code>DEC</code> <strong>ne spreminjata zastavice C</strong>, kar je pri
+večbajtnem štetju past.
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="sopini">
+<h2>Ali so pini registri?</h2>
+
+<p><strong>Ne — in ta razlika je vredna ene ure pouka.</strong></p>
+
+<p><strong>Pin</strong> je fizična kovinska nožica na čipu; z vidika elektronike je to preprosto
+<em>vodnik</em>, po katerem teče tok in na katerem je neka napetost.
+<strong>Register</strong> pa je pomnilniška celica <em>znotraj</em> čipa, ki hrani osem bitov.</p>
+
+<p>Povezava med njima je fizična: <strong>vsak bit registra je z žico povezan z vezjem, ki krmili
+en pin</strong>. Ko v peti bit registra <code>PORTB</code> zapišemo enico, se v vezju sklene
+tranzistorsko stikalo, ki pin PB5 poveže na 5 V. Napetost prižge LED. Register torej ni pin —
+register je <em>stikalo</em>, s katerim pin upravljamo.</p>
+
+<figure>
+<svg viewBox="0 0 900 500" role="img" aria-label="Kako trije biti v treh registrih krmilijo en pin">
+<style>
+ .p1-b{fill:#fff;stroke:#7a4b2a;stroke-width:1.6}
+ .p1-bf{fill:#f2e9e2;stroke:#7a4b2a;stroke-width:1.6}
+ .p1-bg{fill:#e6f0e9;stroke:#2e6b45;stroke-width:1.6}
+ .p1-t{font:12.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#1c1c1a}
+ .p1-tm{font:12px ui-monospace,Menlo,Consolas,monospace;fill:#1c1c1a}
+ .p1-ts{font:11px -apple-system,"Segoe UI",Arial,sans-serif;fill:#6b6b66}
+ .p1-tb{font:bold 12.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:#7a4b2a}
+ .p1-w{stroke:#1c1c1a;stroke-width:1.6;fill:none}
+ .p1-a{stroke:#1c1c1a;stroke-width:1.6;fill:none;marker-end:url(#p1tip)}
+</style>
+<defs><marker id="p1tip" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+<path d="M0,0 L9,4.5 L0,9 z" fill="#1c1c1a"/></marker></defs>
+
+<rect x="16" y="16" width="470" height="322" rx="10" fill="none" stroke="#e2e2dd" stroke-width="1.5" stroke-dasharray="6 5"/>
+<text class="p1-tb" x="30" y="38">ZNOTRAJ ČIPA — registri (pomnilniške celice)</text>
+
+<text class="p1-t" x="30" y="72">DDRB</text>
+<rect class="p1-b" x="92" y="54" width="30" height="26"/><text class="p1-tm" x="102" y="72">0</text>
+<rect class="p1-b" x="122" y="54" width="30" height="26"/><text class="p1-tm" x="132" y="72">0</text>
+<rect class="p1-bf" x="152" y="54" width="30" height="26"/><text class="p1-tm" x="162" y="72">1</text>
+<rect class="p1-b" x="182" y="54" width="30" height="26"/><text class="p1-tm" x="192" y="72">0</text>
+<rect class="p1-b" x="212" y="54" width="30" height="26"/><text class="p1-tm" x="222" y="72">0</text>
+<rect class="p1-b" x="242" y="54" width="30" height="26"/><text class="p1-tm" x="252" y="72">0</text>
+<text class="p1-ts" x="284" y="72">bit 5 = 1 → pin je IZHOD</text>
+
+<text class="p1-t" x="30" y="128">PORTB</text>
+<rect class="p1-b" x="92" y="110" width="30" height="26"/><text class="p1-tm" x="102" y="128">0</text>
+<rect class="p1-b" x="122" y="110" width="30" height="26"/><text class="p1-tm" x="132" y="128">0</text>
+<rect class="p1-bf" x="152" y="110" width="30" height="26"/><text class="p1-tm" x="162" y="128">1</text>
+<rect class="p1-b" x="182" y="110" width="30" height="26"/><text class="p1-tm" x="192" y="128">0</text>
+<rect class="p1-b" x="212" y="110" width="30" height="26"/><text class="p1-tm" x="222" y="128">0</text>
+<rect class="p1-b" x="242" y="110" width="30" height="26"/><text class="p1-tm" x="252" y="128">0</text>
+<text class="p1-ts" x="284" y="128">bit 5 = 1 → izhod naj bo VISOK</text>
+
+<text class="p1-t" x="30" y="184">PINB</text>
+<rect class="p1-b" x="92" y="166" width="30" height="26"/><text class="p1-tm" x="102" y="184">0</text>
+<rect class="p1-b" x="122" y="166" width="30" height="26"/><text class="p1-tm" x="132" y="184">0</text>
+<rect class="p1-bg" x="152" y="166" width="30" height="26"/><text class="p1-tm" x="162" y="184">1</text>
+<rect class="p1-b" x="182" y="166" width="30" height="26"/><text class="p1-tm" x="192" y="184">0</text>
+<rect class="p1-b" x="212" y="166" width="30" height="26"/><text class="p1-tm" x="222" y="184">0</text>
+<rect class="p1-b" x="242" y="166" width="30" height="26"/><text class="p1-tm" x="252" y="184">0</text>
+<text class="p1-ts" x="284" y="184">bit 5 = prebrana napetost NA pinu</text>
+
+<text class="p1-ts" x="284" y="206">bit 7 … bit 2 (prikazanih je 6 bitov)</text>
+
+<line class="p1-a" x1="160" y1="80" x2="160" y2="240"/>
+<line class="p1-a" x1="170" y1="136" x2="170" y2="240"/>
+<line class="p1-a" x1="212" y1="240" x2="212" y2="194"/>
+
+<rect class="p1-bf" x="92" y="244" width="230" height="72" rx="8"/>
+<text class="p1-t" x="104" y="268">krmilno vezje pina</text>
+<text class="p1-ts" x="104" y="288">izhodni gonilnik (2 tranzistorja),</text>
+<text class="p1-ts" x="104" y="304">vhodni ojačevalnik, dvižni upor</text>
+
+<line class="p1-a" x1="322" y1="280" x2="486" y2="280"/>
+<circle cx="510" cy="280" r="17" fill="#f2e9e2" stroke="#7a4b2a" stroke-width="2"/>
+<text class="p1-tm" x="496" y="285" style="font-size:10px">PB5</text>
+
+<text class="p1-tb" x="556" y="212">ZUNAJ ČIPA</text>
+<text class="p1-ts" x="556" y="232">pin je kovinska nožica —</text>
+<text class="p1-ts" x="556" y="248">na Arduinu označena kot D13</text>
+
+<line class="p1-w" x1="527" y1="280" x2="760" y2="280"/>
+<line class="p1-w" x1="760" y1="280" x2="760" y2="308"/>
+<path class="p1-w" d="M752,308 l16,0 l-16,10 l16,0 l-16,10 l16,0"/>
+<line class="p1-w" x1="760" y1="338" x2="760" y2="356"/>
+<polygon points="748,356 772,356 760,378" fill="#f2e9e2" stroke="#7a4b2a" stroke-width="1.6"/>
+<line class="p1-w" x1="748" y1="378" x2="772" y2="378"/>
+<line class="p1-w" x1="760" y1="378" x2="760" y2="398"/>
+<line class="p1-w" x1="744" y1="404" x2="776" y2="404"/>
+<line class="p1-w" x1="750" y1="411" x2="770" y2="411"/>
+<line class="p1-w" x1="755" y1="418" x2="765" y2="418"/>
+<text class="p1-ts" x="790" y="326">upor 220 Ω</text>
+<text class="p1-ts" x="790" y="372">LED</text>
+<text class="p1-ts" x="790" y="412">masa</text>
+
+<rect x="16" y="352" width="470" height="128" rx="8" fill="#f2e9e2" stroke="#7a4b2a" stroke-width="1.2"/>
+<text class="p1-tb" x="32" y="376">Zaporedje ob prižiganju LED</text>
+<text class="p1-ts" x="32" y="400">1. v DDRB zapišemo 1 → izhodni gonilnik se vklopi</text>
+<text class="p1-ts" x="32" y="420">2. v PORTB zapišemo 1 → tranzistor pin poveže na 5 V</text>
+<text class="p1-ts" x="32" y="440">3. skozi upor in LED steče tok — LED zasveti</text>
+<text class="p1-ts" x="32" y="460">4. PINB pokaže 1, ker je na pinu res 5 V</text>
+</svg>
+<figcaption>En pin, trije biti v treh registrih. Register je stikalo, pin je vodnik — nista isto.</figcaption>
+</figure>
+
+<h3>Zakaj to ni le besedno cepidlačenje</h3>
+<div class="pin">
+<div class="blok dobro" style="margin:0">
+<strong>Test, ki razliko dokaže.</strong> Pin nastavite kot izhod in vanj zapišite 1, nato pa ga
+z žico kratko sklenite na maso. <code>PORTB</code> še vedno vsebuje 1 — tja ste jo zapisali vi —
+a <code>PINB</code> bo prebral <strong>0</strong>, ker je napetost na pinu dejansko 0 V.
+Če bi bil pin isto kot register, bi to bilo nemogoče.
+</div>
+<div class="blok opomba" style="margin:0">
+<strong>Kaj je pri tem res "pomnilniško preslikano".</strong> Register <code>PORTB</code> leži na
+naslovu 0x25 v <em>podatkovnem</em> naslovnem prostoru — CPE do njega dostopa z istimi ukazi kot do
+navadnega RAM-a. To je pomnilniško preslikan V/I iz teme 09. A to je le <em>način dostopa</em>:
+za celico ni pomnilniška celica iz SRAM, ampak vezje, ki krmili tranzistorje.
+</div>
+</div>
+
+<h3>Trije biti, ki pripadajo vsakemu pinu</h3>
+<div class="tabela"><table>
+<thead><tr><th>Register</th><th>Vloga</th><th>Ko je pin izhod</th><th>Ko je pin vhod</th></tr></thead>
+<tbody>
+<tr><td><code>DDRB</code></td><td>smer</td><td>bit = <strong>1</strong></td><td>bit = <strong>0</strong></td></tr>
+<tr><td><code>PORTB</code></td><td>dvojna vloga</td><td>določa izhodno vrednost (0 ali 1)</td>
+    <td><strong>vklopi notranji dvižni upor</strong> — ne izhodne vrednosti!</td></tr>
+<tr><td><code>PINB</code></td><td>branje</td><td>vrne dejansko napetost na pinu</td><td>vrne prebrano stanje</td></tr>
+</tbody></table></div>
+<p>Dvojna vloga registra <code>PORTB</code> je vir številnih nesporazumov: pri vhodnem pinu zapis
+enice <em>ne</em> postavi pina na visoko, ampak le vklopi dvižni upor. To je razlog, da pri tipki
+pišemo <code>PORTD |= (1&lt;&lt;PD2)</code> — čeprav je PD2 vhod.</p>
+
+<div class="blok past">
+<strong>Še ena posebnost, ki preseneti.</strong> Zapis <strong>enice</strong> v register
+<code>PINB</code> ne postavi ničesar — <em>obrne</em> ustrezni izhodni bit v <code>PORTB</code>.
+Zato je <code>PINB = (1&lt;&lt;PB5);</code> veljaven način preklopa LED in je za en takt hitrejši od
+<code>PORTB ^= (1&lt;&lt;PB5);</code>. Videti je kot napaka v kodi, pa ni.
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="registri">
+<h2>Registri ATmega328P — tisti, ki jih boste rabili</h2>
+
+<div class="tabela"><table>
+<thead><tr><th>Register</th><th>Skupina</th><th>Za kaj je</th><th>Ključni biti</th></tr></thead>
+<tbody>
+<tr class="skupina"><td colspan="4">Vrata (vhod/izhod)</td></tr>
+<tr><td><code>DDRB</code> <code>DDRC</code> <code>DDRD</code></td><td>vrata</td><td>smer: 1 = izhod, 0 = vhod</td><td>bit na pin</td></tr>
+<tr><td><code>PORTB</code> <code>PORTC</code> <code>PORTD</code></td><td>vrata</td>
+    <td>izhodna vrednost; pri vhodu vklopi <strong>dvižni upor</strong></td><td>bit na pin</td></tr>
+<tr><td><code>PINB</code> <code>PINC</code> <code>PIND</code></td><td>vrata</td>
+    <td>prebrano stanje pinov; zapis 1 <em>obrne</em> izhodni bit</td><td>bit na pin</td></tr>
+
+<tr class="skupina"><td colspan="4">Časovnik 0 (8-bitni) — v Arduinu zaseden za millis()</td></tr>
+<tr><td><code>TCCR0A</code> / <code>TCCR0B</code></td><td>časovnik</td><td>način delovanja, predderilnik</td>
+    <td>WGM0x, COM0Ax, CS0x</td></tr>
+<tr><td><code>TCNT0</code></td><td>časovnik</td><td>trenutna vrednost števca</td><td>—</td></tr>
+<tr><td><code>OCR0A</code> / <code>OCR0B</code></td><td>časovnik</td><td>primerjalna vrednost</td><td>—</td></tr>
+<tr><td><code>TIMSK0</code></td><td>časovnik</td><td>dovoljenja za prekinitve</td><td>OCIE0A, TOIE0</td></tr>
+
+<tr class="skupina"><td colspan="4">Časovnik 1 (16-bitni) — najprimernejši za natančne periode</td></tr>
+<tr><td><code>TCCR1A</code></td><td>časovnik</td><td>način PWM, izhoda OC1A/OC1B</td><td>WGM11, WGM10, COM1Ax</td></tr>
+<tr><td><code>TCCR1B</code></td><td>časovnik</td><td>način CTC, predderilnik</td>
+    <td><strong>WGM12</strong>, CS12/11/10</td></tr>
+<tr><td><code>TCNT1</code></td><td>časovnik</td><td>16-bitni števec</td><td>—</td></tr>
+<tr><td><code>OCR1A</code> / <code>OCR1B</code></td><td>časovnik</td><td>16-bitna primerjalna vrednost</td><td>—</td></tr>
+<tr><td><code>ICR1</code></td><td>časovnik</td><td>zajem vhoda / vrh pri nekaterih načinih PWM</td><td>—</td></tr>
+<tr><td><code>TIMSK1</code></td><td>časovnik</td><td>dovoljenja za prekinitve</td><td><strong>OCIE1A</strong>, TOIE1, ICIE1</td></tr>
+
+<tr class="skupina"><td colspan="4">Časovnik 2 (8-bitni) — prost za PWM</td></tr>
+<tr><td><code>TCCR2A</code></td><td>časovnik</td><td>hitri PWM, izhoda OC2A (pin 11) / OC2B (pin 3)</td>
+    <td>WGM21, WGM20, COM2A1</td></tr>
+<tr><td><code>TCCR2B</code></td><td>časovnik</td><td>predderilnik — <strong>drugačno kodiranje kot pri 0 in 1</strong></td><td>CS22/21/20</td></tr>
+<tr><td><code>OCR2A</code> / <code>OCR2B</code></td><td>časovnik</td><td>razmerje vklopa PWM (0–255)</td><td>—</td></tr>
+
+<tr class="skupina"><td colspan="4">Zunanje prekinitve</td></tr>
+<tr><td><code>EICRA</code></td><td>prekinitve</td><td>kaj sproži INT0/INT1</td>
+    <td>ISC01/ISC00 (10 = padajoči rob)</td></tr>
+<tr><td><code>EIMSK</code></td><td>prekinitve</td><td>dovoljenje za INT0 / INT1</td><td>INT0, INT1</td></tr>
+<tr><td><code>PCICR</code> / <code>PCMSK0-2</code></td><td>prekinitve</td>
+    <td>prekinitev ob spremembi pina — deluje na <em>vseh</em> pinih</td><td>PCIE0–2</td></tr>
+
+<tr class="skupina"><td colspan="4">Pretvornik A/D</td></tr>
+<tr><td><code>ADMUX</code></td><td>ADC</td><td>referenčna napetost in izbrani kanal</td><td>REFS0, MUX3–0</td></tr>
+<tr><td><code>ADCSRA</code></td><td>ADC</td><td>vklop, začetek pretvorbe, predderilnik</td>
+    <td>ADEN, ADSC, ADPS2–0</td></tr>
+<tr><td><code>ADC</code> (ADCL+ADCH)</td><td>ADC</td><td>10-bitni rezultat (0–1023)</td><td>—</td></tr>
+
+<tr class="skupina"><td colspan="4">Serijski vmesnik USART</td></tr>
+<tr><td><code>UBRR0</code></td><td>UART</td><td>delilnik hitrosti: <code>f/(16·baud) − 1</code></td><td>—</td></tr>
+<tr><td><code>UCSR0A</code></td><td>UART</td><td><strong>statusni</strong>: je oddajnik prost, je znak prispel</td>
+    <td>UDRE0, RXC0, U2X0</td></tr>
+<tr><td><code>UCSR0B</code></td><td>UART</td><td>vklop oddajnika/sprejemnika, prekinitve</td><td>TXEN0, RXEN0, RXCIE0</td></tr>
+<tr><td><code>UCSR0C</code></td><td>UART</td><td>oblika okvira (8N1 = UCSZ01 + UCSZ00)</td><td>UCSZ01, UCSZ00, UPM0x</td></tr>
+<tr><td><code>UDR0</code></td><td>UART</td><td><strong>podatkovni</strong>: pisanje odda, branje sprejme</td><td>—</td></tr>
+
+<tr class="skupina"><td colspan="4">Jedro</td></tr>
+<tr><td><code>SREG</code></td><td>jedro</td><td>zastavice</td><td>I T H S V N Z C</td></tr>
+<tr><td><code>SP</code> (SPL+SPH)</td><td>jedro</td><td>kazalec sklada</td><td>—</td></tr>
+</tbody></table></div>
+
+<p>Popoln seznam z vsemi biti je v podatkovnem listu, poglavje <em>Register Summary</em>.
+Imena, ki jih uporabljate v C, so definirana v datoteki <code>iom328p.h</code>, ki jo vključi
+<code>avr/io.h</code> — če vas zanima, kaj točno je kakšno ime, jo odprite; je navadno besedilo.</p>
+</section>
+
+<!-- ============================================================ -->
+<section id="pini">
+<h2>Pini Arduino Uno ↔ vrata ATmega328P</h2>
+<p>To je tabela, ki reši polovico zmede prvih ur. <strong>Digitalni pin 5 ni PB5.</strong></p>
+
+<div class="tabela"><table>
+<thead><tr><th>Arduino</th><th>Vrata</th><th>Posebna vloga</th><th>Arduino</th><th>Vrata</th><th>Posebna vloga</th></tr></thead>
+<tbody>
+<tr><td>D0</td><td><code>PD0</code></td><td>RX (serijska vrata)</td><td>D10</td><td><code>PB2</code></td><td>OC1B (PWM), SS</td></tr>
+<tr><td>D1</td><td><code>PD1</code></td><td>TX (serijska vrata)</td><td>D11</td><td><code>PB3</code></td><td><strong>OC2A</strong> (PWM), MOSI</td></tr>
+<tr><td>D2</td><td><code>PD2</code></td><td><strong>INT0</strong> — zunanja prekinitev</td><td>D12</td><td><code>PB4</code></td><td>MISO</td></tr>
+<tr><td>D3</td><td><code>PD3</code></td><td><strong>INT1</strong>, OC2B (PWM)</td><td>D13</td><td><code>PB5</code></td><td>SCK, <strong>vgrajena LED</strong></td></tr>
+<tr><td>D4</td><td><code>PD4</code></td><td>—</td><td>A0</td><td><code>PC0</code></td><td>ADC0</td></tr>
+<tr><td>D5</td><td><code>PD5</code></td><td>OC0B (PWM)</td><td>A1</td><td><code>PC1</code></td><td>ADC1</td></tr>
+<tr><td>D6</td><td><code>PD6</code></td><td>OC0A (PWM)</td><td>A2</td><td><code>PC2</code></td><td>ADC2</td></tr>
+<tr><td>D7</td><td><code>PD7</code></td><td>—</td><td>A3</td><td><code>PC3</code></td><td>ADC3</td></tr>
+<tr><td>D8</td><td><code>PB0</code></td><td>ICP1 (zajem vhoda)</td><td>A4</td><td><code>PC4</code></td><td>ADC4, <strong>SDA</strong> (I²C)</td></tr>
+<tr><td>D9</td><td><code>PB1</code></td><td>OC1A (PWM)</td><td>A5</td><td><code>PC5</code></td><td>ADC5, <strong>SCL</strong> (I²C)</td></tr>
+</tbody></table></div>
+
+<div class="blok dobro">
+<strong>Vredno natisniti in obesiti.</strong> Ta tabela plus štirje vzorci za delo z biti
+(postavi, počisti, obrni, preveri) pokrijeta skoraj vse, kar dijak potrebuje pri prvih desetih urah.
+</div>
+</section>
+
+<!-- ============================================================ -->
+<section id="viri">
+<h2>Uradna dokumentacija — kje dobiti seznam ukazov</h2>
+
+<div class="tabela"><table>
+<thead><tr><th>Dokument</th><th>Kaj vsebuje</th><th>Kdaj ga odprete</th></tr></thead>
+<tbody>
+<tr><td><strong>AVR Instruction Set Manual</strong> (Microchip, DS40002198)</td>
+    <td>vsi ukazi AVR, vsak na svoji strani: sintaksa, delovanje, vpliv na zastavice, takti, primeri</td>
+    <td>ko potrebujete natančen pomen enega ukaza</td></tr>
+<tr><td><strong>ATmega328/P Datasheet Complete</strong> (Microchip)</td>
+    <td>opis <em>tega</em> čipa: vsi registri z biti, časovniki, ADC, USART, prekinitvena tabela,
+        in <em>Instruction Set Summary</em> — celoten nabor na dveh straneh</td>
+    <td>ko nastavljate register ali iščete števila taktov</td></tr>
+<tr><td><strong><code>avr/io.h</code> in <code>iom328p.h</code></strong></td>
+    <td>vsa imena, ki jih uporabljate v C (<code>PORTB</code>, <code>PB5</code>, <code>OCIE1A</code>…)</td>
+    <td>ko vas zanima, kaj se za imenom skriva; datoteki sta v namestitvi Arduina,
+        v <code>hardware/tools/avr/avr/include/avr/</code></td></tr>
+<tr><td><strong>Arduino — Pin Mapping</strong></td>
+    <td>slika s preslikavo pinov, iz katere je narejena zgornja tabela</td>
+    <td>ob priklopu</td></tr>
+</tbody></table></div>
+
+<h4>Povezave</h4>
+<ul>
+<li><a class="vir" href="https://ww1.microchip.com/downloads/aemDocuments/documents/MCU08/ProductDocuments/ReferenceManuals/AVR-InstructionSet-Manual-DS40002198.pdf">AVR Instruction Set Manual, DS40002198 (PDF, Microchip)</a></li>
+<li><a class="vir" href="https://onlinedocs.microchip.com/oxy/GUID-4E9DA219-611B-4772-B5D3-9ED908198864-en-US-16/GUID-F4E2E38F-3239-43F8-BE4D-5997AB32E97F.html">Instruction Set Summary — spletna različica (Microchip Docs)</a></li>
+<li><a class="vir" href="https://docs.arduino.cc/resources/datasheets/Atmel-42735-8-bit-AVR-Microcontroller-ATmega328-328P_Datasheet.pdf">ATmega328/P Datasheet Complete (PDF, prek Arduino Docs)</a></li>
+<li><a class="vir" href="https://en.wikipedia.org/wiki/Atmel_AVR_instruction_set">Atmel AVR instruction set (Wikipedija — hiter pregled, ne za citiranje)</a></li>
+</ul>
+
+<div class="blok opomba">
+<strong>Nasvet za pouk.</strong> Iz podatkovnega lista natisnite samo dve strani —
+<em>Instruction Set Summary</em> — in jih dajte dijakom. Cel dokument ima čez 400 strani in jih
+odbije. Iskanje po njem naj bo <em>ločena, načrtovana vaja</em>: "poišči, koliko taktov traja
+<code>RCALL</code> in zakaj več kot <code>RJMP</code>" je odlično vprašanje, ki uči branje
+tehnične dokumentacije — kar je tudi eden od ciljev učnega načrta.
+</div>
+</section>
+
+</main>
+</div>
+<script>
+function filtriraj(q){
+  q = (q||'').trim().toLowerCase();
+  var telo = document.querySelector('#tabUkazi tbody');
+  var vrstice = Array.prototype.slice.call(telo.rows);
+  var vidnih = 0, zadnjaSkupina = null, skupinaImaZadetek = false;
+  vrstice.forEach(function(v){
+    if (v.dataset.skupina) {
+      if (zadnjaSkupina) zadnjaSkupina.classList.toggle('skrit', !skupinaImaZadetek);
+      zadnjaSkupina = v; skupinaImaZadetek = false; return;
+    }
+    var zadetek = !q || v.textContent.toLowerCase().indexOf(q) !== -1;
+    v.classList.toggle('skrit', !zadetek);
+    if (zadetek) { vidnih++; skupinaImaZadetek = true; }
+  });
+  if (zadnjaSkupina) zadnjaSkupina.classList.toggle('skrit', !skupinaImaZadetek);
+  document.getElementById('stevec').textContent =
+    q ? (vidnih + ' od 123 ukazov') : '123 ukazov';
+}
+filtriraj('');
+window.addEventListener('beforeprint', function(){
+  var p = document.getElementById('filter');
+  if (p) { p.value=''; filtriraj(''); }
+});
+
+var pov=Array.prototype.slice.call(document.querySelectorAll('#nav a'));
+var raz=pov.map(function(a){return document.querySelector(a.getAttribute('href'));});
+function osvezi(){var y=window.scrollY+140,akt=0;
+  raz.forEach(function(s,i){if(s&&s.getBoundingClientRect().top+window.scrollY<=y)akt=i;});
+  pov.forEach(function(a,i){a.classList.toggle('active',i===akt);});}
+window.addEventListener('scroll',osvezi,{passive:true});osvezi();
+</script>
+</body>
+</html>
